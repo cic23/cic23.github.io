@@ -25,6 +25,7 @@
 - `https://cic23.github.io/` 및 배포 자산은 HTTP 200으로 확인했다.
 - 현재 작업 트리는 `main...origin/main`으로 동기화되어 있다.
 - 기존 시험 Apps Script `/exec` URL은 HTTP 403이다. 운영용 새 배포 URL로 교체해야 한다.
+- 2026-09-09에 `clasp show-authorized-user --json`으로 활성 계정 `415hyunwoo@gmail.com`을 확인했다. `gcloud`는 로컬에 설치되어 있지 않다.
 
 ## 주요 파일
 
@@ -49,7 +50,7 @@
 
 ### A. 회원·게시판 운영 연결
 
-1. `clasp`의 활성 로그인 계정이 `415hyunwoo@gmail.com`인지 확인한다. 확인 전에는 Apps Script 생성·푸시·배포를 하지 않는다.
+1. `clasp`의 활성 로그인 계정 `415hyunwoo@gmail.com` 확인을 완료했다. Apps Script 배포 전 계정이 바뀌지 않았는지만 다시 확인한다.
 2. Google Cloud Console에서 CIC 전용 **웹 OAuth 클라이언트**를 만들고 승인된 JavaScript 원본에 `https://cic23.github.io`를 추가한다. clasp의 OAuth 클라이언트를 재사용하지 않는다.
 3. Apps Script 프로젝트의 스크립트 속성에 아래 5개 값을 설정한다. 비밀 값은 Git, `dist/`, 채팅에 기록하지 않는다.
 
