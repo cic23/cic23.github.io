@@ -147,7 +147,6 @@
   if(logo){
     const makeLogo=()=>{const el=document.createElement('img');el.src=logo;el.alt=t('CIC 로고');el.width=1500;el.height=1500;return el;};
     document.querySelector('.wordmark').replaceWith(makeLogo());
-    const footer=document.querySelector('.footer-brand');footer.replaceChildren(makeLogo());footer.setAttribute('aria-label',t('CIC 홈'));
   }
 
   CIC_I18N.applyShell();
