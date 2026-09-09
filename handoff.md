@@ -2,6 +2,11 @@
 
 최종 업데이트: 2026-09-09
 
+## 인수인계 문서 원칙
+
+- 이 문서는 다음 세션이 바로 작업을 재개할 수 있도록 현재 상태, 결정 사항, 다음 작업만 기록한다.
+- **200줄 이하를 유지**한다. 세부 절차는 `README.md`에 두고, 완료·중복된 설명은 정리한다.
+
 ## 목적
 
 - ChatGPT Sites에서 만든 CIC 홈페이지 배포 버전 2를 `https://cic23.github.io/`로 이전한다.
@@ -16,7 +21,10 @@
 - 화면 원본 파일과 이미지가 저장소 루트에 반영되어 있다. 정적 배포 대상은 `dist/`다.
 - `node --test tests/backend.test.cjs tests/transport.test.cjs`는 16개 테스트를 모두 통과했다.
 - `dist/app.js`, `dist/api.js`, `dist/content.js`, `dist/config.js` 문법 검사를 통과했다.
-- 현재 변경 사항은 아직 커밋하거나 GitHub에 푸시하지 않았다.
+- 배포 커밋 `106ee1e`가 `main`에 푸시되었고 GitHub Pages workflow가 성공했다.
+- `https://cic23.github.io/` 및 배포 자산은 HTTP 200으로 확인했다.
+- 현재 작업 트리는 `main...origin/main`으로 동기화되어 있다.
+- 기존 시험 Apps Script `/exec` URL은 HTTP 403이다. 운영용 새 배포 URL로 교체해야 한다.
 
 ## 주요 파일
 
@@ -37,11 +45,13 @@
 - 연결된 Google Sheet ID: `1K7aCP9zi886kKqpK3WAz2ctBiIlJ6IKI0AuIE2gSnKM`
 - `.clasp.json`은 로컬 연결 파일이므로 Git에 올리지 않는다.
 
-## 배포 전 필요한 설정
+## 다음 세션 작업 순서
 
-1. Google Cloud Console에서 CIC 전용 웹 OAuth 클라이언트를 만든다.
-2. 승인된 JavaScript 원본에 `https://cic23.github.io`를 추가한다.
-3. Apps Script 프로젝트의 스크립트 속성에 다음 값을 설정한다. 비밀 값은 Git에 기록하지 않는다.
+### A. 회원·게시판 운영 연결
+
+1. `clasp`의 활성 로그인 계정이 `415hyunwoo@gmail.com`인지 확인한다. 확인 전에는 Apps Script 생성·푸시·배포를 하지 않는다.
+2. Google Cloud Console에서 CIC 전용 **웹 OAuth 클라이언트**를 만들고 승인된 JavaScript 원본에 `https://cic23.github.io`를 추가한다. clasp의 OAuth 클라이언트를 재사용하지 않는다.
+3. Apps Script 프로젝트의 스크립트 속성에 아래 5개 값을 설정한다. 비밀 값은 Git, `dist/`, 채팅에 기록하지 않는다.
 
 | 속성 | 값 |
 | --- | --- |
@@ -51,11 +61,16 @@
 | `SITE_ORIGIN` | `https://cic23.github.io` |
 | `ADMIN_EMAILS` | 최초 관리자 Google 이메일. 여러 명은 쉼표로 구분 |
 
-4. `clasp push` 후 Apps Script 편집기에서 `setup` 함수를 한 번 실행하여 `Members`, `Posts`, `Comments`, `Sessions` 시트를 만든다. 필요한 Google 권한을 승인한다.
-5. Apps Script를 웹 앱으로 새 배포한다. 실행 사용자: 배포자, 액세스 권한: 모든 사용자. `/exec` URL을 복사한다.
-6. `dist/config.js`에 배포 URL과 OAuth 클라이언트 ID를 입력한다.
-7. GitHub Pages의 배포 소스를 GitHub Actions로 설정한다.
-8. 변경 사항을 커밋하고 `main`에 푸시한 뒤 `https://cic23.github.io/`에서 실제 동작을 확인한다.
+4. `clasp push` 후 Apps Script 편집기에서 `setup`을 한 번 실행해 `Members`, `Posts`, `Comments`, `Sessions` 시트를 생성하고 권한을 승인한다.
+5. Apps Script를 웹 앱으로 새 배포한다. 실행 사용자: 배포자, 액세스 권한: 모든 사용자. 새 `/exec` URL을 확보한다.
+6. `dist/config.js`에는 새 `/exec` URL과 공개 가능한 OAuth 클라이언트 ID만 입력한다. 커밋·푸시 후 실제 HTTP 응답과 로그인·승인대기·관리자 승인·게시글/댓글 흐름을 PC·모바일에서 검증한다.
+
+### B. 사이트 전체 한/영 전환
+
+7. `https://soribook.github.io/soribook`를 다음 세션에 직접 확인한 뒤, 확인 가능한 범위만 참고한다. 접근 불가 또는 확인하지 못한 내용을 추정해 구현하지 않는다.
+8. 현재 정적 CIC 콘텐츠의 영문 버전을 작성하고, 모든 페이지/섹션에서 유지되는 공통 한/영 토글을 구현한다. 언어 선택은 페이지 이동 후에도 유지되고, 접근성 이름·키보드 조작·모바일 UI를 포함한다.
+9. 한국어 원문·이미지·디자인을 보존하고, 영문 전환 시 내비게이션·버튼·제목·본문·안내 문구가 일관되게 바뀌는지 검증한다. 게시글·댓글 원문은 자동 번역하지 않는다. LLM 기반 게시판 번역은 별도 후속 단계다.
+10. 변경 뒤 필수 테스트와 `dist/*.js` 문법 검사를 다시 실행하고, 배포 후 실제 HTTP 응답과 한/영 전환을 확인한다.
 
 ## 검증 체크리스트
 
