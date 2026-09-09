@@ -30,9 +30,9 @@
   function guide() { return title('Incheon Heritage Guide','도시를 걷고, 역사를 읽다', 'CIC가 소개하는 인천의 문화유산과 탐방 이야기')+`<div class="wrap">${C.places.map(p=>`<article class="place-section" id="place-${p.id}"><div><span class="place-number">${p.number}</span><p class="eyebrow" style="margin-top:20px">${p.category}</p><h2>${esc(p.title)}</h2></div><div>${activityPhoto(p.id,p.title)}${p.paragraphs.map(([h,b])=>`<h3>${esc(h)}</h3><p>${esc(b)}</p>`).join('')}<aside class="tip"><strong>지킴이의 추천 팁</strong><p>${esc(p.tip)}</p></aside>${p.source ? `<a class="source" href="${esc(p.source[1])}" target="_blank" rel="noopener noreferrer">${esc(p.source[0])} · 참고 자료 ↗</a>` : ''}</div></article>`).join('')}</div><section class="wrap tinted"><div class="section-heading"><div><span class="eyebrow">Leave Care, Keep Heritage</span><h2>미래 세대를 위한 탐방 에티켓</h2></div></div><div class="grid-3">${C.etiquette.map(([h,p],i)=>`<article class="etiquette"><div class="number">0${i+1}</div><h3>${esc(h)}</h3><p>${esc(p)}</p></article>`).join('')}</div></section>`; }
   function lockedBoard() {
     let heading, message, button;
-    if (!CIC_API.configured()) { heading='회원 게시판을 준비하고 있습니다'; message='CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 관리자 승인을 받아 글과 댓글을 나눌 수 있습니다.'; button='<a class="button secondary" href="#guide">문화유산 가이드 보기</a>'; }
-    else if (!member) { heading='CIC 회원들과 이야기를 나누세요'; message='Google 계정으로 로그인하고 관리자 승인을 받으면 활동 기록과 댓글을 읽고 작성할 수 있습니다.'; button='<button class="button" data-action="login">Google 계정으로 로그인</button>'; }
-    else { heading='회원 승인을 기다리고 있습니다'; message=`${member.name} 님의 가입 신청이 접수되었습니다. 관리자가 승인하면 회원 게시판을 이용할 수 있습니다.`; button='<button class="button secondary" data-action="refresh-member">승인 상태 확인</button>'; }
+    if (!CIC_API.configured()) { heading='회원 게시판을 준비하고 있습니다'; message='CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 글과 댓글을 나눌 수 있습니다.'; button='<a class="button secondary" href="#guide">문화유산 가이드 보기</a>'; }
+    else if (!member) { heading='CIC 회원들과 이야기를 나누세요'; message='Google 계정으로 로그인하면 바로 활동 기록과 댓글을 읽고 작성할 수 있습니다.'; button='<button class="button" data-action="login">Google 계정으로 로그인</button>'; }
+    else { heading='회원 상태를 확인할 수 없습니다'; message=`${member.name} 님의 계정 상태를 다시 확인해주세요.`; button='<button class="button secondary" data-action="refresh-member">회원 상태 확인</button>'; }
     return `<div class="empty"><div class="empty-symbol">${asset(CIC_CONFIG.assets.logo) ? `<img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="CIC 로고" width="88" height="88">` : 'CIC.'}</div><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
   async function board(page, stamp) {
@@ -55,9 +55,9 @@
   }
   async function members(stamp) {
     if (member?.role!=='admin') { await board(1,stamp); return; }
-    main.innerHTML=title('Members','회원 승인 관리','Google 계정으로 신청한 회원을 확인하고 승인해주세요.')+'<div class="reading" id="members-content"><p role="status">신청 정보를 불러오고 있습니다…</p></div>';
+    main.innerHTML=title('Members','회원 관리','Google 계정으로 로그인한 회원을 확인하고 이용을 제한할 수 있습니다.')+'<div class="reading" id="members-content"><p role="status">회원 정보를 불러오고 있습니다…</p></div>';
     const data = await CIC_API.request('listMembers'); if (stamp!==epoch) return;
-    document.getElementById('members-content').innerHTML='<a href="#board">← 게시판으로 돌아가기</a>'+data.members.sort((a,b)=>(a.status!=='pending')-(b.status!=='pending')).map(m=>`<article class="member-row"><div><strong>${esc(m.name)}</strong>${m.role==='admin'?' <span class="pending">관리자</span>':''}<p class="muted small-text">${esc(m.email)}</p><span class="pending">${esc({pending:'승인 대기',approved:'승인됨',blocked:'이용 제한'}[m.status])}</span></div>${m.role!=='admin'?`<div class="member-actions">${m.status!=='approved'?`<button class="button small" data-action="member-status" data-id="${m.id}" data-status="approved">승인</button>`:''}${m.status!=='blocked'?`<button class="button secondary small" data-action="member-status" data-id="${m.id}" data-status="blocked">이용 제한</button>`:''}</div>`:''}</article>`).join('');
+    document.getElementById('members-content').innerHTML='<a href="#board">← 게시판으로 돌아가기</a>'+data.members.map(m=>`<article class="member-row"><div><strong>${esc(m.name)}</strong>${m.role==='admin'?' <span class="pending">관리자</span>':''}<p class="muted small-text">${esc(m.email)}</p><span class="pending">${esc({pending:'상태 확인 필요',approved:'이용 가능',blocked:'이용 제한'}[m.status])}</span></div>${m.role!=='admin'&&m.status!=='blocked'?`<div class="member-actions"><button class="button secondary small" data-action="member-status" data-id="${m.id}" data-status="blocked">이용 제한</button></div>`:''}</article>`).join('');
   }
   async function route() {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
@@ -107,10 +107,10 @@
   }
   async function loginDialog() {
     if(member) {
-      openModal(`<h2 id="modal-title">${esc(member.name)} 님</h2><p>${member.status==='approved'?'CIC 회원으로 로그인했습니다.':'관리자 승인을 기다리고 있습니다.'}</p><div class="button-row">${member.role==='admin'?'<a class="button secondary" href="#members" data-action="close">회원 승인 관리</a>':''}<button class="button secondary" data-action="logout">로그아웃</button></div><p id="logout-error" class="inline-error" role="alert"></p>`);return;
+      openModal(`<h2 id="modal-title">${esc(member.name)} 님</h2><p>${member.status==='approved'?'CIC 회원으로 로그인했습니다.':'회원 상태를 확인할 수 없습니다.'}</p><div class="button-row">${member.role==='admin'?'<a class="button secondary" href="#members" data-action="close">회원 관리</a>':''}<button class="button secondary" data-action="logout">로그아웃</button></div><p id="logout-error" class="inline-error" role="alert"></p>`);return;
     }
     if(!CIC_API.configured()){openModal('<h2 id="modal-title">회원 서비스를 준비 중입니다</h2><p>Google 로그인 연결이 완료되면 회원 가입과 게시판을 이용할 수 있습니다.</p><button class="button secondary" data-action="close">확인</button>');return;}
-    openModal('<h2 id="modal-title">CIC에 오신 것을 환영합니다</h2><p>Google 계정으로 로그인하면 가입 신청이 접수됩니다. 관리자가 승인한 회원만 게시판을 이용할 수 있습니다.</p><p class="muted small-text">회원 확인을 위해 Google 계정의 이름, 이메일, 계정 식별자를 저장합니다. 게시글에는 이름이 표시되며 이메일은 관리자만 확인할 수 있습니다. 계정 삭제는 관리자에게 요청해주세요.</p><button id="google-login" class="button secondary" disabled>Google 로그인 준비 중…</button><p class="inline-error" id="login-error" role="alert"></p>');
+    openModal('<h2 id="modal-title">CIC에 오신 것을 환영합니다</h2><p>Google 계정으로 로그인하면 바로 회원 게시판을 이용할 수 있습니다.</p><p class="muted small-text">회원 확인을 위해 Google 계정의 이름, 이메일, 계정 식별자를 저장합니다. 게시글에는 이름이 표시되며 이메일은 관리자만 확인할 수 있습니다. 계정 삭제는 관리자에게 요청해주세요.</p><button id="google-login" class="button secondary" disabled>Google 로그인 준비 중…</button><p class="inline-error" id="login-error" role="alert"></p>');
     const button=document.getElementById('google-login'), error=document.getElementById('login-error');
     try {
       const [,challenge]=await Promise.all([loadGis(),CIC_API.request('challenge')]);
@@ -118,7 +118,7 @@
       const client=google.accounts.oauth2.initCodeClient({client_id:CIC_CONFIG.googleClientId,scope:'openid email profile',ux_mode:'popup',select_account:true,callback:async response=>{
         if(response.error||!response.code){button.disabled=false;error.textContent='로그인이 취소되었거나 완료되지 않았습니다.';return;}
         button.disabled=true;button.textContent='회원 정보를 확인하고 있습니다…';
-        try{const data=await CIC_API.request('login',{code:response.code,challenge:challenge.challenge});CIC_API.setSession(data.session);member=data.member;updateAccount();modal.close();toast(member.status==='approved'?'로그인했습니다.':'가입 신청이 접수되었습니다.');if(location.hash==='#board')await route();else location.hash='board';}
+        try{const data=await CIC_API.request('login',{code:response.code,challenge:challenge.challenge});CIC_API.setSession(data.session);member=data.member;updateAccount();modal.close();toast('로그인했습니다.');if(location.hash==='#board')await route();else location.hash='board';}
         catch(e){error.textContent=e.message;button.textContent='다시 로그인 준비';button.disabled=false;button.onclick=loginDialog;}
       },error_callback:()=>{button.disabled=false;error.textContent='팝업이 닫혔거나 차단되었습니다. 팝업을 허용하고 다시 시도해주세요.';}});
       button.textContent='Google 계정으로 계속';button.disabled=false;button.onclick=()=>{error.textContent='';client.requestCode();};
@@ -149,5 +149,9 @@
     document.querySelector('.wordmark').replaceWith(makeLogo());
     const footer=document.querySelector('.footer-brand');footer.replaceChildren(makeLogo());footer.setAttribute('aria-label','CIC 홈');
   }
-  route();
+  async function restoreSession() {
+    try { const data = await CIC_API.request('me'); member = data.member; updateAccount(); }
+    catch (e) { if (['AUTH','BLOCKED'].includes(e.code)) CIC_API.clear(); }
+  }
+  restoreSession().finally(route);
 })();

@@ -61,7 +61,7 @@ function dispatch_(r) {
   if (a === 'logout') { remove_('Sessions', auth.session.id); return {}; }
   if (a === 'me') return { member: publicMember_(auth.member) };
   const m = auth.member;
-  if (m.status !== 'approved') fail_('PENDING', '관리자 승인 후 회원 게시판을 이용할 수 있습니다.');
+  if (m.status !== 'approved') fail_('PENDING', '회원 상태를 확인할 수 없습니다. 다시 로그인해주세요.');
   if (a === 'listPosts') return listPosts_(d);
   if (a === 'getPost') return getPost_(d);
   if (a === 'listMembers') { admin_(m); return { members: rows_('Members').map(x => ({ id: x.id, name: x.name, email: x.email, status: x.status, role: x.role, createdAt: x.createdAt })) }; }
@@ -132,11 +132,13 @@ function login_(d) {
   const isAdmin = (p.getProperty('ADMIN_EMAILS') || '').split(',').map(s => s.trim().toLowerCase()).includes(email);
   let member = rows_('Members').find(x => x.googleSub === sub);
   if (!member) {
-    member = { id: Utilities.getUuid(), googleSub: sub, email, name: String(profile.name || email.split('@')[0]).slice(0,100), role: isAdmin ? 'admin' : 'member', status: isAdmin ? 'approved' : 'pending', createdAt: now_(), updatedAt: now_() };
+    member = { id: Utilities.getUuid(), googleSub: sub, email, name: String(profile.name || email.split('@')[0]).slice(0,100), role: isAdmin ? 'admin' : 'member', status: 'approved', createdAt: now_(), updatedAt: now_() };
   } else {
     member.email = email; member.name = String(profile.name || member.name).slice(0,100);
     member.role = isAdmin ? 'admin' : 'member';
-    if (isAdmin) member.status = 'approved';
+    // All verified Google accounts are approved automatically. A blocked
+    // account remains blocked until an administrator explicitly restores it.
+    if (member.status !== 'blocked') member.status = 'approved';
     member.updatedAt = now_();
   }
   save_('Members', member);
@@ -199,4 +201,3 @@ function save_(name, record) {
   s.getRange(row,1,1,2).setNumberFormat('@').setValues([[record.id, JSON.stringify(record)]]);
 }
 function remove_(name, id) { const s = sheet_(name); if (s.getLastRow() < 2) return; const i = s.getRange(2,1,s.getLastRow()-1,1).getValues().findIndex(r => r[0] === id); if (i >= 0) s.deleteRow(i+2); }
-

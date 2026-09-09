@@ -1,7 +1,8 @@
 (() => {
   'use strict';
   const pending = new Map();
-  let session = ''; // Memory only. Refreshing the page requires login again.
+  const sessionKey = 'cic.session.v1';
+  let session = (() => { try { return sessionStorage.getItem(sessionKey) || ''; } catch { return ''; } })();
   const random = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
   function isScriptOrigin(origin) {
     try { const u = new URL(origin); return u.protocol === 'https:' && (u.hostname === 'script.google.com' || u.hostname === 'script.googleusercontent.com' || /^[a-z0-9-]+-script\.googleusercontent\.com$/.test(u.hostname)); }
@@ -39,5 +40,13 @@
       pending.set(requestId, { resolve, reject, frame, clean }); document.body.append(frame, form); form.submit();
     });
   }
-  window.CIC_API = { configured, request, setSession(v) { session = v || ''; }, clear() { session = ''; } };
+  window.CIC_API = {
+    configured,
+    request,
+    setSession(v) {
+      session = v || '';
+      try { if (session) sessionStorage.setItem(sessionKey, session); else sessionStorage.removeItem(sessionKey); } catch {}
+    },
+    clear() { session = ''; try { sessionStorage.removeItem(sessionKey); } catch {} }
+  };
 })();

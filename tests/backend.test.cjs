@@ -34,8 +34,11 @@ function server() {
 const denied = (fn,code)=>assert.throws(fn,e=>e.cicCode===code);
 const draft = () => ({title:'봉사 활동 기록',body:'오늘 함께한 활동',category:'activity',mutationId:randomUUID()});
 
-test('anonymous and pending users cannot read private posts or comments',()=>{
-  const s=server();denied(()=>s.call('listPosts'),'AUTH');const a=s.login();assert.equal(a.member.status,'pending');denied(()=>s.call('listPosts',{},a.session),'PENDING');denied(()=>s.call('getPost',{id:'x'},a.session),'PENDING');
+test('anonymous users cannot read private posts and verified Google users are approved automatically',()=>{
+  const s=server();denied(()=>s.call('listPosts'),'AUTH');const a=s.login();assert.equal(a.member.status,'approved');assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('getPost',{id:'x'},a.session),'NOT_FOUND');
+});
+test('a legacy pending member is approved on their next verified Google login',()=>{
+  const s=server(),a=s.login();const record=s.context.find_('Members',a.member.id);record.status='pending';s.context.save_('Members',record);const renewed=s.login();assert.equal(renewed.member.status,'approved');
 });
 test('identity is obtained from Google and never from the submitted email',()=>{
   const s=server();const c=s.call('challenge').challenge;const a=s.call('login',{code:'code',challenge:c,email:'admin@example.org',role:'admin'});assert.equal(a.member.role,'member');assert.equal(s.fetches,2);
