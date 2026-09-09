@@ -13,7 +13,6 @@
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
   function openModal(html) { document.getElementById('modal-content').innerHTML = html; if (!modal.open) modal.showModal(); }
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
-  function updateAccount() { document.getElementById('account-button').textContent = member ? html`${member.name} 님` : t('회원 로그인'); }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a></article>`).join(''); }
   function home() {
     const group = asset(CIC_CONFIG.assets.group);
@@ -81,7 +80,7 @@
       else if(anchor) anchor.scrollIntoView(); else window.scrollTo(0,0);
     } catch(e) {
       if(stamp!==epoch)return;
-      if(['AUTH','BLOCKED'].includes(e.code)){member=null;CIC_API.clear();updateAccount();}
+      if(['AUTH','BLOCKED'].includes(e.code)){member=null;CIC_API.clear();}
       main.innerHTML=title('Community',t('페이지를 불러오지 못했습니다'))+html`<div class="reading"><p class="inline-error" role="alert">${esc(t(e.message))}</p><div class="button-row"><button class="button secondary" data-action="retry">다시 확인</button><a class="button secondary" href="#board">게시판으로</a></div></div>`;
     }
   }
@@ -121,7 +120,7 @@
       const client=google.accounts.oauth2.initCodeClient({client_id:CIC_CONFIG.googleClientId,scope:'openid email profile',ux_mode:'popup',select_account:true,callback:async response=>{
         if(response.error||!response.code){button.disabled=false;error.textContent=t('로그인이 취소되었거나 완료되지 않았습니다.');return;}
         button.disabled=true;button.textContent=t('회원 정보를 확인하고 있습니다…');
-        try{const data=await CIC_API.request('login',{code:response.code,challenge:challenge.challenge});CIC_API.setSession(data.session);member=data.member;updateAccount();modal.close();toast(member.status==='approved'?t('로그인했습니다.'):t('가입 신청이 접수되었습니다.'));if(location.hash==='#board')await route();else location.hash='board';}
+        try{const data=await CIC_API.request('login',{code:response.code,challenge:challenge.challenge});CIC_API.setSession(data.session);member=data.member;modal.close();toast(member.status==='approved'?t('로그인했습니다.'):t('가입 신청이 접수되었습니다.'));if(location.hash==='#board')await route();else location.hash='board';}
         catch(e){error.textContent=t(e.message);button.textContent=t('다시 로그인 준비');button.disabled=false;button.onclick=loginDialog;}
       },error_callback:()=>{button.disabled=false;error.textContent=t('팝업이 닫혔거나 차단되었습니다. 팝업을 허용하고 다시 시도해주세요.');}});
       button.textContent=t('Google 계정으로 계속');button.disabled=false;button.onclick=()=>{error.textContent='';client.requestCode();};
@@ -139,11 +138,10 @@
       else if(action==='edit-comment'){const c=currentComments.find(c=>c.id===b.dataset.id);if(c)editComment(c);}
       else if(action==='delete-comment'){const c=currentComments.find(c=>c.id===b.dataset.id);if(c)confirmAction(t('댓글을 삭제할까요?'),t('이 댓글은 더 이상 표시되지 않습니다.'),async()=>{await CIC_API.request('deleteComment',{id:c.id,version:c.version});toast(t('댓글을 삭제했습니다.'));await route();});}
       else if(action==='member-status'){const{id,status}=b.dataset;confirmAction(status==='approved'?t('이 회원을 승인할까요?'):t('이 회원의 이용을 제한할까요?'),status==='approved'?t('지킴이 로그의 글과 댓글을 읽고 작성할 수 있게 됩니다.'):t('기존 로그인도 만료되며, 지킴이 로그를 이용할 수 없게 됩니다.'),async()=>{await CIC_API.request('setMemberStatus',{id,status});await route();});}
-      else if(action==='refresh-member'){b.disabled=true;const d=await CIC_API.request('me');member=d.member;updateAccount();await route();}
-      else if(action==='logout'){b.disabled=true;try{await CIC_API.request('logout');CIC_API.clear();member=null;updateAccount();modal.close();await route();}catch(e){document.getElementById('logout-error').textContent=t(e.message);b.disabled=false;}}
+      else if(action==='refresh-member'){b.disabled=true;const d=await CIC_API.request('me');member=d.member;await route();}
+      else if(action==='logout'){b.disabled=true;try{await CIC_API.request('logout');CIC_API.clear();member=null;modal.close();await route();}catch(e){document.getElementById('logout-error').textContent=t(e.message);b.disabled=false;}}
     }catch(e){toast(t(e.message));b.disabled=false;}
   });
-  document.getElementById('account-button').addEventListener('click',loginDialog);
   document.querySelector('.modal-close').addEventListener('click',()=>modal.close());
   window.addEventListener('hashchange',()=>{modal.close();route();});
   const logo=asset(CIC_CONFIG.assets.logo);
@@ -154,7 +152,6 @@
   }
 
   CIC_I18N.applyShell();
-  updateAccount();
   // Re-render in place: keep the active route, member/session and comment draft.
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',async()=>{
     if (main.querySelector('button[type="submit"]:disabled')) return;
@@ -164,7 +161,7 @@
     const drafts=Array.from(main.querySelectorAll('textarea,input,select')).filter(el=>el.id).map(el=>({id:el.id,value:el.value,start:el.selectionStart,end:el.selectionEnd}));
     C=CIC_I18N.content;
     labels={activity:t('활동 기록'),free:t('자유 게시판'),notice:t('공지')};
-    CIC_I18N.applyShell();updateAccount();
+    CIC_I18N.applyShell();
     const toastElement=document.getElementById('toast');toastElement.hidden=true;clearTimeout(toastTimer);
     await route({keepScroll:true,scrollY:y});
     if(location.hash===routeBefore) drafts.forEach(d=>{const el=document.getElementById(d.id);if(el){el.value=d.value;if(el.setSelectionRange&&typeof d.start==='number')el.setSelectionRange(d.start,d.end);}});
@@ -175,9 +172,8 @@
   if(window.ResizeObserver) new ResizeObserver(measureHeader).observe(header);
   else window.addEventListener('resize',measureHeader);
   async function restoreSession() {
-    try { const data = await CIC_API.request('me'); member = data.member; updateAccount(); }
+    try { const data = await CIC_API.request('me'); member = data.member; }
     catch (e) { if (['AUTH','BLOCKED'].includes(e.code)) CIC_API.clear(); }
   }
   restoreSession().finally(route);
 })();
-
