@@ -4,14 +4,14 @@
 
 - 대상 저장소: https://github.com/cic23/cic23.github.io (로컬 연결 완료).
 - clasp 계정: `415hyunwoo@gmail.com`.
-- 생성한 데이터베이스: https://drive.google.com/open?id=1K7aCP9zi886kKqpK3WAz2ctBiIlJ6IKI0AuIE2gSnKM (테이블 초기화 전).
+- 생성한 데이터베이스: https://drive.google.com/open?id=1K7aCP9zi886kKqpK3WAz2ctBiIlJ6IKI0AuIE2gSnKM (`Members`, `Posts`, `Comments`, `Sessions` 초기화 완료).
 - Apps Script: https://script.google.com/d/1oSjOc7M2BLoBRdsLGuTP-G3ezkkElgvZjVjQFbQAnWJvF7dt-BS5qJSV/edit
 - 새 원본 `reference/CIC_deployed_v2_source.zip` (10,700,808바이트)은 CRC 검사와 273개 파일의 SHA-256 검사를 통과했습니다. 내보내기 기록의 배포 버전은 2이며 원본 커밋은 `2f9ad4c7a5b857e4ab513ab00c2b8b58bc896c67`입니다. 기록된 원본 18개 파일의 크기와 해시도 모두 일치합니다.
 - HTML·CSS·JavaScript·이미지와 테스트를 작업 폴더에 반영했습니다. 원본의 디자인과 문구를 유지하며, `reference/`는 Git에서 제외합니다.
-- 현재 작업 폴더에서도 제공된 테스트 16개와 JavaScript 4개 파일의 문법 검사를 통과했습니다. 실제 Google 로그인·회원 쓰기·공개 배포 검증은 아직 완료되지 않았습니다.
-- 기존 시험 배포는 비로그인 HTTP 요청에 접근 거부 화면을 반환합니다. 서버 활성화 및 홈페이지 배포 완료 상태가 아닙니다.
-- 운영 설정은 아래 절차를 따르되 `SPREADSHEET_ID`는 위 데이터베이스 ID, `SITE_ORIGIN`은 `https://cic23.github.io`를 사용합니다. CIC용 웹 OAuth 클라이언트와 관리자 이메일 설정, 소유자의 Apps Script 권한 승인이 필요합니다. clasp 자체의 Google 제공 OAuth 클라이언트를 홈페이지 로그인에 사용하지 않습니다.
-- 최초 서버 검증용 배포 ID: `AKfycbwf0zFQxtuF5Q69JHiKdXfmWHR9uHc_dCV_ZyZSI0ZSevZo_T4UEEYXfEfUC-Qo69BWUw`. 운영 설정 및 권한 승인 후 새 버전으로 갱신하고 실제 응답을 확인해야 합니다.
+- 현재 작업 폴더에서 테스트 22개와 `dist/*.js` 문법 검사를 통과했습니다. 실제 공개 홈페이지, 영문 URL, 번역 스크립트, Apps Script GET·POST 응답도 HTTP 200으로 확인했습니다.
+- GitHub Pages는 GitHub Actions로 `main` 브랜치의 `dist/`를 배포하며, 홈페이지는 https://cic23.github.io/ 에 공개되어 있습니다.
+- 운영 설정은 `SPREADSHEET_ID`에 위 데이터베이스 ID, `SITE_ORIGIN`에 `https://cic23.github.io`를 사용합니다. CIC용 웹 OAuth 클라이언트와 관리자 이메일은 Script Properties에만 보관합니다. clasp 자체의 Google 제공 OAuth 클라이언트는 홈페이지 로그인에 사용하지 않습니다.
+- 현재 운영 Apps Script 웹앱 URL은 `https://script.google.com/macros/s/AKfycbza76ryDmCily3xLq79WX_TPNtdmpgMGfZc3ge_0WsyNobObKrleJ0L-Iy1-69nwJ7_hw/exec`입니다. 배포 버전은 3이며, `/exec`의 GET·POST 응답을 확인했습니다.
 - 향후 LLM 자동 번역은 별도 단계이며 현재 연결하지 않았습니다.
 
 제공받은 8페이지 발간 원고를 반영한 한국어 반응형 홈페이지입니다. GitHub Pages에서 화면을 제공하고 Google Apps Script가 회원·게시글·댓글을 Google Sheets에 저장합니다. 정적 파일만 제공하는 검토본에서는 회원 서비스를 준비 중이라고 표시합니다. 가짜 로그인이나 샘플 회원 데이터를 사용하지 않습니다.
@@ -28,7 +28,7 @@
 
 ## 현재 상태
 
-홈페이지와 서버 코드, GitHub Pages 배포 설정을 작성했습니다. 서버 인증·권한·게시판 및 메시지 응답 검사 16개의 모의 테스트를 통과했습니다. 실제 Google OAuth, Apps Script 배포, 브라우저 간 통신 및 GitHub Pages 연결은 해당 계정의 설정값을 넣고 확인해야 합니다. 아직 운영용 회원 서비스에 연결되지 않았습니다.
+홈페이지와 서버 코드, GitHub Pages 및 Apps Script 운영 배포를 완료했습니다. 서버 인증·권한·게시판·통신·언어 전환 검사 22개와 공개 HTTP 응답을 확인했습니다. Google 로그인 팝업, 일반 회원의 실제 글·댓글 작성, PC·모바일 브라우저별 세션 복원은 해당 Google 계정으로 수행하는 최종 수동 점검이 남아 있습니다.
 
 사용자 PC의 `D:\CIC`와 메시지의 `file:///C:\Users\NYK\...\clip_image002.png`는 이 작업 환경에서 읽을 수 없었습니다. 원본 파일을 읽거나 수정했다고 가정하지 않습니다. 기존 폴더를 덮어쓰지 말고 새 하위 폴더에서 먼저 확인하세요.
 
