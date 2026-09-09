@@ -26,6 +26,8 @@
 - 현재 작업 트리는 `main...origin/main`으로 동기화되어 있다.
 - 기존 시험 Apps Script `/exec` URL은 HTTP 403이다. 운영용 새 배포 URL로 교체해야 한다.
 - 2026-09-09에 `clasp show-authorized-user --json`으로 활성 계정 `415hyunwoo@gmail.com`을 확인했다. `gcloud`는 로컬에 설치되어 있지 않다.
+- CIC 웹 OAuth 클라이언트와 5개 스크립트 속성 설정을 완료했다. 비밀값은 이 문서와 Git에 기록하지 않는다.
+- `clasp push` 후 사용자가 `setup`을 실행해 시트를 초기화했다. 새 웹 앱 배포 버전 2의 `/exec` URL은 HTTP GET·POST 모두 200으로 확인했다.
 
 ## 주요 파일
 
@@ -48,23 +50,11 @@
 
 ## 다음 세션 작업 순서
 
-### A. 회원·게시판 운영 연결
+### A. 회원·게시판 운영 최종 검증
 
-1. `clasp`의 활성 로그인 계정 `415hyunwoo@gmail.com` 확인을 완료했다. Apps Script 배포 전 계정이 바뀌지 않았는지만 다시 확인한다.
-2. Google Cloud Console에서 CIC 전용 **웹 OAuth 클라이언트**를 만들고 승인된 JavaScript 원본에 `https://cic23.github.io`를 추가한다. clasp의 OAuth 클라이언트를 재사용하지 않는다.
-3. Apps Script 프로젝트의 스크립트 속성에 아래 5개 값을 설정한다. 비밀 값은 Git, `dist/`, 채팅에 기록하지 않는다.
-
-| 속성 | 값 |
-| --- | --- |
-| `SPREADSHEET_ID` | `1K7aCP9zi886kKqpK3WAz2ctBiIlJ6IKI0AuIE2gSnKM` |
-| `GOOGLE_CLIENT_ID` | CIC 웹 OAuth 클라이언트 ID |
-| `GOOGLE_CLIENT_SECRET` | CIC 웹 OAuth 클라이언트 비밀 |
-| `SITE_ORIGIN` | `https://cic23.github.io` |
-| `ADMIN_EMAILS` | 최초 관리자 Google 이메일. 여러 명은 쉼표로 구분 |
-
-4. `clasp push` 후 Apps Script 편집기에서 `setup`을 한 번 실행해 `Members`, `Posts`, `Comments`, `Sessions` 시트를 생성하고 권한을 승인한다.
-5. Apps Script를 웹 앱으로 새 배포한다. 실행 사용자: 배포자, 액세스 권한: 모든 사용자. 새 `/exec` URL을 확보한다.
-6. `dist/config.js`에는 새 `/exec` URL과 공개 가능한 OAuth 클라이언트 ID만 입력한다. 커밋·푸시 후 실제 HTTP 응답과 로그인·승인대기·관리자 승인·게시글/댓글 흐름을 PC·모바일에서 검증한다.
+1. `dist/config.js`의 공개 Client ID와 새 `/exec` URL을 Pages에 반영하고 실제 HTTP 응답을 확인한다.
+2. `ADMIN_EMAILS`의 최초 관리자 계정으로 PC·모바일 로그인 팝업을 시험한다. OAuth 동의 화면, 관리자 자동 등록, 일반 계정의 승인 대기, 승인 후 게시글·댓글 작성, 로그아웃을 검증한다.
+3. 문제가 생기면 Apps Script 실행 로그와 브라우저 콘솔을 확인한다. secret·세션·회원 데이터는 공유하거나 Git에 기록하지 않는다.
 
 ### B. 사이트 전체 한/영 전환
 
