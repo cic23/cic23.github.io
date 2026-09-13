@@ -71,7 +71,7 @@
     '승인 대기':'Awaiting approval', '승인됨':'Approved', '이용 제한':'Blocked', '승인':'Approve',
     'CIC 소개':'About CIC', '다섯 가지 가치':'Our five values', '인천 문화유산':'Incheon heritage',
     '페이지를 불러오지 못했습니다':'Unable to load this page', '다시 확인':'Try again', '게시판으로':'Go to the board',
-    '게시글 수정':'Edit post', '새로운 이야기':'A new story', '분류':'Category', '제목':'Title',
+    '게시글 수정':'Edit post', '문화유산 이야기':'Heritage story', '분류':'Category', '제목':'Title',
     '어떤 이야기를 나누고 싶으신가요?':'What would you like to share?', '내용':'Content',
     '승인된 CIC 회원에게만 공개됩니다.':'Visible only to approved CIC members.',
     '게시글 등록':'Publish post', '게시글을 수정했습니다.':'Your post has been updated.',
