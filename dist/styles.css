@@ -79,3 +79,36 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .comment-input-row button{flex-shrink:0;min-height:44px;padding:8px 4px}.comment-composer .inline-error{margin:0}.comment-composer .inline-error:empty{display:none}
 .post-detail .comment-login{margin:0;padding:12px 24px;border:0;border-top:1px solid var(--line);background:transparent}
 @media(max-width:620px){.post-detail-shell{padding:20px 12px 40px}.post-detail-header{padding:14px 16px}.post-detail-copy{padding:18px 16px 4px}.post-detail .post-detail-actions{padding-inline:8px;gap:10px}.comment-list{padding-inline:16px}.comment-composer{padding-inline:12px}.post-detail-copy h1{font-size:1.15rem}}
+
+/* Other posts: horizontal shelf in portrait, independently scrolling rail in landscape. */
+.post-detail-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;align-items:start}
+.post-detail-layout>.post-detail,.related-posts{min-width:0}
+.related-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.related-heading h2{margin:0 0 3px;font-size:1rem;letter-spacing:-.02em}
+.related-heading .small-text{font-size:.75rem}
+.related-controls{display:flex;gap:6px}
+.related-arrow{display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--navy);font-size:1.5rem;line-height:1}
+.related-arrow:hover:not(:disabled){background:var(--tint)}
+.related-list{display:flex;flex-direction:row;gap:12px;overflow-x:auto;overflow-y:hidden;padding:4px 4px 14px;scroll-snap-type:x proximity;scroll-padding:4px;scrollbar-width:thin;scrollbar-color:#9ba9b3 transparent}
+.related-card{display:flex;flex:0 0 220px;flex-direction:column;min-width:0;gap:10px;padding:6px;border:1px solid var(--line);border-radius:10px;background:#fff;text-decoration:none;scroll-snap-align:start}
+.related-card:hover{background:var(--tint);border-color:#9ba9b3}
+.related-thumbnail{position:relative;display:block;flex-shrink:0;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:6px;background:var(--tint)}
+.related-thumbnail img,.related-thumbnail video{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.related-placeholder{display:grid;place-items:center;width:100%;height:100%;background:linear-gradient(135deg,#17364d,#4e7188);color:#fff;font-size:1.6rem;font-weight:800;letter-spacing:.08em}
+.related-video{position:absolute;inset:auto 6px 6px auto;padding:2px 7px;border-radius:4px;background:#142c42cc;color:#fff;font-size:.75rem}
+.related-copy{min-width:0;padding:0 3px 4px}
+.related-copy h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0 0 6px;font-size:.86rem;line-height:1.5;overflow-wrap:anywhere}
+.related-copy p{margin:0;color:var(--muted);font-size:.75rem;line-height:1.5;overflow-wrap:anywhere}
+.related-copy>span{font-size:.7rem;color:var(--orange)}
+.related-status{flex:1 0 100%;margin:0;padding:18px 6px;font-size:.85rem}
+@media(min-width:960px) and (orientation:landscape){
+  .post-detail-shell{max-width:1200px}
+  .post-detail-layout{grid-template-columns:minmax(0,1fr) 340px;gap:24px}
+  .related-posts{position:sticky;top:calc(var(--header-height,80px) + 20px)}
+  .related-list{flex-direction:column;max-height:calc(100dvh - var(--header-height,80px) - 112px);overflow-x:hidden;overflow-y:auto;scroll-snap-type:y proximity;padding-bottom:4px}
+  .related-card{flex:0 0 auto;flex-direction:row;align-items:flex-start}
+  .related-thumbnail{width:136px}
+  .related-copy{flex:1;padding:0}
+  .related-arrow span{transform:rotate(90deg)}
+  .related-status{flex:0 0 auto}
+}

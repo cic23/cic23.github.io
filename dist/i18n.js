@@ -139,6 +139,12 @@
     '댓글':'Comments', ' 활동':' activities', ' 님':'', '학년':'th grade', '년':'', '명':' members', '시간':' hours'
   };
   messages['지킴이 로그'] = 'Guardian Log';
+  messages['다른 게시물'] = 'Other posts';
+  messages['최신 게시물부터'] = 'Newest first';
+  messages['이전 게시물 보기'] = 'Show previous posts';
+  messages['다음 게시물 보기'] = 'Show next posts';
+  messages['아직 다른 게시물이 없습니다.'] = 'There are no other posts yet.';
+  messages['다른 게시물을 불러오지 못했습니다.'] = 'Could not load other posts.';
   messages['회원 관리'] = 'Member management';
   messages['요약 (선택)'] = 'Summary (optional)';
   messages['비워 두면 본문 앞부분을 표시합니다.'] = 'Leave blank to show the beginning of your post.';
