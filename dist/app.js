@@ -296,7 +296,7 @@
       openModal(html`<h2 id="modal-title">${esc(member.name)} 님</h2><p>${member.status==='approved'?t('CIC 회원으로 로그인했습니다.'):t('CIC 회원으로 로그인했습니다.')}</p><div class="button-row">${member.role==='admin'?t('<a class="button secondary" href="#members" data-action="close">회원 관리</a>'):''}<button class="button secondary" data-action="logout">로그아웃</button></div><p id="logout-error" class="inline-error" role="alert"></p>`);return;
     }
     if(!CIC_API.configured()){openModal(t('<h2 id="modal-title">회원 서비스를 준비 중입니다</h2><p>Google 로그인 연결이 완료되면 회원 가입과 게시판을 이용할 수 있습니다.</p><button class="button secondary" data-action="close">확인</button>'));return;}
-    openModal(t('<h2 id="modal-title">CIC에 오신 것을 환영합니다</h2><p>Google 계정으로 로그인하면 바로 지킴이 로그를 이용할 수 있습니다.</p><p class="muted">문화유산 이야기를 남겨주세요!</p><button id="google-login" class="button secondary" disabled>Google 로그인 준비 중…</button><p class="inline-error" id="login-error" role="alert"></p>'));
+    openModal(t('<h2 id="modal-title">CIC에 오신 것을 환영합니다</h2><p>Google 계정으로 로그인하면 바로 지킴이 로그를 이용할 수 있습니다.</p><p class="muted">우리의 문화유산 이야기를 함께 나눠요!</p><button id="google-login" class="button secondary" disabled>Google 로그인 준비 중…</button><p class="inline-error" id="login-error" role="alert"></p>'));
     const button=document.getElementById('google-login'), error=document.getElementById('login-error');
     try {
       const [,challenge]=await Promise.all([loadGis(),CIC_API.request('challenge')]);
