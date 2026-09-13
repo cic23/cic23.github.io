@@ -70,6 +70,15 @@ test('other members cannot change or delete someone else’s posts',()=>{
 test('stale edits are rejected and author can update their own post',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const edited=s.call('updatePost',{...draft(),id:p.id,version:1,title:'수정한 제목'},a.session).post;assert.equal(edited.version,2);denied(()=>s.call('deletePost',{id:p.id,version:1},a.session),'CONFLICT');
 });
+test('post editing can add, retain, and remove completed attachments',()=>{
+  const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;
+  const attachment=id=>({id,ownerId:a.member.id,name:id+'.jpg',mimeType:'image/jpeg',size:1,status:'complete',driveId:id,url:'https://example.invalid/'+id,postId:'',createdAt:'2026-01-01T00:00:00.000Z',updatedAt:'2026-01-01T00:00:00.000Z'});
+  const first=attachment('first'),second=attachment('second');s.context.save_('Attachments',first);s.context.save_('Attachments',second);
+  const withFirst=s.call('updatePost',{...draft(),id:p.id,version:p.version,attachmentIds:[first.id]},a.session).post;
+  assert.deepEqual([...withFirst.attachments].map(x=>x.id),[first.id]);assert.equal(s.context.find_('Attachments',first.id).postId,p.id);
+  const withSecond=s.call('updatePost',{...draft(),id:p.id,version:withFirst.version,attachmentIds:[second.id]},a.session).post;
+  assert.deepEqual([...withSecond.attachments].map(x=>x.id),[second.id]);assert.equal(s.context.find_('Attachments',first.id).postId,'');assert.equal(s.context.find_('Attachments',second.id).postId,p.id);
+});
 test('comments enforce author rights and deleted parent hides all comments',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const d={postId:p.id,body:'댓글입니다',mutationId:randomUUID()};const c=s.call('createComment',d,a.session).comment;assert.equal(s.call('createComment',d,a.session).comment.id,c.id);const b=s.login('b','b@example.org');s.approve(b.member.id);denied(()=>s.call('updateComment',{id:c.id,version:1,body:'남의 댓글 수정'},b.session),'FORBIDDEN');s.call('deletePost',{id:p.id,version:1},a.session);denied(()=>s.call('getPost',{id:p.id},a.session),'NOT_FOUND');denied(()=>s.call('createComment',{...d,mutationId:randomUUID()},a.session),'NOT_FOUND');
 });
