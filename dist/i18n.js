@@ -42,7 +42,7 @@
     '다섯 가지 가치와 실천':'Five values in practice',
     '존중 · 책임감 · 정직 · 공정 · 배려':'Respect · Responsibility · Honesty · Fairness · Compassion',
     '도시를 걷고, 역사를 읽다':'Walk the city. Discover its history.',
-    'CIC가 소개하는 인천의 문화유산과 탐방 이야기':'Explore Incheon’s cultural heritage with CIC',
+    'CIC가 소개하는 인천 문화유산 탐방 이야기':'Explore Incheon’s cultural heritage with CIC',
     '지킴이의 추천 팁':'A tip from CIC', '참고 자료':'Source',
     '미래 세대를 위한 탐방 에티켓':'Caring for heritage for future generations',
     '회원 게시판을 준비하고 있습니다':'Our member board is coming soon',
