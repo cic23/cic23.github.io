@@ -47,7 +47,7 @@
     '회원 게시판을 준비하고 있습니다':'Our member board is coming soon',
     'CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 관리자 승인을 받아 글과 댓글을 나눌 수 있습니다.':'You can explore CIC and our heritage guide now. Once member services are connected, sign in with Google and receive administrator approval to share posts and comments.',
     '문화유산 가이드 보기':'View the heritage guide',
-    'CIC 회원들과 이야기를 나누세요':'Share your stories with CIC',
+    'CIC 지킴이들과 이야기를 나눠요':'Share your stories with CIC',
     'Google 계정으로 로그인하고 관리자 승인을 받으면 활동 기록과 댓글을 읽고 작성할 수 있습니다.':'Sign in with Google and receive administrator approval to read and share activity posts and comments.',
     'Google 계정으로 로그인':'Sign in with Google',
     '회원 승인을 기다리고 있습니다':'Your membership is awaiting approval',
@@ -138,7 +138,7 @@
   messages['지킴이 로그'] = 'Guardian Log';
   messages['회원 관리'] = 'Member management';
   messages['지킴이 로그를 준비하고 있습니다'] = 'Guardian Log is coming soon';
-  messages['CIC 지킴이들과 이야기를 나누세요'] = 'Share your stories with CIC';
+  messages['CIC 지킴이들과 이야기를 나눠요'] = 'Share your stories with CIC';
   messages['회원 상태를 확인할 수 없습니다'] = 'We could not confirm your membership';
   messages['회원 상태 확인'] = 'Check membership status';
   messages['CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 글과 댓글을 나눌 수 있습니다.'] = 'You can explore CIC and our heritage guide now. Once member services are connected, sign in with Google to share posts and comments.';
@@ -173,4 +173,3 @@
   }
   window.CIC_I18N = {t,html,setLanguage,applyShell,get language(){return lang;},get content(){return lang==='en'?window.CIC_CONTENT_EN:window.CIC_CONTENT;}};
 })();
-

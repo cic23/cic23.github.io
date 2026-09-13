@@ -29,9 +29,9 @@
   function lockedBoard() {
     let heading, message, button;
     if (!CIC_API.configured()) { heading=t('지킴이 로그를 준비하고 있습니다'); message=t('CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 글과 댓글을 나눌 수 있습니다.'); button=t('<a class="button secondary" href="#guide">문화유산 가이드 보기</a>'); }
-    else if (!member) { heading=t('CIC 지킴이들과 이야기를 나누세요'); message=t('Google 계정으로 로그인하면 바로 활동 기록과 댓글을 읽고 작성할 수 있습니다.'); button=t('<button class="button" data-action="login">Google 계정으로 로그인</button>'); }
+    else if (!member) { heading=t('CIC 지킴이들과 이야기를 나눠요'); message=t('Google 계정으로 로그인하면 바로 활동 기록과 댓글을 읽고 작성할 수 있습니다.'); button=t('<button class="button" data-action="login">Google 계정으로 로그인</button>'); }
     else { heading=t('회원 상태를 확인할 수 없습니다'); message=html`${member.name} 님의 계정 상태를 다시 확인해주세요.`; button=t('<button class="button secondary" data-action="refresh-member">회원 상태 확인</button>'); }
-    return `<div class="empty"><div class="empty-symbol">${asset(CIC_CONFIG.assets.logo) ? html`<img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="CIC 로고" width="88" height="88">` : 'CIC.'}</div><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
+    return `<div class="empty"><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
   async function board(page, stamp) {
     main.innerHTML = title('Community',t('함께 기록하는 CIC'), t('활동의 순간과 생각을 회원들과 나눕니다.')) + '<section class="board-shell" id="board-content"></section>';
