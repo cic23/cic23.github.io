@@ -22,6 +22,17 @@ function setup() {
   return '준비 완료';
 }
 
+// Run this once from the Apps Script editor after changing the linked Cloud
+// project. It prompts the deployment owner for external-request and Drive
+// authorization, then verifies that the Drive API can receive a request.
+function authorizeDrive() {
+  const response = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/about?fields=user', {
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true
+  });
+  if (response.getResponseCode() !== 200) driveFailure_(response, 'Google Drive 접근 권한을 확인하지 못했습니다.');
+  return 'Google Drive 접근 권한 승인 및 확인 완료';
+}
+
 function doGet() {
   return HtmlService.createHtmlOutput('<!doctype html><html lang="ko"><body><p>CIC 서버입니다. 회원 서비스는 CIC 홈페이지에서 이용해주세요.</p></body></html>');
 }
