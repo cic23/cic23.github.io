@@ -37,6 +37,47 @@ const draft = () => ({title:'봉사 활동 기록',summary:'오늘 함께한 활
 test('anonymous users can read public posts while verified Google users are approved automatically',()=>{
   const s=server();assert.equal(s.call('listPosts').total,0);const a=s.login();assert.equal(a.member.status,'approved');assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('getPost',{id:'x'}),'NOT_FOUND');
 });
+
+test('title projections read only Posts and omit body, identity and media details',()=>{
+  const s=server(), a=s.login();
+  const p=s.call('createPost',draft(),a.session).post;
+  const reads=[], original=s.context.rows_;
+  s.context.rows_=name=>{reads.push(name);return original(name);};
+  const list=s.call('listPosts',{view:'titles'});
+  assert.deepEqual(reads,['Posts']);
+  assert.deepEqual(Object.keys(list.posts[0]).sort(),['createdAt','id','title']);
+  reads.length=0;
+  assert.equal(s.call('getPost',{id:p.id,view:'title'}).post.title,p.title);
+  assert.deepEqual(reads,['Posts']);
+  const record=s.context.find_('Posts',p.id);record.deleted=true;s.context.save_('Posts',record);
+  assert.equal(s.call('listPosts',{view:'titles'}).total,0);
+  denied(()=>s.call('getPost',{id:p.id,view:'title'}),'NOT_FOUND');
+});
+
+test('progressive cards hydrate exact public IDs and newest pages do not pin notices',()=>{
+  const s=server();
+  for(let i=0;i<17;i++)s.context.save_('Posts',{id:'p'+String(i).padStart(2,'0'),title:'제목 '+i,body:'원문',category:i===0?'notice':'activity',createdAt:new Date(2026,0,i+1).toISOString(),attachments:[],deleted:i===16});
+  assert.equal(s.call('listPosts',{view:'titles'}).posts[0].id,'p00');
+  const first=s.call('listPosts',{view:'titles',sort:'newest'});
+  assert.equal(first.pages,2);assert.equal(first.posts[0].id,'p15');
+  assert.equal(s.call('listPosts',{view:'titles',sort:'newest',page:2}).posts[0].id,'p00');
+  const cards=s.call('listPosts',{ids:['p00','p15','p16','missing']}).posts;
+  assert.deepEqual(Array.from(cards,p=>p.id),['p00','p15']);
+  assert.equal(cards[0].summary,'원문');assert.equal(cards[0].body,undefined);
+  denied(()=>s.call('listPosts',{ids:Array(16).fill('p00')}),'INVALID');
+  denied(()=>s.call('listPosts',{ids:'p00'}),'INVALID');
+  denied(()=>s.call('listPosts',{ids:[{}]}),'INVALID');
+  assert.equal(s.call('listPosts',{ids:[]}).posts.length,0);
+});
+
+test('Drive image thumbnails are sized without changing the full media URL',()=>{
+  const s=server();
+  const image=s.context.publicAttachment_({id:'a',driveId:'public-drive-id',mimeType:'image/jpeg',url:'https://example.invalid/original'});
+  assert.equal(image.url,'https://lh3.googleusercontent.com/d/public-drive-id');
+  assert.equal(image.thumbnailUrl,image.url+'=w480');
+  const video=s.context.publicAttachment_({id:'v',driveId:'video',mimeType:'video/mp4',url:'https://example.invalid/video'});
+  assert.equal(video.thumbnailUrl,'');assert.equal(video.url,'https://example.invalid/video');
+});
 test('a legacy pending member is approved on their next verified Google login',()=>{
   const s=server(),a=s.login();const record=s.context.find_('Members',a.member.id);record.status='pending';s.context.save_('Members',record);const renewed=s.login();assert.equal(renewed.member.status,'approved');
 });

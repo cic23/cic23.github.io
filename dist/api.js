@@ -49,6 +49,7 @@
   }
   window.CIC_API = {
     configured,
+    hasSession: () => !!session,
     request,
     setSession(v) {
       session = v || '';

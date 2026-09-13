@@ -199,16 +199,27 @@ function reader_(token) {
 }
 function listPosts_(d, member, likeActor) {
   const page = page_(d.page), size = 15;
-  const posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (b.category === 'notice') - (a.category === 'notice') || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+  let posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (d.sort === 'newest' ? 0 : (b.category === 'notice') - (a.category === 'notice')) || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+  if (d.ids !== undefined) {
+    if (!Array.isArray(d.ids) || d.ids.length > size || d.ids.some(id => typeof id !== 'string')) fail_('INVALID', '게시물 목록이 올바르지 않습니다.');
+    posts = posts.filter(p => d.ids.includes(p.id));
+  }
+  const result = { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)) };
+  const selected = posts.slice((page - 1)*size, page*size);
+  // Titles never wait for attachment, comment or like sheet reads.
+  if (d.view === 'titles') return Object.assign(result, { posts: selected.map(postTitle_) });
   const comments = rows_('Comments').filter(c => !c.deleted);
   const attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
   const commentCounts = countByPost_(comments), likeCounts = countByPost_(likes), liked = likedPostIds_(likes, likeActor);
-  return { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)), posts: posts.slice((page - 1)*size, page*size).map(p => {
+  return Object.assign(result, { posts: selected.map(p => {
     const out = publicPostFromRows_(p, attachments, likeCounts, liked); out.summary = out.summary.trim() || legacySummary_(out.body); delete out.body; out.commentCount = commentCounts[p.id] || 0; return out;
-  }) };
+  }) });
 }
+function postTitle_(p) { return { id:p.id, title:p.title, createdAt:p.createdAt }; }
 function getPost_(d, member, likeActor) {
-  const p = activePost_(d.id), page = page_(d.commentPage), size = 30, attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
+  const p = activePost_(d.id);
+  if (d.view === 'title') return { post: postTitle_(p) };
+  const page = page_(d.commentPage), size = 30, attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
   const all = rows_('Comments').filter(c => c.postId === p.id && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
   const likeCounts = countByPost_(likes), liked = likedPostIds_(likes, likeActor);
   return { post: publicPostFromRows_(p, attachments, likeCounts, liked), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
@@ -248,7 +259,7 @@ function publicAttachment_(a) {
   // Drive download links are served as attachments and can be blocked when
   // embedded cross-site. Public images have a dedicated inline content URL.
   const imageUrl = /^image\//.test(a.mimeType || '') && a.driveId ? 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(a.driveId) : a.url;
-  return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:imageUrl };
+  return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:imageUrl, thumbnailUrl: /^image\//.test(a.mimeType || '') && a.driveId ? imageUrl + '=w480' : '' };
 }
 function legacySummary_(body) { return String(body || '').replace(/\s+/g, ' ').trim().slice(0, 300); }
 function likeCount_(postId) { return rows_('Likes').filter(x => x.postId === postId).length; }

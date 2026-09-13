@@ -16,7 +16,14 @@
   const isVideo = a => /^video\//.test(a?.mimeType || '');
   function media(a, className='') {
     if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
-    return isVideo(a) ? `<video class="${className}" controls preload="metadata"><source src="${esc(asset(a.url))}" type="${esc(a.mimeType)}"></video>` : `<img class="${className}" src="${esc(asset(a.url))}" alt="${esc(a.name)}" loading="lazy">`;
+    if (isVideo(a) && className === 'related-media') return `<span class="post-media-placeholder ${className}" aria-label="${esc(t('동영상'))}">▶</span>`;
+    const url=className === 'post-gallery-media' ? a.url : a.thumbnailUrl || a.url;
+    return isVideo(a) ? `<video class="${className}" controls playsinline preload="none" data-media-src="${esc(asset(url))}"></video>` : `<img class="${className} media-pending" data-media-src="${esc(asset(url))}" alt="${esc(a.name)}" decoding="async">`;
+  }
+  const afterPaint = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  function rememberPost(p) { postPreview.set(p.id, {...postPreview.get(p.id),...p}); }
+  function contentError(target, action='retry') {
+    target.innerHTML=html`<p class="muted" role="status">내용을 불러오지 못했습니다.</p><button class="button secondary small" data-action="${action}">다시 시도</button>`;
   }
   function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="${t('좋아요')} ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
   function setLikeUI(id, liked, likeCount) {
@@ -32,20 +39,9 @@
   }
   function relatedCard(p) {
     const attachment=p.attachments?.find(a=>!isVideo(a)) || p.attachments?.[0];
-    const thumbnail=!attachment ? '<span class="related-placeholder" aria-hidden="true">CIC</span>' : isVideo(attachment) ? `<video muted playsinline preload="metadata" tabindex="-1" aria-hidden="true" src="${esc(asset(attachment.url))}"></video><span class="related-video" aria-hidden="true">▶</span>` : `<img src="${esc(asset(attachment.url))}" alt="" loading="lazy">`;
-    return `<a class="related-card" href="#post/${encodeURIComponent(p.id)}"><span class="related-thumbnail">${thumbnail}</span><div class="related-copy"><h3>${esc(p.title)}</h3><p>${esc(p.authorName)}</p><span>${esc(labels[p.category] || '')}</span></div></a>`;
-  }
-  function loadRelatedFeed() {
-    if(relatedFeed && Date.now()-relatedFeed.at<60000) return relatedFeed.promise;
-    const entry={at:Date.now(),promise:null};
-    entry.promise=(async()=>{
-      const first=await CIC_API.request('listPosts',{page:1}), posts=[...first.posts];
-      // The board pins notices; gather all pages before sorting by publication time.
-      for(let page=2;page<=first.pages;page++) posts.push(...(await CIC_API.request('listPosts',{page})).posts);
-      return [...new Map(posts.map(p=>[p.id,p])).values()].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)||b.id.localeCompare(a.id));
-    })().catch(error=>{if(relatedFeed===entry)relatedFeed=null;throw error;});
-    relatedFeed=entry;
-    return entry.promise;
+    const pending=!Object.hasOwn(p,'attachments');
+    const thumbnail=pending ? '<span class="content-skeleton" aria-hidden="true"></span>' : media(attachment,'related-media');
+    return `<a class="related-card" data-post-id="${esc(p.id)}" href="#post/${encodeURIComponent(p.id)}" aria-busy="${pending}"><span class="related-thumbnail">${thumbnail}</span><div class="related-copy"><h3>${esc(p.title)}</h3><p>${esc(p.authorName)}</p><span>${esc(labels[p.category] || '')}</span></div></a>`;
   }
   function updateRelatedControls(list) {
     const vertical=getComputedStyle(list).flexDirection==='column';
@@ -59,18 +55,57 @@
     const list=document.getElementById('related-list');
     if(!list)return;
     list.setAttribute('aria-busy','true');
+    const token=Symbol();list.loadToken=token;
+    const valid=()=>stamp===epoch && list.isConnected && list.loadToken===token;
+    const append=posts=>{
+      posts.forEach(p=>{
+        rememberPost(p);
+        if(p.id===id || [...list.querySelectorAll('[data-post-id]')].some(el=>el.dataset.postId===p.id)) return;
+        list.insertAdjacentHTML('beforeend',relatedCard(p));
+      });
+      updateRelatedControls(list);
+    };
+    list.innerHTML='';
+    list.onscroll=()=>updateRelatedControls(list);
     try {
-      const posts=await loadRelatedFeed();
-      if(stamp!==epoch||!list.isConnected)return;
-      posts.forEach(p=>postPreview.set(p.id,p));
-      const others=posts.filter(p=>p.id!==id);
-      list.innerHTML=others.length?others.map(relatedCard).join(''):html`<p class="related-status muted" role="status">아직 다른 게시물이 없습니다.</p>`;
-      list.addEventListener('scroll',()=>updateRelatedControls(list),{passive:true});
-      requestAnimationFrame(()=>{if(list.isConnected)updateRelatedControls(list);});
+      if(relatedFeed && Date.now()-relatedFeed.at<60000) {
+        append(relatedFeed.posts);
+        CIC_MEDIA.observe(list);
+      } else {
+        const posts=[];
+        // Server-side newest ordering makes the first page useful immediately.
+        for(let page=1,pages=1;page<=pages;page++) {
+          const titles=await CIC_API.request('listPosts',{page,sort:'newest',view:'titles'});
+          if(!valid())return;
+          pages=titles.pages; append(titles.posts);
+          if(!titles.posts.length)break;
+          await afterPaint(); if(!valid())return;
+          const data=await CIC_API.request('listPosts',{ids:titles.posts.map(p=>p.id),sort:'newest'});
+          if(!valid())return;
+          posts.push(...data.posts);
+          data.posts.forEach(rememberPost);
+          list.querySelectorAll('[data-post-id]').forEach(card=>{
+            if(!titles.posts.some(p=>p.id===card.dataset.postId))return;
+            const p=data.posts.find(p=>p.id===card.dataset.postId);
+            if(p){
+              card.querySelector('.related-thumbnail').innerHTML=media(p.attachments?.find(a=>!isVideo(a))||p.attachments?.[0],'related-media');
+              card.querySelector('h3').textContent=p.title;
+              card.querySelector('.related-copy p').textContent=p.authorName;
+              card.querySelector('.related-copy>span').textContent=labels[p.category]||'';
+              card.setAttribute('aria-busy','false');
+            }else card.remove();
+          });
+          CIC_MEDIA.observe(list);
+        }
+        relatedFeed={at:Date.now(),posts};
+      }
+      if(!list.querySelector('.related-card'))list.innerHTML=html`<p class="related-status muted" role="status">아직 다른 게시물이 없습니다.</p>`;
+      updateRelatedControls(list);
     } catch(error) {
-      if(stamp!==epoch||!list.isConnected)return;
-      list.innerHTML=html`<div class="related-status"><p class="muted" role="status">다른 게시물을 불러오지 못했습니다.</p><button class="button secondary small" data-action="related-retry">다시 시도</button></div>`;
-    } finally { if(list.isConnected)list.setAttribute('aria-busy','false'); }
+      if(!valid())return;
+      list.querySelectorAll('[aria-busy]').forEach(el=>el.setAttribute('aria-busy','false'));
+      list.insertAdjacentHTML('beforeend',html`<div class="related-status"><p class="muted" role="status">다른 게시물을 불러오지 못했습니다.</p><button class="button secondary small" data-action="related-retry">다시 시도</button></div>`);
+    } finally { if(valid())list.setAttribute('aria-busy','false'); }
   }
   function openModal(html) { document.getElementById('modal-content').innerHTML = html; if (!modal.open) modal.showModal(); }
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
@@ -99,9 +134,32 @@
     const target = document.getElementById('board-content');
     if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
     target.innerHTML=t('<p role="status">게시글을 불러오고 있습니다…</p>');
-    const data = await CIC_API.request('listPosts',{page}); if (stamp !== epoch) return;
-    data.posts.forEach(p=>postPreview.set(p.id,p));
-    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>html`<article class="post-card"><a class="post-card-link" href="#post/${p.id}" aria-label="${esc(p.title)} 읽기">${media(p.attachments?.[0],'post-card-media')}<div class="post-card-copy"><span class="post-tag">${esc(labels[p.category])}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a><div class="post-card-actions">${likeButton(p)}<a class="post-action" href="#post/${p.id}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a></div></article>`).join('')}</div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}`;
+    const data = await CIC_API.request('listPosts',{page,view:'titles'}); if (stamp !== epoch) return;
+    data.posts.forEach(rememberPost);
+    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div><div id="board-load-status" role="status"></div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}`;
+    if(!data.posts.length)return;
+    await afterPaint(); if(stamp!==epoch)return;
+    try {
+      const details=await CIC_API.request('listPosts',{ids:data.posts.map(p=>p.id)});
+      if(stamp!==epoch)return;
+      details.posts.forEach(rememberPost);
+      target.querySelectorAll('.post-card').forEach(card=>{
+        const p=details.posts.find(p=>p.id===card.dataset.postId);
+        if(!p){card.remove();return;}
+        // Keep the title link in place so keyboard focus survives hydration.
+        card.querySelector('.post-card-media').outerHTML=media(p.attachments?.[0],'post-card-media');
+        const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';
+        card.querySelector('h3').textContent=p.title;
+        const summary=card.querySelector('.post-card-copy p');summary.classList.remove('content-skeleton');summary.removeAttribute('aria-hidden');summary.textContent=p.summary;
+        card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a>`;
+        card.setAttribute('aria-busy','false');
+      });
+      CIC_MEDIA.observe(target);
+    } catch(error) {
+      if(stamp!==epoch)return;
+      target.querySelectorAll('.post-card').forEach(card=>card.setAttribute('aria-busy','false'));
+      contentError(document.getElementById('board-load-status'));
+    }
   }
   function renderFloatingWrite() {
     document.getElementById('floating-write')?.remove();
@@ -110,10 +168,26 @@
   }
   function pagination(page,pages,route) { return pages>1 ? `<div class="paging">${page>1?html`<a class="button secondary small" href="#${route}/${page-1}">이전</a>`:''}<span>${page} / ${pages}</span>${page<pages?html`<a class="button secondary small" href="#${route}/${page+1}">다음</a>`:''}</div>` : ''; }
   async function post(id, commentPage, stamp) {
-    const preview=postPreview.get(id);
-    main.innerHTML=title('Community',t('지킴이 로그'))+(preview ? html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← ${t('목록보기')}</a><article class="post-detail" aria-busy="true"><header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(preview.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(preview.authorName)}</strong><span>${esc(labels[preview.category])}</span></div></header>${preview.attachments?.length?`<div class="post-gallery">${media(preview.attachments[0],'post-gallery-media')}</div>`:''}<div class="post-detail-copy"><h1>${esc(preview.title)}</h1><p role="status" class="muted">게시글을 불러오고 있습니다…</p></div></article></div>` : t('<div class="reading"><p role="status">게시글을 불러오고 있습니다…</p></div>'));
     const cacheKey=id+'/'+commentPage, cached=postCache.get(cacheKey);
-    const data = cached || await CIC_API.request('getPost',{id,commentPage}); if (stamp!==epoch) return;
+    let preview=postPreview.get(id), data=cached;
+    if(!cached) {
+      main.innerHTML=title('Community',t('지킴이 로그'))+t('<div class="reading"><p role="status">게시글을 불러오고 있습니다…</p></div>');
+      if(!preview) {
+        const result=await CIC_API.request('getPost',{id,view:'title'});
+        if(stamp!==epoch)return;
+        preview=result.post; rememberPost(preview);
+      }
+      main.innerHTML=html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← ${t('목록보기')}</a><article class="post-detail" aria-busy="true"><div class="post-detail-copy"><h1>${esc(preview.title)}</h1><div id="post-load-status"><p role="status" class="muted">게시글을 불러오고 있습니다…</p></div></div></article></div>`;
+      await afterPaint(); if(stamp!==epoch)return;
+      try { data=await CIC_API.request('getPost',{id,commentPage}); }
+      catch(error) {
+        if(stamp!==epoch)return;
+        if(error.code==='NOT_FOUND'){postPreview.delete(id);throw error;}
+        main.querySelector('.post-detail').setAttribute('aria-busy','false');
+        contentError(document.getElementById('post-load-status'));return;
+      }
+    }
+    if (stamp!==epoch) return;
     postCache.set(cacheKey,data);
     currentPost=data.post; currentComments=data.comments; const p=data.post;
     const canWrite = member?.status === 'approved';
@@ -122,11 +196,13 @@
     const commentForm = canWrite ? html`<form id="comment-form" class="comment-composer"><label class="visually-hidden" for="comment-body">댓글 쓰기</label><div class="comment-input-row"><input id="comment-body" name="body" type="text" required maxlength="2000" placeholder="댓글 달기…" autocomplete="off"><button type="submit" class="text-button">댓글 등록</button></div><p class="inline-error" role="alert"></p></form>` : html`<div class="comment-login"><button class="text-button" data-action="login">로그인하고 댓글 남기기</button></div>`;
     main.innerHTML=html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← ${t('목록보기')}</a><div class="post-detail-layout"><article class="post-detail" aria-labelledby="post-title-heading">
       <header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(p.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(p.authorName)}</strong><span>${esc(labels[p.category])}${p.version>1?` · ${t('수정됨')}`:''}</span></div>${canEdit(p.authorId)?html`<div class="post-owner-actions"><button class="post-owner-button" data-action="edit-post">수정</button><button class="post-owner-button danger" data-action="delete-post">삭제</button></div>`:''}</header>
+      <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
-      <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1><div class="post-body">${esc(p.body)}</div></div>
+      <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>
       <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button></div>
       <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(commentMarkup).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
     </article>${relatedShell()}</div></div>`;
+    CIC_MEDIA.observe(main);
     void renderRelatedPosts(id,stamp);
     const form=document.getElementById('comment-form'); let mutationId=crypto.randomUUID();
     if(form) form.addEventListener('submit', async e => {e.preventDefault(); await submit(form,async()=>{const result=await CIC_API.request('createComment',{postId:p.id,body:form.elements.body.value,mutationId}); mutationId=crypto.randomUUID(); commentsOpenFor=p.id; setCommentCount(p.id,result.commentCount); if(result.commentPage!==commentPage){location.hash='post/'+p.id+'/'+result.commentPage;return;} currentComments.push(result.comment);data.comments.push(result.comment);data.commentCount=result.commentCount;data.commentPages=result.commentPages;document.querySelector('.comment-empty')?.remove();document.querySelector('.comment-list').insertAdjacentHTML('beforeend',commentMarkup(result.comment));form.reset();toast(t('댓글을 등록했습니다.'));});});
@@ -139,6 +215,8 @@
   }
   async function route(options = {}) {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
+    CIC_MEDIA.reset();
+    if(!options.keepScroll)window.scrollTo(0,0);
     if(page!=='post'||part!==commentsOpenFor) commentsOpenFor=null;
     currentPost=null; currentComments=[];
     renderFloatingWrite();
@@ -156,7 +234,7 @@
       if(stamp!==epoch)return;
       const anchor = part && ['values','guide'].includes(page) ? document.getElementById((page==='values'?'value-':'place-')+part) : null;
       if(options.keepScroll) window.scrollTo(0,options.scrollY || 0);
-      else if(anchor) anchor.scrollIntoView(); else window.scrollTo(0,0);
+      else if(anchor) anchor.scrollIntoView();
     } catch(e) {
       if(stamp!==epoch)return;
       if(['AUTH','BLOCKED'].includes(e.code)){member=null;CIC_API.clear();}
@@ -293,6 +371,7 @@
   if(window.ResizeObserver) new ResizeObserver(measureHeader).observe(header);
   else window.addEventListener('resize',measureHeader);
   async function restoreSession() {
+    if(!CIC_API.hasSession())return;
     try { const data = await CIC_API.request('me'); member = data.member; }
     catch (e) { if (['AUTH','BLOCKED'].includes(e.code)) CIC_API.clear(); }
   }

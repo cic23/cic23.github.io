@@ -3,6 +3,8 @@
 (() => {
   'use strict';
   const messages = {
+    '내용을 불러오지 못했습니다.':'Could not load the content.',
+    '동영상':'Video',
     '우리가 지키는 역사,':'The history we protect,',
     '함께 이어갈 미래.':'the future we share.',
     '채드윅송도국제학교 CIC와 함께하는':'With CIC at Chadwick International',

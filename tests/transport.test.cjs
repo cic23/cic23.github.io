@@ -40,5 +40,5 @@ test('session is sent in POST body and errors are preserved',async()=>{
   await assert.rejects(promise,e=>e.code==='AUTH');
 });
 test('session survives reload storage and logout clears it',()=>{
-  const t=transport();t.api.setSession('private-session-token');assert.equal(t.storage.get('cic.session.v1'),'private-session-token');t.api.clear();assert.equal(t.storage.has('cic.session.v1'),false);
+  const t=transport();assert.equal(t.api.hasSession(),false);t.api.setSession('private-session-token');assert.equal(t.api.hasSession(),true);assert.equal(t.storage.get('cic.session.v1'),'private-session-token');t.api.clear();assert.equal(t.api.hasSession(),false);assert.equal(t.storage.has('cic.session.v1'),false);
 });

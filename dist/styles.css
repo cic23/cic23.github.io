@@ -95,6 +95,13 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .related-thumbnail{position:relative;display:block;flex-shrink:0;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:6px;background:var(--tint)}
 .related-thumbnail img,.related-thumbnail video{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .related-placeholder{display:grid;place-items:center;width:100%;height:100%;background:linear-gradient(135deg,#17364d,#4e7188);color:#fff;font-size:1.6rem;font-weight:800;letter-spacing:.08em}
+.related-thumbnail .related-media{width:100%;height:100%;font-size:1.6rem}
+.content-skeleton{display:block;min-height:1em;background:var(--tint);border-radius:4px}
+.related-thumbnail>.content-skeleton{height:100%}
+.post-card-copy .post-tag.content-skeleton{width:5em}
+.media-pending{background:var(--tint)}
+.post-gallery-media.media-pending,.post-gallery video{min-height:220px;aspect-ratio:16/9}
+#board-load-status:not(:empty){padding:20px 0}
 .related-video{position:absolute;inset:auto 6px 6px auto;padding:2px 7px;border-radius:4px;background:#142c42cc;color:#fff;font-size:.75rem}
 .related-copy{min-width:0;padding:0 3px 4px}
 .related-copy h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0 0 6px;font-size:.86rem;line-height:1.5;overflow-wrap:anywhere}
