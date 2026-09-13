@@ -27,7 +27,7 @@ function doGet() {
 }
 
 function doPost(e) {
-  let requestId = '', result;
+  let requestId = '', result, action = '';
   const origin = PropertiesService.getScriptProperties().getProperty('SITE_ORIGIN');
   if (!origin || !/^https:\/\/[a-zA-Z0-9.-]+(?::\d+)?$/.test(origin)) return HtmlService.createHtmlOutput('서버 설정이 필요합니다.');
   let lock;
@@ -35,12 +35,15 @@ function doPost(e) {
     if (!e || !e.parameter || !e.parameter.payload || e.parameter.payload.length > 40000) fail_('INVALID', '요청 크기 또는 형식이 올바르지 않습니다.');
     const r = JSON.parse(e.parameter.payload);
     requestId = r.requestId;
+    action = r.action;
     if (!/^[a-f0-9]{64}$/.test(requestId || '') || r.origin !== origin) fail_('INVALID', '허용되지 않은 요청입니다.');
     lock = LockService.getScriptLock();
     if (!lock.tryLock(10000)) fail_('BUSY', '다른 요청을 처리 중입니다. 잠시 후 다시 시도해주세요.');
     result = { ok: true, data: dispatch_(r) };
   } catch (err) {
-    result = { ok: false, code: err.cicCode || 'SERVER', message: err.cicCode ? err.message : '요청을 처리하지 못했습니다. 관리자에게 서버 설정을 확인해 달라고 요청해주세요.' };
+    const code = err && err.cicCode, detail = String((err && err.message) || err || '').replace(/[\r\n]+/g, ' ').slice(0, 300);
+    const message = code ? err.message : action === 'startUpload' ? '첨부 업로드 요청을 처리하지 못했습니다: ' + (detail || '알 수 없는 서버 오류') : '요청을 처리하지 못했습니다. 관리자에게 서버 설정을 확인해 달라고 요청해주세요.';
+    result = { ok: false, code: code || 'SERVER', message };
   } finally {
     if (lock && lock.hasLock()) lock.releaseLock();
   }
