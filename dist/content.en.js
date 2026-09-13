@@ -10,7 +10,7 @@ window.CIC_CONTENT_EN = {
   introduction: 'CIC is a student-led club dedicated to sharing Korean culture with the world and protecting cultural heritage. Beginning with a small group of committed students, we continue to visit historic sites, record their stories and serve our community with sincerity.',
   achievements: [
     {title:'A continuing commitment at Tapgol Park',text:'Each month, we pick up litter at Tapgol Park and help provide meals for older people.',asset:'plogging'},
-    {title:'Fundraising for heritage recovery',text:'We ran traditional games booths and donated funds to Good Neighbors to support recovery from wildfire damage.',asset:'fundraising'},
+    {title:'Fundraising for heritage recovery',text:'We ran traditional games booths and donated funds to support recovery from wildfire damage.',asset:'fundraising'},
     {title:'Sharing heritage through our stories',text:'We wrote articles about inaccuracies and management issues affecting cultural heritage, and produced Instagram Reels for events including the 80th anniversary of Korea’s liberation, the Hawoori Incheon Festival and the Royal Culture Festival.',asset:'media'},
     {title:'A flash mob for 80 years of liberation',text:'We joined an activity at Independence Gate Plaza near Seodaemun Prison to reflect on the meaning of Korea’s liberation.',asset:'flashmob'},
     {title:'Cultural exchange and on-site interpretation',text:'We took part in youth international cultural exchange ambassador activities and a UNESCO heritage interpretation internship in Jeju.',asset:'exchange'},
@@ -39,7 +39,7 @@ window.CIC_CONTENT_EN = {
     {id:'memory',number:'01',category:'Remembrance & peace',title:'Memorial Hall for Incheon Landing Operation & Jayu Park',short:'Remembering sacrifice and the value of peace while looking out over the city.',paragraphs:[
       ['Memorial Hall for Incheon Landing Operation','This memorial commemorates the Incheon Landing of September 15, 1950, and the dedication of the nations that participated in the Korean War. Exploring this history invites us to reflect on the peace we enjoy today.'],
       ['Jayu Park','Located on Eungbongsan, Jayu Park was established in 1888 as Korea’s first Western-style modern park. Visit the statue of General MacArthur and the monument marking 100 years of Korea–US diplomatic relations, and enjoy views of Incheon Port and the city.']],tip:'Explore the memorial’s outdoor exhibits and the scenery of Jayu Park together. Discuss how memories of the past connect with everyday life today.'},
-    {id:'wolmi',number:'02',category:'History & nature',title:'Wolmi Park & Wolmisan',short:'From a strategic military location to a green space for everyone.',paragraphs:[
+    {id:'wolmi',number:'02',category:'History & nature',title:'Wolmido & Wolmi Park',short:'From a strategic military location to a green space for everyone.',paragraphs:[
       ['A meeting point of modern history','Wolmido holds layers of history: the site of the Joseon-era Wolmi royal residence, a strategic military position during the port-opening period, and Green Beach, the first landing point of the Incheon Landing.'],
       ['Traditional gardens and ecology','Wolmi Park was created around Wolmisan after Incheon acquired land formerly used by the military. Explore its traditional gardens, observation deck and natural spaces.']],tip:'Look out over Incheon Port and the West Sea from the Wolmisan observation deck, and look for Incheon Landing memorial markers along the visitor routes.'},
     {id:'openport',number:'03',category:'Port opening & cultural exchange',title:'Incheon Open Port District',short:'A setting of modern history where different cultures met.',paragraphs:[
@@ -53,4 +53,3 @@ window.CIC_CONTENT_EN = {
     ['Leave care behind','Help protect heritage structures from damage, stay on designated paths and follow the guidance provided on site.']
   ]
 };
-
