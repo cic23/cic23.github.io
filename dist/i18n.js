@@ -59,7 +59,7 @@
     '개의 글':' posts', '회원 승인 관리':'Manage membership', '글쓰기':'Write a post',
     '아직 등록된 글이 없습니다':'No posts yet',
     '첫 번째 CIC 활동 이야기를 남겨주세요.':'Share the first story about your CIC activities.',
-    '이전':'Previous', '다음':'Next', '회원 게시글':'Member post', '게시판 목록':'Back to the board',
+    '이전':'Previous', '다음':'Next', '회원 게시글':'Member post', '목록보기':'View list',
     '수정됨':'Edited', '수정 저장':'Save changes', '수정':'Edit', '삭제':'Delete',
     '첫 번째 댓글을 남겨주세요.':'Be the first to leave a comment.',
     '댓글 쓰기':'Write a comment', '활동에 대한 생각을 나눠주세요.':'Share your thoughts about the activity.',
