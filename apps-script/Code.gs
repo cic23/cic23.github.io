@@ -261,16 +261,25 @@ function uploadFolder_() {
 function startUpload_(d, m) {
   const name = text_(d.name, 180), mimeType = text_(d.mimeType, 100), size = Number(d.size);
   if (!MEDIA_TYPES_.includes(mimeType) || !Number.isSafeInteger(size) || size < 1 || size > MAX_ATTACHMENT_BYTES_) fail_('INVALID', '이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
-  const a = { id: Utilities.getUuid(), ownerId:m.id, name, mimeType, size, status:'uploading', driveId:'', postId:'', createdAt:now_(), updatedAt:now_() };
+  const a = { id: Utilities.getUuid(), ownerId:m.id, name, mimeType, size, status:'uploading', driveId:generatedDriveId_(), postId:'', createdAt:now_(), updatedAt:now_() };
   const response = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name,mimeType,size,webContentLink', {
-    method:'post', contentType:'application/json', payload:JSON.stringify({name, mimeType, parents:[uploadFolder_()]}),
+    method:'post', contentType:'application/json', payload:JSON.stringify({id:a.driveId, name, mimeType, parents:[uploadFolder_()]}),
     headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type':mimeType, 'X-Upload-Content-Length':String(size)}, muteHttpExceptions:true
   });
   if (response.getResponseCode() !== 200) driveFailure_(response, '첨부 업로드를 시작하지 못했습니다.');
   const location = response.getHeaders().Location || response.getHeaders().location;
   if (!location) fail_('SERVER', '첨부 업로드 주소를 받지 못했습니다.');
-  const meta = JSON.parse(response.getContentText()); a.driveId = meta.id; save_('Attachments', a);
+  // Drive resumable-session creation normally returns only the Location header.
+  // The file ID was generated above, so no response body is required here.
+  save_('Attachments', a);
   return { attachment:{id:a.id, name, mimeType, size}, uploadUrl:location, chunkSize:8 * 1024 * 1024 };
+}
+function generatedDriveId_() {
+  const response = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/generateIds?count=1&space=drive', {headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken()}, muteHttpExceptions:true});
+  if (response.getResponseCode() !== 200) driveFailure_(response, '첨부 파일 ID를 준비하지 못했습니다.');
+  let id = ''; try { id = JSON.parse(response.getContentText()).ids[0]; } catch (_) {}
+  if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{10,}$/.test(id)) fail_('SERVER', '첨부 파일 ID를 준비하지 못했습니다.');
+  return id;
 }
 function completeUpload_(d, m) {
   const a = find_('Attachments', text_(d.id, 64));
