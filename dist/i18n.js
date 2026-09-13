@@ -36,7 +36,6 @@
     '선생님의 기념사는 담당 선생님과 원고를 확인한 뒤 게재할 예정입니다.':'A message from our teacher will be published once the contributor and text are confirmed.',
     '창립 연도':'Founded', '활동 단원':'Active members', '누적 봉사시간':'Volunteer hours',
     '함께 쌓아온 활동':'Our journey together',
-    '제공된 CIC 발간 원고를 바탕으로 정리했습니다. 수상·위촉 및 언론 게재의 정확한 명칭과 시기는 확인 후 보완합니다.':'Based on the CIC publication manuscript provided. Exact titles and dates of awards, appointments and published articles will be updated after verification.',
     '지킴이 로그':'Guardians’ log',
     '우리가 문화유산에 ‘푹’ 빠진 이유':'Why we care so deeply about heritage',
     '단원들의 소감을 모으고 있습니다. 직접 경험하고 느낀 이야기를 곧 이곳에서 전하겠습니다.':'We are gathering our members’ reflections. Their first-hand experiences and thoughts will be shared here soon.',
