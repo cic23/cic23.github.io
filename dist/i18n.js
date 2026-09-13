@@ -54,7 +54,7 @@
     '회원 승인을 기다리고 있습니다':'Your membership is awaiting approval',
     ' 님의 가입 신청이 접수되었습니다. 관리자가 승인하면 회원 게시판을 이용할 수 있습니다.':', your membership request has been received. You can use the member board once an administrator approves it.',
     '승인 상태 확인':'Check approval status', 'CIC 로고':'CIC logo',
-    '함께 기록하는 CIC':'Stories we share at CIC',
+    '함께 기록하는 CIC':'Stories we share at CIC', '기록으로 남기는 문화유산':'Heritage, recorded for tomorrow',
     '활동의 순간과 생각을 회원들과 나눕니다.':'Share your activities and reflections with fellow members.',
     '게시글을 불러오고 있습니다…':'Loading posts…',
     '개의 글':' posts', '회원 승인 관리':'Manage membership', '글쓰기':'Write a post',

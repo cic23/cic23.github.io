@@ -130,7 +130,7 @@
     return `<div class="empty"><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
   async function board(page, stamp) {
-    main.innerHTML = title('Community',t('함께 기록하는 CIC')) + '<section class="board-shell" id="board-content"></section>';
+    main.innerHTML = title('Community',t('함께 기록하는 CIC'),t('기록으로 남기는 문화유산')) + '<section class="board-shell" id="board-content"></section>';
     const target = document.getElementById('board-content');
     if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
     target.innerHTML=t('<p role="status">게시글을 불러오고 있습니다…</p>');
