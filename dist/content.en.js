@@ -5,7 +5,7 @@ window.CIC_CONTENT_EN = {
   subtitle: 'We are Korea’s National Heritage Guardians, documenting and protecting heritage through young people’s eyes.',
   foreword: [
     'Incheon is a vast historical landscape, holding the turning points, hardships and resilience of Korea’s modern history. Chadwick International Cultural Protector (CIC) is a student-led club that takes learning beyond the classroom. We explore and help preserve the cultural heritage of the city we call home, sharing its stories with our communities and the wider world.',
-    'We go beyond sightseeing to reflect on the true historical meaning of each place through five core values: respect, responsibility, honesty, fairness and compassion. This guide brings together our members’ hands-on activities and offers a thoughtful youth perspective on Incheon’s cultural heritage.'
+    'We go beyond sightseeing to reflect on the true historical meaning of each place through five core values: respect, responsibility, honesty, fairness and compassion. This cultural heritage guide brings together activities our members completed through their own efforts and a thoughtful youth perspective.'
   ],
   introduction: 'CIC is a student-led club dedicated to sharing Korean culture with the world and protecting cultural heritage. Beginning with a small group of committed students, we continue to visit historic sites, record their stories and serve our community with sincerity.',
   achievements: [
@@ -16,7 +16,7 @@ window.CIC_CONTENT_EN = {
     {title:'Cultural exchange and on-site interpretation',text:'We took part in youth international cultural exchange ambassador activities and a UNESCO heritage interpretation internship in Jeju.',asset:'exchange'},
     {title:'Young protectors of national heritage',text:'We continue our heritage protection activities as youth heritage guardians appointed by the Korea Heritage Service.',asset:'appointment'},
     {title:'English-language guiding at Nakseonjae',text:'We volunteered as English-language docents for “Nakseonjae: 100 Years of Time and Scenery,” organized by the Korean Imperial Cultural Institute.',asset:'docent'},
-    {title:'Recognition for service',text:'We are compiling records of the Korea Heritage Service Commissioner’s Award for outstanding heritage protection activities and awards from the National Youth Volunteer Competition.',asset:'awards'}
+    {title:'Recognition for service',text:'We received recognition through the Korea Heritage Service Commissioner’s Award for outstanding heritage protection activities and the National Youth Volunteer Competition.',asset:'awards'}
   ],
   values: [
     {en:'Respect',ko:'존중',quote:'We remember the sacrifices of the past and honor their enduring significance.',activities:[
