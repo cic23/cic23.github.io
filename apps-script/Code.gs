@@ -220,7 +220,12 @@ function publicPost_(p, member) {
   return { id:p.id, title:p.title, summary:p.summary || legacySummary_(p.body), body:p.body, attachments, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCount_(p.id), likedByMe:!!(member && rows_('Likes').some(x => x.postId === p.id && x.memberId === member.id)) };
 }
 function publicComment_(c) { return { id:c.id, postId:c.postId, body:c.body, authorId:c.authorId, authorName:c.authorName, createdAt:c.createdAt, updatedAt:c.updatedAt, version:c.version }; }
-function publicAttachment_(a) { return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:a.url }; }
+function publicAttachment_(a) {
+  // Drive download links are served as attachments and can be blocked when
+  // embedded cross-site. Public images have a dedicated inline content URL.
+  const imageUrl = /^image\//.test(a.mimeType || '') && a.driveId ? 'https://lh3.googleusercontent.com/d/' + encodeURIComponent(a.driveId) : a.url;
+  return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:imageUrl };
+}
 function legacySummary_(body) { return String(body || '').replace(/\s+/g, ' ').trim().slice(0, 300); }
 function likeCount_(postId) { return rows_('Likes').filter(x => x.postId === postId).length; }
 function activePost_(id) { const p = find_('Posts', id); if (!p || p.deleted) fail_('NOT_FOUND', '게시글을 찾을 수 없습니다.'); return p; }

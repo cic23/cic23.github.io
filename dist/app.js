@@ -103,14 +103,22 @@
     if(!allowed.includes(file.type) || file.size > 100*1024*1024) throw new Error('이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
     const start=await CIC_API.request('startUpload',{name:file.name,mimeType:file.type,size:file.size});
     if(progress){progress.hidden=false;progress.value=0;}
-    let response;
-    try { response=await fetch(start.uploadUrl,{method:'PUT',headers:{'Content-Type':file.type},body:file}); } catch (_) {}
-    if(response && !response.ok) throw new Error('첨부 파일을 업로드하지 못했습니다. Drive 응답 ' + response.status + '을(를) 확인해주세요.');
+    const status=await putFile(start.uploadUrl,file,progress);
+    if(status && (status < 200 || status >= 300)) throw new Error('첨부 파일을 업로드하지 못했습니다. Drive 응답 ' + status + '을(를) 확인해주세요.');
     // Drive may accept the file while the browser is blocked from reading its
     // cross-origin response. Verify completion through the trusted backend.
     const completed=await CIC_API.request('completeUpload',{id:start.attachment.id});
     if(progress) progress.value=100;
     return completed.attachment;
+  }
+  function putFile(url,file,progress) {
+    return new Promise(resolve=>{
+      const request=new XMLHttpRequest();
+      request.open('PUT',url,true);request.setRequestHeader('Content-Type',file.type);
+      request.upload.onprogress=event=>{if(progress&&event.lengthComputable)progress.value=Math.min(99,Math.round(event.loaded/event.total*100));};
+      request.onload=()=>resolve(request.status||0);request.onerror=()=>resolve(0);request.onabort=()=>resolve(0);
+      request.send(file);
+    });
   }
   function editor(p=null) {
     const mutationId=crypto.randomUUID();
