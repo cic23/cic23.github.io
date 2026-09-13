@@ -111,7 +111,7 @@
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a></article>`).join(''); }
   function home() {
-    return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Cultural Protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래.</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="#guide">문화유산 만나보기</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
+    return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Cultural Protectors</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래.</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="#guide">문화유산 만나보기</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div><a href="#guide">전체 가이드 ↗</a></div><div class="grid-3">${guideCards()}</div></section>
     <section class="intro-block tinted"><div><span class="eyebrow">Heritage into Legacy</span><h2>유산을 지켰더니,<br>우리의 이야기가 쌓였습니다.</h2></div><div><p>${esc(C.introduction)}</p><div class="button-row"><a class="text-button" href="#about">CIC의 이야기 읽기 ↗</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Our Practice</span><h2>현장에서 실천하는 가치</h2></div><a href="#values">활동 살펴보기 ↗</a></div><div class="grid-3">${C.achievements.slice(0,3).map((a,i) => html`<article class="activity"><span class="eyebrow">0${i+1} / CIC 활동</span>${activityPhoto(a.asset,a.title)}<h3>${esc(a.title)}</h3><p>${esc(a.text)}</p></article>`).join('')}</div></section>`;
@@ -179,7 +179,7 @@
         if(stamp!==epoch)return;
         preview=result.post; rememberPost(preview);
       }
-      main.innerHTML=html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← ${t('목록보기')}</a><article class="post-detail" aria-busy="true"><div class="post-detail-copy"><h1>${esc(preview.title)}</h1><div id="post-load-status"><p role="status" class="muted">게시글을 불러오고 있습니다…</p></div></div></article></div>`;
+      main.innerHTML=html`<div class="post-detail-shell"><article class="post-detail" aria-busy="true"><div class="post-detail-copy"><h1>${esc(preview.title)}</h1><div id="post-load-status"><p role="status" class="muted">게시글을 불러오고 있습니다…</p></div></div></article></div>`;
       await afterPaint(); if(stamp!==epoch)return;
       try { data=await CIC_API.request('getPost',{id,commentPage}); }
       catch(error) {
@@ -196,7 +196,7 @@
     if (commentPage>1) commentsOpenFor=p.id;
     const commentsOpen=commentsOpenFor===p.id;
     const commentForm = canWrite ? html`<form id="comment-form" class="comment-composer"><label class="visually-hidden" for="comment-body">댓글 쓰기</label><div class="comment-input-row"><input id="comment-body" name="body" type="text" required maxlength="2000" placeholder="댓글 달기…" autocomplete="off"><button type="submit" class="text-button">댓글 등록</button></div><p class="inline-error" role="alert"></p></form>` : html`<div class="comment-login"><button class="text-button" data-action="login">로그인하고 댓글 남기기</button></div>`;
-    main.innerHTML=html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← ${t('목록보기')}</a><div class="post-detail-layout"><article class="post-detail" aria-labelledby="post-title-heading">
+    main.innerHTML=html`<div class="post-detail-shell"><div class="post-detail-layout"><article class="post-detail" aria-labelledby="post-title-heading">
       <header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(p.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(p.authorName)}</strong><span>${esc(labels[p.category])}${p.version>1?` · ${t('수정됨')}`:''}</span></div>${canEdit(p.authorId)?html`<div class="post-owner-actions"><button class="post-owner-button" data-action="edit-post">수정</button><button class="post-owner-button danger" data-action="delete-post">삭제</button></div>`:''}</header>
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}

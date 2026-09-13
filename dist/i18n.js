@@ -185,7 +185,7 @@
     document.querySelectorAll('[data-language]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.language===lang)));
     document.querySelectorAll('img[alt="CIC 로고"], img[alt="CIC logo"]').forEach(el=>el.alt=t('CIC 로고'));
     const meta=document.querySelector('meta[name="description"]');
-    if (meta) meta.content=lang==='en' ? 'Discover Incheon’s cultural heritage and the activities of Chadwick International Cultural Protector (CIC), a student-led heritage club.' : '채드윅송도국제학교 청소년 국가유산지킴이 CIC의 인천 문화유산 가이드와 활동 기록입니다.';
+    if (meta) meta.content=lang==='en' ? 'Discover Incheon’s cultural heritage and the activities of Chadwick International Cultural Protectors (CIC), a student-led heritage club.' : '채드윅송도국제학교 청소년 국가유산지킴이 CIC의 인천 문화유산 가이드와 활동 기록입니다.';
   }
   window.CIC_I18N = {t,html,setLanguage,applyShell,get language(){return lang;},get content(){return lang==='en'?window.CIC_CONTENT_EN:window.CIC_CONTENT;}};
 })();
