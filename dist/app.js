@@ -104,11 +104,13 @@
     const start=await CIC_API.request('startUpload',{name:file.name,mimeType:file.type,size:file.size});
     if(progress){progress.hidden=false;progress.value=0;}
     let response;
-    try { response=await fetch(start.uploadUrl,{method:'PUT',headers:{'Content-Type':file.type},body:file}); }
-    catch (_) { throw new Error('첨부 파일을 Drive로 전송하지 못했습니다. 네트워크 연결을 확인하고 다시 시도해주세요.'); }
-    if(!response.ok) throw new Error('첨부 파일을 업로드하지 못했습니다. Drive 응답 ' + response.status + '을(를) 확인해주세요.');
+    try { response=await fetch(start.uploadUrl,{method:'PUT',headers:{'Content-Type':file.type},body:file}); } catch (_) {}
+    if(response && !response.ok) throw new Error('첨부 파일을 업로드하지 못했습니다. Drive 응답 ' + response.status + '을(를) 확인해주세요.');
+    // Drive may accept the file while the browser is blocked from reading its
+    // cross-origin response. Verify completion through the trusted backend.
+    const completed=await CIC_API.request('completeUpload',{id:start.attachment.id});
     if(progress) progress.value=100;
-    return (await CIC_API.request('completeUpload',{id:start.attachment.id})).attachment;
+    return completed.attachment;
   }
   function editor(p=null) {
     const mutationId=crypto.randomUUID();
