@@ -241,11 +241,14 @@ function startUpload_(d, m) {
   const name = text_(d.name, 180), mimeType = text_(d.mimeType, 100), size = Number(d.size);
   if (!MEDIA_TYPES_.includes(mimeType) || !Number.isSafeInteger(size) || size < 1 || size > MAX_ATTACHMENT_BYTES_) fail_('INVALID', '이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
   const a = { id: Utilities.getUuid(), ownerId:m.id, name, mimeType, size, status:'uploading', driveId:'', postId:'', createdAt:now_(), updatedAt:now_() };
-  const response = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,mimeType,size,webContentLink', {
+  const response = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name,mimeType,size,webContentLink', {
     method:'post', contentType:'application/json', payload:JSON.stringify({name, mimeType, parents:[uploadFolder_()]}),
     headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type':mimeType, 'X-Upload-Content-Length':String(size)}, muteHttpExceptions:true
   });
-  if (response.getResponseCode() !== 200) fail_('SERVER', '첨부 업로드를 시작하지 못했습니다. Drive 설정을 확인해주세요.');
+  if (response.getResponseCode() !== 200) {
+    console.error('Drive resumable upload start failed (' + response.getResponseCode() + '): ' + response.getContentText().slice(0, 500));
+    fail_('SERVER', '첨부 업로드를 시작하지 못했습니다. Drive 설정을 확인해주세요.');
+  }
   const location = response.getHeaders().Location || response.getHeaders().location;
   if (!location) fail_('SERVER', '첨부 업로드 주소를 받지 못했습니다.');
   const meta = JSON.parse(response.getContentText()); a.driveId = meta.id; save_('Attachments', a);
@@ -256,11 +259,11 @@ function completeUpload_(d, m) {
   if (!a || a.ownerId !== m.id || a.status !== 'uploading') fail_('FORBIDDEN', '완료할 수 없는 첨부 파일입니다.');
   const base = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(a.driveId);
   const token = ScriptApp.getOAuthToken();
-  const metaRes = UrlFetchApp.fetch(base + '?fields=id,name,mimeType,size,webContentLink', {headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
+  const metaRes = UrlFetchApp.fetch(base + '?supportsAllDrives=true&fields=id,name,mimeType,size,webContentLink', {headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
   if (metaRes.getResponseCode() !== 200) fail_('INVALID', '파일 업로드가 아직 완료되지 않았습니다.');
   const meta = JSON.parse(metaRes.getContentText());
   if (meta.mimeType !== a.mimeType || Number(meta.size) !== a.size) fail_('INVALID', '업로드된 파일 정보가 일치하지 않습니다.');
-  const permission = UrlFetchApp.fetch(base + '/permissions', {method:'post', contentType:'application/json', payload:JSON.stringify({type:'anyone',role:'reader'}), headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
+  const permission = UrlFetchApp.fetch(base + '/permissions?supportsAllDrives=true', {method:'post', contentType:'application/json', payload:JSON.stringify({type:'anyone',role:'reader'}), headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
   if (permission.getResponseCode() < 200 || permission.getResponseCode() >= 300) fail_('SERVER', '첨부 파일 공개 권한을 설정하지 못했습니다.');
   a.status='complete'; a.url=meta.webContentLink || ('https://drive.google.com/uc?export=download&id=' + encodeURIComponent(a.driveId)); a.updatedAt=now_(); save_('Attachments', a);
   return { attachment:publicAttachment_(a) };
