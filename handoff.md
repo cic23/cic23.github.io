@@ -1,5 +1,9 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-14 영문 가이드 제목 수정
+
+- 영문 첫 화면의 `CIC와 함께하는 Incheon Cultural Heritage Guide`를 `Incheon Cultural Heritage Guide with CIC`로 변경하고 영문 콘텐츠 제목도 통일했다. 변경된 파일 URL 버전은 `v=27-guide-title`이다.
+
 ## 2026-09-14 발간사 및 수상 활동 소개 문구 수정
 
 - 발간사의 문화유산 안내서 문구와 수상 활동 소개를 요청한 문장으로 수정하고 영어 콘텐츠에도 같은 의미를 반영했다. 변경된 콘텐츠 파일 URL 버전은 `v=26-publication-copy`이다.
