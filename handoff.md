@@ -1,5 +1,9 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-14 글쓰기 요약 입력란 정리
+
+- 글쓰기·수정 팝업의 요약 입력란을 한 줄 높이로 줄여 `비워 두면 본문 앞부분을 표시합니다.` 안내가 한 줄에 표시되게 했다. 공개·작성 안내 문구는 제거했다. 변경된 `app.js` URL 버전은 `v=28-summary-form`이다.
+
 ## 2026-09-14 영문 가이드 제목 수정
 
 - 영문 첫 화면의 `CIC와 함께하는 Incheon Cultural Heritage Guide`를 `Incheon Cultural Heritage Guide with CIC`로 변경하고 영문 콘텐츠 제목도 통일했다. 변경된 파일 URL 버전은 `v=27-guide-title`이다.
