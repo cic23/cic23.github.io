@@ -6,11 +6,17 @@
   let labels = { activity: t('활동 기록'), free: t('자유 게시판'), notice: t('공지') };
   let member = null, epoch = 0, currentPost = null, currentComments = [], toastTimer, gisPromise;
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const date = v => new Date(v).toLocaleDateString(CIC_I18N.language === 'en' ? 'en-US' : 'ko-KR', {timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric'});
   const title = (en, heading, sub='') => `<div class="page-title"><span class="eyebrow">${esc(en)}</span><h1>${esc(heading)}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>`;
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
+  const icon = (name) => name === 'like' ? '♡' : '▢';
+  const isVideo = a => /^video\//.test(a?.mimeType || '');
+  function media(a, className='') {
+    if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
+    return isVideo(a) ? `<video class="${className}" controls preload="metadata"><source src="${esc(asset(a.url))}" type="${esc(a.mimeType)}"></video>` : `<img class="${className}" src="${esc(asset(a.url))}" alt="${esc(a.name)}" loading="lazy">`;
+  }
+  function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="좋아요 ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
   function openModal(html) { document.getElementById('modal-content').innerHTML = html; if (!modal.open) modal.showModal(); }
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a></article>`).join(''); }
@@ -34,22 +40,24 @@
     return `<div class="empty"><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
   async function board(page, stamp) {
-    main.innerHTML = title('Community',t('함께 기록하는 CIC'), t('활동의 순간과 생각을 회원들과 나눕니다.')) + '<section class="board-shell" id="board-content"></section>';
+    main.innerHTML = title('Community',t('함께 기록하는 CIC'), t('누구나 읽을 수 있는 CIC의 활동 기록입니다.')) + '<section class="board-shell" id="board-content"></section>';
     const target = document.getElementById('board-content');
-    if (!CIC_API.configured() || !member || member.status !== 'approved') { target.innerHTML=lockedBoard(); return; }
+    if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
     target.innerHTML=t('<p role="status">게시글을 불러오고 있습니다…</p>');
     const data = await CIC_API.request('listPosts',{page}); if (stamp !== epoch) return;
-    target.innerHTML=html`<div class="board-toolbar"><h2>지킴이 로그 <span class="muted small-text">${data.total}개의 글</span></h2><div class="button-row" style="margin:0">${member.role==='admin'?t('<a class="button secondary small" href="#members">회원 관리</a>'):''}<button class="button small" data-action="new-post">글쓰기</button></div></div>${data.posts.length ? `<div class="post-list">${data.posts.map(p=>html`<a class="post-row" href="#post/${p.id}"><span class="post-tag">${esc(labels[p.category])}</span><div><h3>${esc(p.title)}</h3><p>${esc(p.authorName)} · ${date(p.createdAt)}</p></div><span class="count">댓글 ${p.commentCount}</span></a>`).join('')}</div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}`;
+    const write = member?.status === 'approved' ? '<button class="button small" data-action="new-post">글쓰기</button>' : '<button class="button small" data-action="login">글쓰기</button>';
+    target.innerHTML=html`<div class="board-toolbar"><h2>지킴이 로그 <span class="muted small-text">${data.total}개의 글</span></h2><div class="button-row" style="margin:0">${member?.role==='admin'?t('<a class="button secondary small" href="#members">회원 관리</a>'):''}${write}</div></div>${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>html`<article class="post-card"><a class="post-card-link" href="#post/${p.id}" aria-label="${esc(p.title)} 읽기">${media(p.attachments?.[0],'post-card-media')}<div class="post-card-copy"><span class="post-tag">${esc(labels[p.category])}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a><div class="post-card-actions">${likeButton(p)}<a class="post-action" href="#post/${p.id}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a></div></article>`).join('')}</div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}`;
   }
   function pagination(page,pages,route) { return pages>1 ? `<div class="paging">${page>1?html`<a class="button secondary small" href="#${route}/${page-1}">이전</a>`:''}<span>${page} / ${pages}</span>${page<pages?html`<a class="button secondary small" href="#${route}/${page+1}">다음</a>`:''}</div>` : ''; }
   async function post(id, commentPage, stamp) {
-    if (!member || member.status !== 'approved') { await board(1,stamp); return; }
     main.innerHTML=title('Community',t('지킴이 로그'))+t('<div class="reading"><p role="status">게시글을 불러오고 있습니다…</p></div>');
     const data = await CIC_API.request('getPost',{id,commentPage}); if (stamp!==epoch) return;
     currentPost=data.post; currentComments=data.comments; const p=data.post;
-    main.innerHTML=html`<article class="reading"><a href="#board" class="muted small-text">← 게시판 목록</a><span class="eyebrow" style="margin-top:35px">${esc(labels[p.category])}</span><h1 style="font-size:2rem">${esc(p.title)}</h1><div class="post-meta"><span>${esc(p.authorName)}</span><time>${date(p.createdAt)}</time>${p.version>1?t('<span>수정됨</span>'):''}</div>${canEdit(p.authorId)?t('<div class="button-row"><button class="text-button" data-action="edit-post">수정</button><button class="text-button danger" data-action="delete-post">삭제</button></div>'):''}<div class="post-body">${esc(p.body)}</div><section class="comments"><h2>댓글 <span class="muted small-text">${data.commentCount}</span></h2>${data.comments.length ? data.comments.map(c=>`<article class="comment"><div class="comment-head"><strong>${esc(c.authorName)}</strong><time>${date(c.createdAt)}</time>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`).join('') : t('<p class="muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}<form id="comment-form"><div class="field"><label for="comment-body">댓글 쓰기</label><textarea id="comment-body" name="body" required maxlength="2000" placeholder="활동에 대한 생각을 나눠주세요."></textarea></div><p class="inline-error" role="alert"></p><button class="button" type="submit">댓글 등록</button></form></section></article>`;
+    const canWrite = member?.status === 'approved';
+    const commentForm = canWrite ? `<form id="comment-form"><div class="field"><label for="comment-body">댓글 쓰기</label><textarea id="comment-body" name="body" required maxlength="2000" placeholder="활동에 대한 생각을 나눠주세요."></textarea></div><p class="inline-error" role="alert"></p><button class="button" type="submit">댓글 등록</button></form>` : '<div class="comment-login"><p>댓글을 작성하려면 로그인해주세요.</p><button class="button secondary" data-action="login">Google 로그인</button></div>';
+    main.innerHTML=html`<article class="reading"><a href="#board" class="muted small-text">← 게시판 목록</a><span class="eyebrow" style="margin-top:35px">${esc(labels[p.category])}</span><h1 style="font-size:2rem">${esc(p.title)}</h1><div class="post-meta"><span>${esc(p.authorName)}</span>${p.version>1?t('<span>수정됨</span>'):''}</div><div class="post-detail-actions">${likeButton(p)}${canEdit(p.authorId)?t('<div class="button-row"><button class="text-button" data-action="edit-post">수정</button><button class="text-button danger" data-action="delete-post">삭제</button></div>'):''}</div>${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}<div class="post-body">${esc(p.body)}</div><section class="comments" id="comments"><h2>댓글 <span class="muted small-text">${data.commentCount}</span></h2>${data.comments.length ? data.comments.map(c=>`<article class="comment"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`).join('') : t('<p class="muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}${commentForm}</section></article>`;
     const form=document.getElementById('comment-form'); let mutationId=crypto.randomUUID();
-    form.addEventListener('submit', async e => {e.preventDefault(); await submit(form,async()=>{await CIC_API.request('createComment',{postId:p.id,body:form.elements.body.value,mutationId}); mutationId=crypto.randomUUID(); toast(t('댓글을 등록했습니다.')); await route();});});
+    if(form) form.addEventListener('submit', async e => {e.preventDefault(); await submit(form,async()=>{await CIC_API.request('createComment',{postId:p.id,body:form.elements.body.value,mutationId}); mutationId=crypto.randomUUID(); toast(t('댓글을 등록했습니다.')); await route();});});
   }
   async function members(stamp) {
     if (member?.role!=='admin') { await board(1,stamp); return; }
@@ -85,11 +93,24 @@
     const button=form.querySelector('button[type="submit"]'), err=form.querySelector('.inline-error'); button.disabled=true; err.textContent='';
     try {await fn();}catch(e){err.textContent=t(e.message);}finally{button.disabled=false;}
   }
+  async function uploadFile(file, progress) {
+    const allowed=['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm'];
+    if(!allowed.includes(file.type) || file.size > 100*1024*1024) throw new Error('이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
+    const start=await CIC_API.request('startUpload',{name:file.name,mimeType:file.type,size:file.size});
+    const chunkSize=start.chunkSize, url=start.uploadUrl;
+    for(let offset=0;offset<file.size;offset+=chunkSize){
+      const end=Math.min(file.size,offset+chunkSize), response=await fetch(url,{method:'PUT',headers:{'Content-Type':file.type,'Content-Range':`bytes ${offset}-${end-1}/${file.size}`},body:file.slice(offset,end)});
+      if(!response.ok && response.status!==308) throw new Error('첨부 파일을 업로드하지 못했습니다. 다시 시도해주세요.');
+      if(progress) progress.value=Math.round(end/file.size*100);
+    }
+    return (await CIC_API.request('completeUpload',{id:start.attachment.id})).attachment;
+  }
   function editor(p=null) {
     const mutationId=crypto.randomUUID();
-    openModal(html`<h2 id="modal-title">${p?t('게시글 수정'):t('새로운 이야기')}</h2><form id="post-form"><div class="field"><label for="post-category">분류</label><select id="post-category" name="category">${Object.entries(labels).filter(([k])=>k!=='notice'||member.role==='admin').map(([k,v])=>`<option value="${k}" ${p?.category===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label for="post-title">제목</label><input id="post-title" name="title" required maxlength="120" value="${esc(p?.title||'')}" placeholder="어떤 이야기를 나누고 싶으신가요?"></div><div class="field"><label for="post-body">내용</label><textarea id="post-body" name="body" required maxlength="10000" rows="9">${esc(p?.body||'')}</textarea></div><p class="muted small-text">승인된 CIC 회원에게만 공개됩니다.</p><p class="inline-error" role="alert"></p><button class="button" type="submit">${p?t('수정 저장'):t('게시글 등록')}</button></form>`);
+    const existing=(p?.attachments||[]).map(a=>`<li>${esc(a.name)}</li>`).join('');
+    openModal(html`<h2 id="modal-title">${p?t('게시글 수정'):t('새로운 이야기')}</h2><form id="post-form"><div class="field"><label for="post-category">분류</label><select id="post-category" name="category">${Object.entries(labels).filter(([k])=>k!=='notice'||member.role==='admin').map(([k,v])=>`<option value="${k}" ${p?.category===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label for="post-title">제목</label><input id="post-title" name="title" required maxlength="120" value="${esc(p?.title||'')}" placeholder="어떤 이야기를 나누고 싶으신가요?"></div><div class="field"><label for="post-summary">요약</label><textarea id="post-summary" name="summary" required maxlength="300" rows="3" placeholder="카드에 표시할 짧은 요약을 작성해주세요.">${esc(p?.summary||'')}</textarea></div><div class="field"><label for="post-body">내용</label><textarea id="post-body" name="body" required maxlength="10000" rows="9">${esc(p?.body||'')}</textarea></div><div class="field"><label for="post-files">사진·동영상 첨부</label><input id="post-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple><p class="muted small-text">이미지 또는 동영상 최대 5개, 파일당 100MB까지 첨부할 수 있습니다.</p>${existing?`<ul class="attachment-list">${existing}</ul>`:''}<progress id="upload-progress" max="100" value="0" hidden></progress></div><p class="muted small-text">게시물과 첨부 파일은 누구나 볼 수 있으며, 작성·수정은 로그인한 회원만 가능합니다.</p><p class="inline-error" role="alert"></p><button class="button" type="submit">${p?t('수정 저장'):t('게시글 등록')}</button></form>`);
     const form=document.getElementById('post-form');
-    form.addEventListener('submit',e=>{e.preventDefault();submit(form,async()=>{const data=Object.fromEntries(new FormData(form));data.mutationId=mutationId;if(p){data.id=p.id;data.version=p.version;}const result=await CIC_API.request(p?'updatePost':'createPost',data);modal.close();toast(p?t('게시글을 수정했습니다.'):t('게시글을 등록했습니다.'));if(location.hash==='#post/'+result.post.id)await route();else location.hash='post/'+result.post.id;});});
+    form.addEventListener('submit',e=>{e.preventDefault();submit(form,async()=>{const data=Object.fromEntries(new FormData(form));const files=[...form.elements.files.files], attachmentIds=(p?.attachments||[]).map(a=>a.id);if(files.length+attachmentIds.length>5)throw new Error('첨부 파일은 최대 5개까지 선택할 수 있습니다.');const progress=document.getElementById('upload-progress');for(const file of files){progress.hidden=false;progress.value=0;const a=await uploadFile(file,progress);attachmentIds.push(a.id);}data.attachmentIds=attachmentIds;data.mutationId=mutationId;delete data.files;if(p){data.id=p.id;data.version=p.version;}const result=await CIC_API.request(p?'updatePost':'createPost',data);modal.close();toast(p?t('게시글을 수정했습니다.'):t('게시글을 등록했습니다.'));if(location.hash==='#post/'+result.post.id)await route();else location.hash='post/'+result.post.id;});});
   }
   function editComment(c) {
     openModal(html`<h2 id="modal-title">댓글 수정</h2><form id="edit-comment-form"><div class="field"><label for="edit-comment-body">내용</label><textarea id="edit-comment-body" name="body" required maxlength="2000">${esc(c.body)}</textarea></div><p class="inline-error" role="alert"></p><button type="submit" class="button">수정 저장</button></form>`);
@@ -130,6 +151,10 @@
       else if(action==='login')await loginDialog();
       else if(action==='retry')await route();
       else if(action==='new-post')editor();
+      else if(action==='like'){
+        if(member?.status!=='approved'){await loginDialog();return;}
+        b.disabled=true;await CIC_API.request('toggleLike',{postId:b.dataset.id});await route();
+      }
       else if(action==='edit-post'&&currentPost)editor(currentPost);
       else if(action==='delete-post'&&currentPost){const p=currentPost;confirmAction(t('게시글을 삭제할까요?'),t('이 글과 댓글은 지킴이 로그에서 더 이상 보이지 않습니다.'),async()=>{await CIC_API.request('deletePost',{id:p.id,version:p.version});toast(t('게시글을 삭제했습니다.'));location.hash='board';});}
       else if(action==='edit-comment'){const c=currentComments.find(c=>c.id===b.dataset.id);if(c)editComment(c);}

