@@ -120,9 +120,9 @@ function dispatch_(r) {
     activePost_(d.postId);
     const mid = mutation_(d.mutationId);
     const old = rows_('Comments').find(x => x.authorId === m.id && x.mutationId === mid && x.postId === d.postId);
-    if (old) return { comment: publicComment_(old) };
+    if (old) return commentResult_(old, d.postId);
     const c = { id: Utilities.getUuid(), postId: d.postId, body: text_(d.body, 2000), authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
-    save_('Comments', c); return { comment: publicComment_(c) };
+    save_('Comments', c); return commentResult_(c, d.postId);
   }
   if (a === 'toggleLike') {
     const p = activePost_(d.postId), old = rows_('Likes').find(x => x.postId === p.id && x.memberId === m.id);
@@ -205,19 +205,34 @@ function listPosts_(d, member) {
   const page = page_(d.page), size = 15;
   const posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (b.category === 'notice') - (a.category === 'notice') || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
   const comments = rows_('Comments').filter(c => !c.deleted);
+  const attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
+  const commentCounts = countByPost_(comments), likeCounts = countByPost_(likes), liked = likedPostIds_(likes, member);
   return { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)), posts: posts.slice((page - 1)*size, page*size).map(p => {
-    const out = publicPost_(p, member); out.summary = out.summary.trim() || legacySummary_(out.body); delete out.body; out.commentCount = comments.filter(c => c.postId === p.id).length; return out;
+    const out = publicPostFromRows_(p, attachments, likeCounts, liked); out.summary = out.summary.trim() || legacySummary_(out.body); delete out.body; out.commentCount = commentCounts[p.id] || 0; return out;
   }) };
 }
 function getPost_(d, member) {
-  const p = activePost_(d.id), page = page_(d.commentPage), size = 30;
+  const p = activePost_(d.id), page = page_(d.commentPage), size = 30, attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
   const all = rows_('Comments').filter(c => c.postId === p.id && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
-  return { post: publicPost_(p, member), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
+  const likeCounts = countByPost_(likes), liked = likedPostIds_(likes, member);
+  return { post: publicPostFromRows_(p, attachments, likeCounts, liked), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
 }
 function publicMember_(m) { return { id:m.id, name:m.name, status:m.status, role:m.role }; }
 function publicPost_(p, member) {
   const attachments = (p.attachments || []).map(id => find_('Attachments', id)).filter(x => x && x.status === 'complete' && x.postId === p.id).map(publicAttachment_);
   return { id:p.id, title:p.title, summary:p.summary || '', body:p.body || '', attachments, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCount_(p.id), likedByMe:!!(member && rows_('Likes').some(x => x.postId === p.id && x.memberId === member.id)) };
+}
+function attachmentById_(attachments) { const byId = {}; attachments.forEach(a => { byId[a.id] = a; }); return byId; }
+function publicPostFromRows_(p, attachmentById, likeCounts, liked) {
+  const media = (p.attachments || []).map(id => attachmentById[id]).filter(x => x && x.status === 'complete' && x.postId === p.id).map(publicAttachment_);
+  return { id:p.id, title:p.title, summary:p.summary || '', body:p.body || '', attachments:media, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCounts[p.id] || 0, likedByMe:!!liked[p.id] };
+}
+function countByPost_(rows) { const counts = {}; rows.forEach(x => { counts[x.postId] = (counts[x.postId] || 0) + 1; }); return counts; }
+function likedPostIds_(likes, member) { const ids = {}; if (member) likes.forEach(x => { if (x.memberId === member.id) ids[x.postId] = true; }); return ids; }
+function commentResult_(comment, postId) {
+  const all = rows_('Comments').filter(c => c.postId === postId && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+  const index = all.findIndex(c => c.id === comment.id);
+  return { comment:publicComment_(comment), commentCount:all.length, commentPage:Math.floor(index / 30) + 1, commentPages:Math.max(1, Math.ceil(all.length / 30)) };
 }
 function publicComment_(c) { return { id:c.id, postId:c.postId, body:c.body, authorId:c.authorId, authorName:c.authorName, createdAt:c.createdAt, updatedAt:c.updatedAt, version:c.version }; }
 function publicAttachment_(a) {

