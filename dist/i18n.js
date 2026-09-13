@@ -140,6 +140,11 @@
   };
   messages['지킴이 로그'] = 'Guardian Log';
   messages['회원 관리'] = 'Member management';
+  messages['요약 (선택)'] = 'Summary (optional)';
+  messages['비워 두면 본문 앞부분을 표시합니다.'] = 'Leave blank to show the beginning of your post.';
+  messages['좋아요'] = 'Likes';
+  messages['댓글 달기…'] = 'Add a comment…';
+  messages['로그인하고 댓글 남기기'] = 'Sign in to leave a comment';
   messages['지킴이 로그를 준비하고 있습니다'] = 'Guardian Log is coming soon';
   messages['CIC 지킴이들과 이야기를 나눠요'] = 'Share your stories with CIC';
   messages['회원 상태를 확인할 수 없습니다'] = 'We could not confirm your membership';

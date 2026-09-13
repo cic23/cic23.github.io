@@ -4,19 +4,19 @@
   let C = CIC_I18N.content;
   const main = document.getElementById('main'), modal = document.getElementById('modal');
   let labels = { activity: t('활동 기록'), free: t('자유 게시판'), notice: t('공지') };
-  let member = null, epoch = 0, currentPost = null, currentComments = [], toastTimer, gisPromise;
+  let member = null, epoch = 0, currentPost = null, currentComments = [], commentsOpenFor = null, toastTimer, gisPromise;
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const title = (en, heading, sub='') => `<div class="page-title"><span class="eyebrow">${esc(en)}</span><h1>${esc(heading)}</h1>${sub ? `<p>${esc(sub)}</p>` : ''}</div>`;
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
-  const icon = (name) => name === 'like' ? '♡' : '▢';
+  const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
   const isVideo = a => /^video\//.test(a?.mimeType || '');
   function media(a, className='') {
     if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
     return isVideo(a) ? `<video class="${className}" controls preload="metadata"><source src="${esc(asset(a.url))}" type="${esc(a.mimeType)}"></video>` : `<img class="${className}" src="${esc(asset(a.url))}" alt="${esc(a.name)}" loading="lazy">`;
   }
-  function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="좋아요 ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
+  function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="${t('좋아요')} ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
   function openModal(html) { document.getElementById('modal-content').innerHTML = html; if (!modal.open) modal.showModal(); }
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a></article>`).join(''); }
@@ -58,10 +58,18 @@
     const data = await CIC_API.request('getPost',{id,commentPage}); if (stamp!==epoch) return;
     currentPost=data.post; currentComments=data.comments; const p=data.post;
     const canWrite = member?.status === 'approved';
-    const commentForm = canWrite ? `<form id="comment-form"><div class="field"><label for="comment-body">댓글 쓰기</label><textarea id="comment-body" name="body" required maxlength="2000" placeholder="활동에 대한 생각을 나눠주세요."></textarea></div><p class="inline-error" role="alert"></p><button class="button" type="submit">댓글 등록</button></form>` : '<div class="comment-login"><p>댓글을 작성하려면 로그인해주세요.</p><button class="button secondary" data-action="login">Google 로그인</button></div>';
-    main.innerHTML=html`<article class="reading"><a href="#board" class="muted small-text">← 게시판 목록</a><span class="eyebrow" style="margin-top:35px">${esc(labels[p.category])}</span><h1 style="font-size:2rem">${esc(p.title)}</h1><div class="post-meta"><span>${esc(p.authorName)}</span>${p.version>1?t('<span>수정됨</span>'):''}</div><div class="post-detail-actions">${likeButton(p)}${canEdit(p.authorId)?t('<div class="button-row"><button class="text-button" data-action="edit-post">수정</button><button class="text-button danger" data-action="delete-post">삭제</button></div>'):''}</div>${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}<div class="post-body">${esc(p.body)}</div><section class="comments" id="comments"><h2>댓글 <span class="muted small-text">${data.commentCount}</span></h2>${data.comments.length ? data.comments.map(c=>`<article class="comment"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`).join('') : t('<p class="muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}${commentForm}</section></article>`;
+    if (commentPage>1) commentsOpenFor=p.id;
+    const commentsOpen=commentsOpenFor===p.id;
+    const commentForm = canWrite ? html`<form id="comment-form" class="comment-composer"><label class="visually-hidden" for="comment-body">댓글 쓰기</label><div class="comment-input-row"><input id="comment-body" name="body" type="text" required maxlength="2000" placeholder="댓글 달기…" autocomplete="off"><button type="submit" class="text-button">댓글 등록</button></div><p class="inline-error" role="alert"></p></form>` : html`<div class="comment-login"><button class="text-button" data-action="login">로그인하고 댓글 남기기</button></div>`;
+    main.innerHTML=html`<div class="post-detail-shell"><a href="#board" class="post-back muted small-text">← 게시판 목록</a><article class="post-detail" aria-labelledby="post-title-heading">
+      <header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(p.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(p.authorName)}</strong><span>${esc(labels[p.category])}${p.version>1?` · ${t('수정됨')}`:''}</span></div>${canEdit(p.authorId)?html`<div class="post-owner-actions"><button class="text-button" data-action="edit-post">수정</button><button class="text-button danger" data-action="delete-post">삭제</button></div>`:''}</header>
+      ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
+      <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1><div class="post-body">${esc(p.body)}</div></div>
+      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button></div>
+      <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(c=>`<article class="comment"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
+    </article></div>`;
     const form=document.getElementById('comment-form'); let mutationId=crypto.randomUUID();
-    if(form) form.addEventListener('submit', async e => {e.preventDefault(); await submit(form,async()=>{await CIC_API.request('createComment',{postId:p.id,body:form.elements.body.value,mutationId}); mutationId=crypto.randomUUID(); toast(t('댓글을 등록했습니다.')); await route();});});
+    if(form) form.addEventListener('submit', async e => {e.preventDefault(); await submit(form,async()=>{await CIC_API.request('createComment',{postId:p.id,body:form.elements.body.value,mutationId}); mutationId=crypto.randomUUID(); commentsOpenFor=p.id; toast(t('댓글을 등록했습니다.')); const lastPage=Math.ceil((data.commentCount+1)/30); if(lastPage!==commentPage)location.hash='post/'+p.id+'/'+lastPage; else await route({keepScroll:true,scrollY:window.scrollY});});});
   }
   async function members(stamp) {
     if (member?.role!=='admin') { await board(1,stamp); return; }
@@ -71,6 +79,7 @@
   }
   async function route(options = {}) {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
+    if(page!=='post'||part!==commentsOpenFor) commentsOpenFor=null;
     currentPost=null; currentComments=[];
     renderFloatingWrite();
     document.querySelectorAll('nav a').forEach(a=>{ if(a.hash==='#'+page) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
@@ -124,7 +133,7 @@
     const mutationId=crypto.randomUUID();
     const retained=new Set((p?.attachments||[]).map(a=>a.id));
     const existing=(p?.attachments||[]).map(a=>`<li data-attachment-id="${esc(a.id)}"><span>${esc(a.name)}</span><button type="button" class="text-button danger" data-action="remove-attachment" data-id="${esc(a.id)}" aria-label="${esc(a.name)} 첨부 삭제">삭제</button></li>`).join('');
-    openModal(html`<h2 id="modal-title">${p?t('게시글 수정'):t('새로운 이야기')}</h2><form id="post-form"><div class="field"><label for="post-category">분류</label><select id="post-category" name="category">${Object.entries(labels).filter(([k])=>k!=='notice'||member.role==='admin').map(([k,v])=>`<option value="${k}" ${p?.category===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label for="post-title">제목</label><input id="post-title" name="title" required maxlength="120" value="${esc(p?.title||'')}" placeholder="어떤 이야기를 나누고 싶으신가요?"></div><div class="field"><label for="post-summary">요약</label><textarea id="post-summary" name="summary" required maxlength="300" rows="3" placeholder="카드에 표시할 짧은 요약을 작성해주세요.">${esc(p?.summary||'')}</textarea></div><div class="field"><label for="post-body">내용</label><textarea id="post-body" name="body" required maxlength="10000" rows="9">${esc(p?.body||'')}</textarea></div><div class="field"><label for="post-files">사진·동영상 첨부</label><input id="post-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple><p class="muted small-text">이미지 또는 동영상 최대 5개, 파일당 100MB까지 첨부할 수 있습니다.</p>${existing?`<ul class="attachment-list">${existing}</ul>`:''}<progress id="upload-progress" max="100" value="0" hidden></progress></div><p class="muted small-text">게시물과 첨부 파일은 누구나 볼 수 있으며, 작성·수정은 로그인한 회원만 가능합니다.</p><p class="inline-error" role="alert"></p><button class="button" type="submit">${p?t('수정 저장'):t('게시글 등록')}</button></form>`);
+    openModal(html`<h2 id="modal-title">${p?t('게시글 수정'):t('새로운 이야기')}</h2><form id="post-form"><div class="field"><label for="post-category">분류</label><select id="post-category" name="category">${Object.entries(labels).filter(([k])=>k!=='notice'||member.role==='admin').map(([k,v])=>`<option value="${k}" ${p?.category===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label for="post-title">제목</label><input id="post-title" name="title" required maxlength="120" value="${esc(p?.title||'')}" placeholder="어떤 이야기를 나누고 싶으신가요?"></div><div class="field"><label for="post-summary">요약 (선택)</label><textarea id="post-summary" name="summary" maxlength="300" rows="3" placeholder="비워 두면 본문 앞부분을 표시합니다.">${esc(p?.summary||'')}</textarea></div><div class="field"><label for="post-body">내용</label><textarea id="post-body" name="body" maxlength="10000" rows="9">${esc(p?.body||'')}</textarea></div><div class="field"><label for="post-files">사진·동영상 첨부</label><input id="post-files" name="files" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple><p class="muted small-text">이미지 또는 동영상 최대 5개, 파일당 100MB까지 첨부할 수 있습니다.</p>${existing?`<ul class="attachment-list">${existing}</ul>`:''}<progress id="upload-progress" max="100" value="0" hidden></progress></div><p class="muted small-text">게시물과 첨부 파일은 누구나 볼 수 있으며, 작성·수정은 로그인한 회원만 가능합니다.</p><p class="inline-error" role="alert"></p><button class="button" type="submit">${p?t('수정 저장'):t('게시글 등록')}</button></form>`);
     const form=document.getElementById('post-form');
     form.querySelectorAll('[data-action="remove-attachment"]').forEach(button=>button.addEventListener('click',()=>{retained.delete(button.dataset.id);button.closest('li').remove();}));
     form.addEventListener('submit',e=>{e.preventDefault();submit(form,async()=>{const data=Object.fromEntries(new FormData(form));const files=[...form.elements.files.files], attachmentIds=(p?.attachments||[]).filter(a=>retained.has(a.id)).map(a=>a.id);if(files.length+attachmentIds.length>5)throw new Error('첨부 파일은 최대 5개까지 선택할 수 있습니다.');const progress=document.getElementById('upload-progress');for(const file of files){progress.hidden=false;progress.value=0;const a=await uploadFile(file,progress);attachmentIds.push(a.id);}data.attachmentIds=attachmentIds;data.mutationId=mutationId;delete data.files;if(p){data.id=p.id;data.version=p.version;}const result=await CIC_API.request(p?'updatePost':'createPost',data);modal.close();toast(p?t('게시글을 수정했습니다.'):t('게시글을 등록했습니다.'));if(location.hash==='#post/'+result.post.id)await route();else location.hash='post/'+result.post.id;});});
@@ -168,9 +177,16 @@
       else if(action==='login')await loginDialog();
       else if(action==='retry')await route();
       else if(action==='new-post')editor();
+      else if(action==='toggle-comments'&&currentPost){
+        const comments=document.getElementById('comments');
+        comments.hidden=!comments.hidden;commentsOpenFor=comments.hidden?null:currentPost.id;
+        b.setAttribute('aria-expanded',String(!comments.hidden));
+      }
       else if(action==='like'){
         if(member?.status!=='approved'){await loginDialog();return;}
-        b.disabled=true;await CIC_API.request('toggleLike',{postId:b.dataset.id});await route();
+        b.disabled=true;const result=await CIC_API.request('toggleLike',{postId:b.dataset.id});
+        if(currentPost?.id===b.dataset.id){currentPost.likedByMe=result.liked;currentPost.likeCount=result.likeCount;}
+        main.querySelectorAll('[data-action="like"]').forEach(button=>{if(button.dataset.id!==b.dataset.id)return;button.classList.toggle('is-liked',result.liked);button.setAttribute('aria-pressed',String(result.liked));button.setAttribute('aria-label',t('좋아요')+' '+result.likeCount);button.querySelector('span').textContent=result.likeCount;});b.disabled=false;
       }
       else if(action==='edit-post'&&currentPost)editor(currentPost);
       else if(action==='delete-post'&&currentPost){const p=currentPost;confirmAction(t('게시글을 삭제할까요?'),t('이 글과 댓글은 지킴이 로그에서 더 이상 보이지 않습니다.'),async()=>{await CIC_API.request('deletePost',{id:p.id,version:p.version});toast(t('게시글을 삭제했습니다.'));location.hash='board';});}
