@@ -8,6 +8,7 @@ const source=fs.readFileSync(require('node:path').join(__dirname,'../dist/api.js
 function transport() {
   let listener, submitted;
   const storage = new Map();
+  const visitorStorage = new Map();
   const elements=[];
   const document={
     createElement(tag){const el={tag,children:[],contentWindow:{},append(c){this.children.push(c);},remove(){this.removed=true;},submit(){submitted=this;}};elements.push(el);return el;},
@@ -15,8 +16,9 @@ function transport() {
   };
   const window={addEventListener:(_,fn)=>listener=fn};
   const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
-  vm.runInNewContext(source,{window,document,location:{origin:'https://example.github.io'},sessionStorage,CIC_CONFIG:{apiUrl:'https://script.google.com/macros/s/deployment/exec',googleClientId:'client.apps.googleusercontent.com'},crypto:webcrypto,URL,Uint8Array,Map,Promise,Error,setTimeout,clearTimeout});
-  return {api:window.CIC_API,elements,storage,get submitted(){return submitted;},emit:e=>listener(e)};
+  const localStorage={getItem:k=>visitorStorage.get(k)||null,setItem:(k,v)=>visitorStorage.set(k,v),removeItem:k=>visitorStorage.delete(k)};
+  vm.runInNewContext(source,{window,document,location:{origin:'https://example.github.io'},sessionStorage,localStorage,CIC_CONFIG:{apiUrl:'https://script.google.com/macros/s/deployment/exec',googleClientId:'client.apps.googleusercontent.com'},crypto:webcrypto,URL,Uint8Array,Map,Promise,Error,setTimeout,clearTimeout});
+  return {api:window.CIC_API,elements,storage,visitorStorage,get submitted(){return submitted;},emit:e=>listener(e)};
 }
 test('transport ignores wrong origin, wrong nonce and unrelated Google iframe',async()=>{
   const t=transport(),promise=t.api.request('challenge');
@@ -33,7 +35,7 @@ test('transport ignores wrong origin, wrong nonce and unrelated Google iframe',a
 test('session is sent in POST body and errors are preserved',async()=>{
   const t=transport();t.api.setSession('private-session-token');const promise=t.api.request('listPosts');
   const req=JSON.parse(t.submitted.children[0].value),frame=t.elements.find(e=>e.tag==='iframe');
-  assert.equal(t.submitted.method,'POST');assert.equal(t.submitted.action.includes('private-session-token'),false);assert.equal(req.session,'private-session-token');
+  assert.equal(t.submitted.method,'POST');assert.equal(t.submitted.action.includes('private-session-token'),false);assert.equal(req.session,'private-session-token');assert.match(req.visitorId,/^[a-f0-9]{64}$/);assert.equal(t.visitorStorage.get('cic.visitor.v1'),req.visitorId);
   t.emit({origin:'https://script.google.com',source:frame.contentWindow,data:{channel:'CIC_API_V1',requestId:req.requestId,result:{ok:false,code:'AUTH',message:'로그인이 필요합니다.'}}});
   await assert.rejects(promise,e=>e.code==='AUTH');
 });

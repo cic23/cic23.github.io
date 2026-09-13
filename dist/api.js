@@ -2,8 +2,15 @@
   'use strict';
   const pending = new Map();
   const sessionKey = 'cic.session.v1';
+  const visitorKey = 'cic.visitor.v1';
   let session = (() => { try { return sessionStorage.getItem(sessionKey) || ''; } catch { return ''; } })();
   const random = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), b => b.toString(16).padStart(2, '0')).join('');
+  const visitorId = (() => {
+    let value = '';
+    try { value = localStorage.getItem(visitorKey) || ''; } catch {}
+    if (!/^[a-f0-9]{64}$/.test(value)) { value = random(); try { localStorage.setItem(visitorKey, value); } catch {} }
+    return value;
+  })();
   function isScriptOrigin(origin) {
     try { const u = new URL(origin); return u.protocol === 'https:' && (u.hostname === 'script.google.com' || u.hostname === 'script.googleusercontent.com' || /^[a-z0-9-]+-script\.googleusercontent\.com$/.test(u.hostname)); }
     catch { return false; }
@@ -33,7 +40,7 @@
       frame.name = 'cic_' + requestId; frame.className = 'transport'; frame.title = 'CIC 서버 통신';
       form.method = 'POST'; form.action = CIC_CONFIG.apiUrl; form.target = frame.name; form.className = 'transport';
       const field = document.createElement('input'); field.type = 'hidden'; field.name = 'payload';
-      field.value = JSON.stringify({ requestId, origin: location.origin, action, data, session });
+      field.value = JSON.stringify({ requestId, origin: location.origin, action, data, session, visitorId });
       form.append(field);
       const timer = setTimeout(() => { clean(); const e = new Error('서버 응답이 지연되고 있습니다. 작성 중인 내용을 보관한 뒤 다시 확인해주세요.'); e.code = 'TIMEOUT'; reject(e); }, 45000);
       function clean() { clearTimeout(timer); pending.delete(requestId); frame.remove(); form.remove(); }

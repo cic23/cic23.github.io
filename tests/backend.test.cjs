@@ -26,7 +26,7 @@ function server() {
     UrlFetchApp:{fetch:(url,options)=>{fetches++;if(url.endsWith('/token')){assert.equal(options.payload.client_secret,'secret');assert.equal(options.payload.redirect_uri,props.SITE_ORIGIN);return{getResponseCode:()=>200,getContentText:()=>JSON.stringify({access_token:'google-server-token'})};}assert.equal(options.headers.Authorization,'Bearer google-server-token');return{getResponseCode:()=>200,getContentText:()=>JSON.stringify(profile)};}}
   });
   vm.runInContext(source,context);context.setup();
-  const call = (action,data={},session) => context.dispatch_({action,data,session});
+  const call = (action,data={},session,visitorId) => context.dispatch_({action,data,session,visitorId});
   const login = (sub='google-user-a',email='a@example.org') => {profile.sub=sub;profile.email=email;return call('login',{code:'one-use-google-code',challenge:call('challenge').challenge});};
   const approve = id => {const m=context.find_('Members',id);m.status='approved';context.save_('Members',m);};
   return {context,call,login,approve,db,props,profile,get fetches(){return fetches;}};
@@ -79,11 +79,15 @@ test('missing text leaves a blank preview and long body previews are bounded',()
   assert.equal(s.call('listPosts').posts[0].summary,'가'.repeat(300));
   for(const summary of [null,42,{},'가'.repeat(301)])denied(()=>s.call('createPost',{...draft(),summary},a.session),'INVALID');
 });
-test('likes toggle once per member, expose only count publicly, and retain an audit row while liked',()=>{
+test('likes toggle once per anonymous browser or member, expose only count publicly, and retain an audit row while liked',()=>{
   const s=server(),a=s.login();const p=s.call('createPost',draft(),a.session).post;
-  let like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,true);assert.equal(like.likeCount,1);
+  const visitor='a'.repeat(64);
+  let like=s.call('toggleLike',{postId:p.id},undefined,visitor);assert.equal(like.liked,true);assert.equal(like.likeCount,1);
   const listed=s.call('listPosts');assert.equal(listed.posts[0].likeCount,1);assert.equal(listed.posts[0].likedByMe,false);assert.equal(Object.hasOwn(listed.posts[0],'memberId'),false);
-  assert.equal(s.context.rows_('Likes').length,1);like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,false);assert.equal(like.likeCount,0);assert.equal(s.context.rows_('Likes').length,0);
+  assert.equal(s.call('listPosts',{},undefined,visitor).posts[0].likedByMe,true);assert.equal(s.context.rows_('Likes').length,1);
+  like=s.call('toggleLike',{postId:p.id},undefined,visitor);assert.equal(like.liked,false);assert.equal(like.likeCount,0);assert.equal(s.context.rows_('Likes').length,0);
+  like=s.call('toggleLike',{postId:p.id},a.session);assert.equal(like.liked,true);assert.equal(like.likeCount,1);
+  denied(()=>s.call('toggleLike',{postId:p.id}),'INVALID');
 });
 test('other members cannot change or delete someone else’s posts',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',draft(),a.session).post;const b=s.login('google-user-b','b@example.org');s.approve(b.member.id);denied(()=>s.call('deletePost',{id:p.id,version:1},b.session),'FORBIDDEN');denied(()=>s.call('updatePost',{id:p.id,version:1,...draft()},b.session),'FORBIDDEN');

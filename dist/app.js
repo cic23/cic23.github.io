@@ -248,7 +248,6 @@
         b.setAttribute('aria-expanded',String(!comments.hidden));
       }
       else if(action==='like'){
-        if(member?.status!=='approved'){await loginDialog();return;}
         const id=b.dataset.id, wasLiked=b.getAttribute('aria-pressed')==='true', oldCount=Number(b.querySelector('span').textContent)||0;
         b.disabled=true;setLikeUI(id,!wasLiked,Math.max(0,oldCount+(wasLiked?-1:1)));
         try { const result=await CIC_API.request('toggleLike',{postId:id});setLikeUI(id,result.liked,result.likeCount); }

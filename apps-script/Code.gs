@@ -76,8 +76,10 @@ function dispatch_(r) {
   if (a === 'login') return login_(d);
   // Public content is deliberately exposed only through these two projections.
   // All identity, write and audit operations still require a verified session.
-  if (a === 'listPosts') return listPosts_(d, reader_(r.session));
-  if (a === 'getPost') return getPost_(d, reader_(r.session));
+  const reader = reader_(r.session), likeActor = likeActor_(reader, r.visitorId);
+  if (a === 'listPosts') return listPosts_(d, reader, likeActor);
+  if (a === 'getPost') return getPost_(d, reader, likeActor);
+  if (a === 'toggleLike') return toggleLike_(d, reader, likeActor);
   const auth = authenticate_(r.session);
   if (a === 'logout') { remove_('Sessions', auth.session.id); return {}; }
   if (a === 'me') return { member: publicMember_(auth.member) };
@@ -123,12 +125,6 @@ function dispatch_(r) {
     if (old) return commentResult_(old, d.postId);
     const c = { id: Utilities.getUuid(), postId: d.postId, body: text_(d.body, 2000), authorId: m.id, authorName: m.name, createdAt: now_(), updatedAt: now_(), version: 1, deleted: false, mutationId: mid };
     save_('Comments', c); return commentResult_(c, d.postId);
-  }
-  if (a === 'toggleLike') {
-    const p = activePost_(d.postId), old = rows_('Likes').find(x => x.postId === p.id && x.memberId === m.id);
-    if (old) { remove_('Likes', old.id); return { liked: false, likeCount: likeCount_(p.id) }; }
-    save_('Likes', { id: Utilities.getUuid(), postId: p.id, memberId: m.id, memberName: m.name, createdAt: now_() });
-    return { liked: true, likeCount: likeCount_(p.id) };
   }
   if (a === 'listLikes') { admin_(m); const p = activePost_(d.postId); return { likes: rows_('Likes').filter(x => x.postId === p.id).map(x => ({ id:x.id, memberId:x.memberId, memberName:x.memberName, createdAt:x.createdAt })) }; }
   if (a === 'startUpload') return startUpload_(d, m);
@@ -201,20 +197,20 @@ function reader_(token) {
   if (!token) return null;
   try { return authenticate_(token).member; } catch (_) { return null; }
 }
-function listPosts_(d, member) {
+function listPosts_(d, member, likeActor) {
   const page = page_(d.page), size = 15;
   const posts = rows_('Posts').filter(p => !p.deleted).sort((a,b) => (b.category === 'notice') - (a.category === 'notice') || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
   const comments = rows_('Comments').filter(c => !c.deleted);
   const attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
-  const commentCounts = countByPost_(comments), likeCounts = countByPost_(likes), liked = likedPostIds_(likes, member);
+  const commentCounts = countByPost_(comments), likeCounts = countByPost_(likes), liked = likedPostIds_(likes, likeActor);
   return { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)), posts: posts.slice((page - 1)*size, page*size).map(p => {
     const out = publicPostFromRows_(p, attachments, likeCounts, liked); out.summary = out.summary.trim() || legacySummary_(out.body); delete out.body; out.commentCount = commentCounts[p.id] || 0; return out;
   }) };
 }
-function getPost_(d, member) {
+function getPost_(d, member, likeActor) {
   const p = activePost_(d.id), page = page_(d.commentPage), size = 30, attachments = attachmentById_(rows_('Attachments')), likes = rows_('Likes');
   const all = rows_('Comments').filter(c => c.postId === p.id && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
-  const likeCounts = countByPost_(likes), liked = likedPostIds_(likes, member);
+  const likeCounts = countByPost_(likes), liked = likedPostIds_(likes, likeActor);
   return { post: publicPostFromRows_(p, attachments, likeCounts, liked), comments: all.slice((page - 1)*size, page*size).map(publicComment_), commentPage: page, commentPages: Math.max(1, Math.ceil(all.length/size)), commentCount: all.length };
 }
 function publicMember_(m) { return { id:m.id, name:m.name, status:m.status, role:m.role }; }
@@ -228,7 +224,20 @@ function publicPostFromRows_(p, attachmentById, likeCounts, liked) {
   return { id:p.id, title:p.title, summary:p.summary || '', body:p.body || '', attachments:media, category:p.category, authorId:p.authorId, authorName:p.authorName, createdAt:p.createdAt, updatedAt:p.updatedAt, version:p.version, likeCount:likeCounts[p.id] || 0, likedByMe:!!liked[p.id] };
 }
 function countByPost_(rows) { const counts = {}; rows.forEach(x => { counts[x.postId] = (counts[x.postId] || 0) + 1; }); return counts; }
-function likedPostIds_(likes, member) { const ids = {}; if (member) likes.forEach(x => { if (x.memberId === member.id) ids[x.postId] = true; }); return ids; }
+function likedPostIds_(likes, likeActor) { const ids = {}; if (likeActor) likes.forEach(x => { if (x.memberId === likeActor) ids[x.postId] = true; }); return ids; }
+function likeActor_(member, visitorId) {
+  if (member) return member.id;
+  if (typeof visitorId !== 'string' || !/^[a-f0-9]{64}$/.test(visitorId)) return '';
+  return 'anon:' + hash_(visitorId);
+}
+function toggleLike_(d, member, likeActor) {
+  if (!likeActor) fail_('INVALID', '좋아요 정보를 확인하지 못했습니다. 새로고침 후 다시 시도해주세요.');
+  rate_('like:' + likeActor);
+  const p = activePost_(d.postId), old = rows_('Likes').find(x => x.postId === p.id && x.memberId === likeActor);
+  if (old) { remove_('Likes', old.id); return { liked: false, likeCount: likeCount_(p.id) }; }
+  save_('Likes', { id: Utilities.getUuid(), postId: p.id, memberId: likeActor, memberName: member ? member.name : '익명', createdAt: now_() });
+  return { liked: true, likeCount: likeCount_(p.id) };
+}
 function commentResult_(comment, postId) {
   const all = rows_('Comments').filter(c => c.postId === postId && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
   const index = all.findIndex(c => c.id === comment.id);
