@@ -85,6 +85,7 @@
     'Google 로그인 연결이 완료되면 회원 가입과 게시판을 이용할 수 있습니다.':'Membership registration and the board will be available once Google sign-in is connected.',
     'CIC에 오신 것을 환영합니다':'Welcome to CIC',
     'Google 계정으로 로그인하면 가입 신청이 접수됩니다. 관리자가 승인한 회원만 게시판을 이용할 수 있습니다.':'Sign in with Google to request membership. Only members approved by an administrator can use the board.',
+    'Google 계정으로 로그인하면 바로 지킴이 로그를 이용할 수 있습니다.':'Sign in with Google to use the Guardian Log immediately.',
     '문화유산 이야기를 남겨주세요!':'Please share your cultural heritage story!',
     'Google 로그인 준비 중…':'Preparing Google sign-in…',
     '로그인이 취소되었거나 완료되지 않았습니다.':'Sign-in was cancelled or could not be completed.',
