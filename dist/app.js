@@ -102,12 +102,12 @@
     const allowed=['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm'];
     if(!allowed.includes(file.type) || file.size > 100*1024*1024) throw new Error('이미지 또는 동영상 파일은 파일당 최대 100MB까지 첨부할 수 있습니다.');
     const start=await CIC_API.request('startUpload',{name:file.name,mimeType:file.type,size:file.size});
-    const chunkSize=start.chunkSize, url=start.uploadUrl;
-    for(let offset=0;offset<file.size;offset+=chunkSize){
-      const end=Math.min(file.size,offset+chunkSize), response=await fetch(url,{method:'PUT',headers:{'Content-Type':file.type,'Content-Range':`bytes ${offset}-${end-1}/${file.size}`},body:file.slice(offset,end)});
-      if(!response.ok && response.status!==308) throw new Error('첨부 파일을 업로드하지 못했습니다. 다시 시도해주세요.');
-      if(progress) progress.value=Math.round(end/file.size*100);
-    }
+    if(progress){progress.hidden=false;progress.value=0;}
+    let response;
+    try { response=await fetch(start.uploadUrl,{method:'PUT',headers:{'Content-Type':file.type},body:file}); }
+    catch (_) { throw new Error('첨부 파일을 Drive로 전송하지 못했습니다. 네트워크 연결을 확인하고 다시 시도해주세요.'); }
+    if(!response.ok) throw new Error('첨부 파일을 업로드하지 못했습니다. Drive 응답 ' + response.status + '을(를) 확인해주세요.');
+    if(progress) progress.value=100;
     return (await CIC_API.request('completeUpload',{id:start.attachment.id})).attachment;
   }
   function editor(p=null) {
