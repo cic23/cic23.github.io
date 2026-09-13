@@ -39,7 +39,7 @@
     '지킴이 로그':'Guardians’ log',
     '우리가 문화유산에 ‘푹’ 빠진 이유':'Why we care so deeply about heritage',
     '단원들의 소감을 모으고 있습니다. 직접 경험하고 느낀 이야기를 곧 이곳에서 전하겠습니다.':'We are gathering our members’ reflections. Their first-hand experiences and thoughts will be shared here soon.',
-    '다섯 가지 가치, 다섯 가지 실천':'Five values, five ways to make a difference',
+    '다섯 가지 가치와 실천':'Five values in practice',
     '존중 · 책임감 · 정직 · 공정 · 배려':'Respect · Responsibility · Honesty · Fairness · Compassion',
     '도시를 걷고, 역사를 읽다':'Walk the city. Discover its history.',
     'CIC가 소개하는 인천의 문화유산과 탐방 이야기':'Explore Incheon’s cultural heritage with CIC',
