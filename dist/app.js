@@ -45,8 +45,12 @@
     if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
     target.innerHTML=t('<p role="status">게시글을 불러오고 있습니다…</p>');
     const data = await CIC_API.request('listPosts',{page}); if (stamp !== epoch) return;
-    const write = member?.status === 'approved' ? '<button class="floating-write" data-action="new-post" aria-label="새 게시글 작성"><span aria-hidden="true">✎</span> 글쓰기</button>' : '<button class="floating-write" data-action="login" aria-label="로그인 후 새 게시글 작성"><span aria-hidden="true">✎</span> 글쓰기</button>';
-    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>html`<article class="post-card"><a class="post-card-link" href="#post/${p.id}" aria-label="${esc(p.title)} 읽기">${media(p.attachments?.[0],'post-card-media')}<div class="post-card-copy"><span class="post-tag">${esc(labels[p.category])}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a><div class="post-card-actions">${likeButton(p)}<a class="post-action" href="#post/${p.id}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a></div></article>`).join('')}</div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}${write}`;
+    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>html`<article class="post-card"><a class="post-card-link" href="#post/${p.id}" aria-label="${esc(p.title)} 읽기">${media(p.attachments?.[0],'post-card-media')}<div class="post-card-copy"><span class="post-tag">${esc(labels[p.category])}</span><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p></div></a><div class="post-card-actions">${likeButton(p)}<a class="post-action" href="#post/${p.id}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a></div></article>`).join('')}</div>` : t('<div class="empty"><h3>아직 등록된 글이 없습니다</h3><p>첫 번째 CIC 활동 이야기를 남겨주세요.</p></div>')}${pagination(page,data.pages,'board')}`;
+  }
+  function renderFloatingWrite() {
+    document.getElementById('floating-write')?.remove();
+    const canWrite=member?.status==='approved';
+    document.body.insertAdjacentHTML('beforeend',`<button id="floating-write" class="floating-write" data-action="${canWrite?'new-post':'login'}" aria-label="${esc(canWrite?t('새 게시글 작성'):t('로그인 후 새 게시글 작성'))}"><span aria-hidden="true">✎</span></button>`);
   }
   function pagination(page,pages,route) { return pages>1 ? `<div class="paging">${page>1?html`<a class="button secondary small" href="#${route}/${page-1}">이전</a>`:''}<span>${page} / ${pages}</span>${page<pages?html`<a class="button secondary small" href="#${route}/${page+1}">다음</a>`:''}</div>` : ''; }
   async function post(id, commentPage, stamp) {
@@ -68,6 +72,7 @@
   async function route(options = {}) {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
     currentPost=null; currentComments=[];
+    renderFloatingWrite();
     document.querySelectorAll('nav a').forEach(a=>{ if(a.hash==='#'+page) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
     const titles={home:t('인천 문화유산 가이드'),about:t('CIC 소개'),values:t('다섯 가지 가치'),guide:t('인천 문화유산'),board:t('지킴이 로그'),post:t('지킴이 로그'),members:t('회원 관리')};
     document.title=`CIC · ${titles[page]||titles.home}`;
