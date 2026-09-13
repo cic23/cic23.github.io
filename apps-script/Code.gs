@@ -221,6 +221,13 @@ function now_() { return new Date().toISOString(); }
 function random_() { return (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, ''); }
 function hash_(v) { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, v, Utilities.Charset.UTF_8).map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join(''); }
 function fail_(code, message) { const e = new Error(message); e.cicCode = code; throw e; }
+function driveFailure_(response, prefix) {
+  const status = response.getResponseCode(); let detail = '';
+  try { detail = String(JSON.parse(response.getContentText()).error?.message || ''); } catch (_) {}
+  detail = detail.replace(/[\r\n]+/g, ' ').slice(0, 300);
+  console.error('Drive API failed (' + status + '): ' + response.getContentText().slice(0, 500));
+  fail_('SERVER', prefix + ' Drive API 응답 ' + status + (detail ? ': ' + detail : ''));
+}
 function rate_(id) { const cache = CacheService.getScriptCache(), key = 'write:' + id; const n = Number(cache.get(key) || 0); if (n >= 30) fail_('RATE', '요청이 너무 많습니다. 1분 후 다시 시도해주세요.'); cache.put(key, String(n+1), 60); }
 function attachments_(ids, m, postId) {
   if (ids === undefined) ids = [];
@@ -245,10 +252,7 @@ function startUpload_(d, m) {
     method:'post', contentType:'application/json', payload:JSON.stringify({name, mimeType, parents:[uploadFolder_()]}),
     headers:{Authorization:'Bearer ' + ScriptApp.getOAuthToken(), 'X-Upload-Content-Type':mimeType, 'X-Upload-Content-Length':String(size)}, muteHttpExceptions:true
   });
-  if (response.getResponseCode() !== 200) {
-    console.error('Drive resumable upload start failed (' + response.getResponseCode() + '): ' + response.getContentText().slice(0, 500));
-    fail_('SERVER', '첨부 업로드를 시작하지 못했습니다. Drive 설정을 확인해주세요.');
-  }
+  if (response.getResponseCode() !== 200) driveFailure_(response, '첨부 업로드를 시작하지 못했습니다.');
   const location = response.getHeaders().Location || response.getHeaders().location;
   if (!location) fail_('SERVER', '첨부 업로드 주소를 받지 못했습니다.');
   const meta = JSON.parse(response.getContentText()); a.driveId = meta.id; save_('Attachments', a);
