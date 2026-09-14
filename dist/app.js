@@ -12,7 +12,7 @@
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
-  const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
+  const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':name==='share'?'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
   const isVideo = a => /^video\//.test(a?.mimeType || '');
   function media(a, className='') {
     if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
@@ -26,6 +26,18 @@
     target.innerHTML=html`<p class="muted" role="status">내용을 불러오지 못했습니다.</p><button class="button secondary small" data-action="${action}">다시 시도</button>`;
   }
   function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="${t('좋아요')} ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
+  function shareButton(p) { return `<button class="post-action post-share-action" data-action="share" data-id="${esc(p.id)}" aria-label="${t('공유하기')}">${icon('share')}</button>`; }
+  function postUrl(id) { const url=new URL(location.href); url.hash='post/'+encodeURIComponent(id); return url.href; }
+  async function sharePost(id) {
+    const url=postUrl(id), post=currentPost?.id===id?currentPost:postPreview.get(id), shareData={title:post?.title||document.title,url};
+    if (navigator.share) {
+      try { await navigator.share(shareData); return; }
+      catch (error) { if (error?.name==='AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(url); }
+    catch { const input=document.createElement('textarea'); input.value=url; input.setAttribute('readonly',''); input.style.cssText='position:fixed;opacity:0'; document.body.append(input); input.select(); const copied=document.execCommand('copy'); input.remove(); if(!copied) throw new Error(t('링크를 복사하지 못했습니다.')); }
+    toast(t('링크를 복사했습니다.'));
+  }
   function setLikeUI(id, liked, likeCount) {
     if (currentPost?.id===id) { currentPost.likedByMe=liked; currentPost.likeCount=likeCount; }
     postCache.forEach(data => { if (data.post?.id===id) { data.post.likedByMe=liked; data.post.likeCount=likeCount; } });
@@ -201,7 +213,7 @@
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
       <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>
-      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button></div>
+      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}</div>
       <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(commentMarkup).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
     </article>${relatedShell()}</div></div>`;
     CIC_MEDIA.observe(main);
@@ -327,6 +339,7 @@
         comments.hidden=!comments.hidden;commentsOpenFor=comments.hidden?null:currentPost.id;
         b.setAttribute('aria-expanded',String(!comments.hidden));
       }
+      else if(action==='share')await sharePost(b.dataset.id);
       else if(action==='like'){
         const id=b.dataset.id, wasLiked=b.getAttribute('aria-pressed')==='true', oldCount=Number(b.querySelector('span').textContent)||0;
         b.disabled=true;setLikeUI(id,!wasLiked,Math.max(0,oldCount+(wasLiked?-1:1)));
