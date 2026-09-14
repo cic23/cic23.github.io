@@ -6,14 +6,14 @@ window.CIC_CONFIG = Object.freeze({
     logo: './assets/cic-logo.jpeg',
     group: '',
     activities: {
-      plogging: './assets/plogging.jpg',
-      fundraising: './assets/plogging.jpg',
-      media: './assets/fundraising.jpg',
-      flashmob: './assets/media.jpg?v=43-image-refresh',
-      exchange: './assets/flashmob.jpg?v=43-image-refresh',
-      appointment: './assets/exchange.jpg',
-      docent: './assets/appointment.jpg',
-      awards: './assets/docent.jpg'
+      plogging: './assets/plogging.jpg?v=44-activity-photo-map',
+      fundraising: './assets/fundraising.jpg?v=44-activity-photo-map',
+      media: './assets/media.jpg?v=44-activity-photo-map',
+      flashmob: './assets/flashmob.jpg?v=44-activity-photo-map',
+      exchange: './assets/exchange.jpg?v=44-activity-photo-map',
+      appointment: './assets/appointment.jpg?v=44-activity-photo-map',
+      docent: './assets/docent.jpg?v=44-activity-photo-map',
+      awards: './assets/awards.jpg?v=44-activity-photo-map'
     }
   }
 });
