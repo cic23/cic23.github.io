@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-14 지킴이로그 게시글 공유 아이콘 추가 및 배포
+
+- 게시글 상세 하단의 좋아요·댓글 액션과 같은 줄 오른쪽 끝에 Google 모바일 UI의 연결점형 공유 아이콘을 추가했다. 아이콘에는 접근성 레이블과 영어 보기 번역(`Share`)을 적용했다.
+- 모바일 등 Web Share API 지원 환경에서는 게시글 제목과 고유 URL을 기기 기본 공유 시트로 전달한다. 지원하지 않는 환경에서는 같은 URL을 클립보드에 복사하고 완료 안내를 표시한다.
+- 구현은 `dist/app.js`, `dist/styles.css`, `dist/i18n.js`에 반영했으며, 공유 기능 변경만 커밋 `68cf7c8` (`Add share action to guardian log posts`)으로 GitHub `main`에 푸시했다. 기존 미추적 파일 `codex_cli_yolo.bat`, `img/`는 변경하거나 커밋하지 않았다.
+- 배포 전 `node --test tests/backend.test.cjs tests/transport.test.cjs` 26개와 `dist/*.js` 문법 검사를 통과했다. GitHub Pages 실행 [34843700252](https://github.com/cic23/cic23.github.io/actions/runs/34843700252)가 성공했고, 공개 `https://cic23.github.io/` 및 배포된 `https://cic23.github.io/app.js`의 HTTP 200과 `data-action="share"`, `navigator.share` 반영을 확인했다.
+
 ## 2026-09-14 문화유산 가이드 소개 문구 수정
 
 - 문화유산 가이드 소개 문구를 `CIC가 소개하는 인천 문화유산 탐방 이야기`로 변경하고 영어 보기에도 기존 번역을 반영했다. 변경된 파일 URL 버전은 `v=32-guide-copy`이다.
