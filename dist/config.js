@@ -9,7 +9,7 @@ window.CIC_CONFIG = Object.freeze({
       plogging: './assets/plogging.jpg',
       fundraising: './assets/plogging.jpg',
       media: './assets/fundraising.jpg',
-      flashmob: './assets/flashmob.jpg',
+      flashmob: './assets/media.jpg',
       exchange: './assets/exchange.jpg',
       appointment: './assets/appointment.jpg',
       docent: './assets/docent.jpg',
