@@ -13,7 +13,7 @@ window.CIC_CONFIG = Object.freeze({
       exchange: './assets/flashmob.jpg',
       appointment: './assets/exchange.jpg',
       docent: './assets/appointment.jpg',
-      awards: './assets/awards.jpg'
+      awards: './assets/docent.jpg'
     }
   }
 });
