@@ -12,7 +12,7 @@
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
-  const valueAssetKeys = Object.freeze({Respect:['value-respect'],Responsibility:['value-responsibility'],Honesty:['value-honesty-1','value-honesty-2'],Fairness:['value-fairness'],Compassion:['value-compassion-1','value-compassion-2','value-compassion-3']});
+  const valueAssetKeys = Object.freeze({Respect:['value-respect'],Responsibility:['value-responsibility'],Honesty:['value-honesty-1','value-honesty-2'],Fairness:['value-fairness'],Compassion:['value-compassion-1','value-compassion-2','value-compassion-3','value-compassion-4']});
   function valuePhotos(value, alt) {
     const photos=(valueAssetKeys[value.en]||[]).map((key,index)=>activityPhoto(key,`${alt} ${index+1}`));
     return photos.length ? `<div class="value-photo-gallery">${photos.join('')}</div>` : '';

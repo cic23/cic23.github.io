@@ -10,7 +10,7 @@ window.CIC_CONFIG = Object.freeze({
       fundraising: './assets/fundraising.jpg?v=44-activity-photo-map',
       media: './assets/media.jpg?v=44-activity-photo-map',
       flashmob: './assets/flashmob.jpg?v=44-activity-photo-map',
-      exchange: './assets/exchange.jpg?v=46-exchange-photo',
+      exchange: './assets/exchange.jpg?v=47-exchange-photo',
       appointment: './assets/appointment.jpg?v=44-activity-photo-map',
       docent: './assets/docent.jpg?v=44-activity-photo-map',
       awards: './assets/awards.jpg?v=44-activity-photo-map',
@@ -19,9 +19,10 @@ window.CIC_CONFIG = Object.freeze({
       'value-honesty-1': './assets/Honesty01.jpeg?v=1-values-photo',
       'value-honesty-2': './assets/Honesty02.jpg?v=1-values-photo',
       'value-fairness': './assets/Fairness.jpeg?v=1-values-photo',
-      'value-compassion-1': './assets/Compassion01.jpeg?v=1-values-photo',
-      'value-compassion-2': './assets/Compassion02.jpeg?v=1-values-photo',
-      'value-compassion-3': './assets/Compassion03.jpg?v=1-values-photo'
+      'value-compassion-1': './assets/Compassion01.jpeg?v=2-values-photo',
+      'value-compassion-2': './assets/Compassion02.jpeg?v=2-values-photo',
+      'value-compassion-3': './assets/Compassion03.jpeg?v=2-values-photo',
+      'value-compassion-4': './assets/Compassion04.jpg?v=2-values-photo'
     }
   }
 });
