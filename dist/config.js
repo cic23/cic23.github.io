@@ -13,7 +13,15 @@ window.CIC_CONFIG = Object.freeze({
       exchange: './assets/exchange.jpg?v=46-exchange-photo',
       appointment: './assets/appointment.jpg?v=44-activity-photo-map',
       docent: './assets/docent.jpg?v=44-activity-photo-map',
-      awards: './assets/awards.jpg?v=44-activity-photo-map'
+      awards: './assets/awards.jpg?v=44-activity-photo-map',
+      'value-respect': './assets/Respect.jpeg?v=1-values-photo',
+      'value-responsibility': './assets/Responsibility.jpg?v=1-values-photo',
+      'value-honesty-1': './assets/Honesty01.jpeg?v=1-values-photo',
+      'value-honesty-2': './assets/Honesty02.jpg?v=1-values-photo',
+      'value-fairness': './assets/Fairness.jpeg?v=1-values-photo',
+      'value-compassion-1': './assets/Compassion01.jpeg?v=1-values-photo',
+      'value-compassion-2': './assets/Compassion02.jpeg?v=1-values-photo',
+      'value-compassion-3': './assets/Compassion03.jpg?v=1-values-photo'
     }
   }
 });
