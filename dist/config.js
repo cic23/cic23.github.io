@@ -8,7 +8,7 @@ window.CIC_CONFIG = Object.freeze({
     activities: {
       plogging: './assets/plogging.jpg',
       fundraising: './assets/plogging.jpg',
-      media: './assets/media.jpg',
+      media: './assets/fundraising.jpg',
       flashmob: './assets/flashmob.jpg',
       exchange: './assets/exchange.jpg',
       appointment: './assets/appointment.jpg',
