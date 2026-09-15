@@ -23,6 +23,9 @@ window.CIC_CONFIG = Object.freeze({
       'value-compassion-2': './assets/Compassion02.jpeg?v=2-values-photo',
       'value-compassion-3': './assets/Compassion03.jpeg?v=2-values-photo',
       'value-compassion-4': './assets/Compassion04.jpg?v=2-values-photo'
+    },
+    guides: {
+      openport: './assets/incheonmap.jpg?v=1-openport-map'
     }
   }
 });
