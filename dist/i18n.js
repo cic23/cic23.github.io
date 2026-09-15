@@ -31,7 +31,6 @@
     '발간사':'Foreword',
     '우리가 서 있는 이 땅의 역사를':'Connecting the history beneath our feet',
     '미래로 연결합니다':'with the future',
-    'CIC를 소개합니다':'Meet CIC',
     '창립 연도와 단원 수는 클럽 기록, 누적 봉사시간은 1365 자원봉사포털 기록을 확인한 뒤 반영합니다.':'The founding year and membership will be updated after checking club records; volunteer hours will be verified through the 1365 Volunteer Portal.',
     '선생님의 기념사는 담당 선생님과 원고를 확인한 뒤 게재할 예정입니다.':'A message from our teacher will be published once the contributor and text are confirmed.',
     '창립 연도':'Founded', '활동 단원':'Active members', '누적 봉사시간':'Volunteer hours',
