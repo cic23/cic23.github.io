@@ -1,5 +1,15 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 푸터: 계정 삭제 안내를 개인정보처리방침에 통합, `로그인` 버튼 정리
+
+- **계정 삭제 안내 통합**: `dist/privacy.html`에 `<h2 id="account-deletion">6. 계정 삭제 안내</h2>` 섹션(앱·홈페이지에서 삭제하는 3단계, 삭제·유지 정보 표, 접속 불가 시 이메일 요청)과 영어 요약 항목을 넣었다. 뒤 섹션은 7(안전성 확보)·8(문의)·9(방침의 변경)로 번호가 밀렸다. 푸터에서 `계정 삭제 안내` 링크를 뺐고, `terms.html`·`privacy.html`의 내부 링크는 `privacy.html#account-deletion`으로 바꿨다.
+- **`dist/account-deletion.html`은 삭제하지 않고 이동 안내 페이지로 남겼다**(`meta refresh` → `./privacy.html#account-deletion`, 링크·영어 안내 포함). 앞선 기록과 이미 공유했을 수 있는 옛 URL을 살리기 위해서다. Play 콘솔의 계정 삭제 URL은 `https://cic23.github.io/privacy.html#account-deletion`을 쓴다(`store/listing.md` 갱신). 리다이렉트 페이지를 Play가 어떻게 취급하는지는 확인하지 못했으므로 콘솔에는 `#account-deletion` 주소를 직접 입력한다.
+- **푸터 로그인 버튼**: `로그인 / 내 계정` → `로그인`(영어 `Sign in`). 다른 링크와 같은 스타일로 맞췄다: `.site-footer .footer-links a`의 규칙(`font-size:.75rem`=12px, `color:rgba(255,255,255,.85)`, 호버 `#fff`)에 `.footer-account`를 함께 묶었고 밑줄은 없다. 계산된 스타일이 한국어·영어에서 개인정보처리방침·이용약관과 동일함을 Edge로 확인했다. 번역은 `i18n.js` `applyShell()`이 `data-label-ko`/`data-label-en` 속성으로 라벨을 바꾼다(짧은 `로그인` 번역 키는 부분 문자열 치환 문제로 만들지 않았다). 로그인 상태에서도 버튼은 `로그인`으로 표시되고 눌러서 여는 계정 창에 로그아웃·회원 탈퇴가 있다(라벨이 상태에 따라 바뀌지는 않는다).
+- **푸터 아래 여백**: 맨 아래로 스크롤하면 우측 하단 글쓰기 플로팅 버튼이 마지막 링크(`로그인`)를 가려서 `.site-footer{padding-bottom:88px}`를 추가했다.
+- 버전: `styles.css?v=65-footer-login`, `i18n.js?v=36-footer-login`. 테스트 36개·JS 문법 통과.
+- 검증 중 메모: 캡처용 iframe(폭 375px)은 세로 스크롤바가 폭을 15px 줄여 영어 메뉴가 두 줄로 보인다. 스크롤바를 뺀 실제 폭 375px에서는 세 항목이 한 줄이며 이전 배포 CSS와 결과가 같다. 폭 360px 이하 영어 메뉴는 줄바꿈될 수 있고 확인하지 않았다.
+- 커밋 `6fd4a13`(`Merge account deletion guide into privacy policy and simplify footer login`), Pages 실행 `35544607054` 성공. 공개 사이트에서 홈·`privacy.html`·`terms.html`·`account-deletion.html` HTTP 200, 푸터가 `개인정보처리방침 · 이용약관 · 로그인`, `privacy.html#account-deletion` 섹션, 리다이렉트 URL, 새 파일 버전 반영을 확인했다.
+
 ## 2026-09-21 헤더 메뉴 글자 20% 확대
 
 - 사용자 요청에 따라 헤더 메뉴(`CIC 소개 · 인천 문화유산 · 지킴이 로그`) 글자를 20% 키웠다: 기본 `.63rem`→`.756rem`(약 12.1px), 폭 1000px 이하 `.6125rem`→`.735rem`(약 11.8px). 변경은 `dist/styles.css`의 `.site-header nav a` 두 규칙이며 `styles.css?v=62-nav-size`.
