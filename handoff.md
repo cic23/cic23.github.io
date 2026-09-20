@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 푸터 링크 글자 스타일을 저작권 문구에 맞춤
+
+- 사용자 요청에 따라 푸터 링크(`개인정보처리방침`·`이용약관`·`로그인/로그아웃`)의 글자 스타일을 `© 2026 CIC. Chadwick International Culture protector` 문구와 같게 했다: 12px(`.75rem`), 두께 400, 줄 간격 `1.6`(19.2px), 색 `rgba(255,255,255,.38)`. 규칙은 `.site-footer .footer-links a,.site-footer .footer-links .footer-account{font-size:.75rem;line-height:1.6;color:rgba(255,255,255,.38)}`이고 호버 색(`#fff`)은 그대로다. 저작권 문구의 스타일(`.site-footer p` + `.footer-copyright` 색 `.38`)은 바꾸지 않았다.
+- 같은 날 앞서 사용자가 반대 방향(저작권 문구를 링크 스타일 `.85`에 맞춤)을 요청해 만들었다가 배포 전에 되돌렸다. 이번 요청은 링크를 문구에 맞추는 방향이다. 링크가 흐려져 어두운 배경에서 잘 안 보이므로, 특히 `로그인`(계정 삭제 경로)이 눈에 덜 띈다는 점을 사용자에게 알렸다. 밝게 통일하려면 위 규칙의 색만 바꾸면 된다(문구도 함께 바꿀지는 별도 결정).
+- 검증: Edge에서 폭 1100px(한국어)·400px(영어)로 렌더링해 저작권 문구와 링크 세 개의 계산된 스타일(글꼴 `Noto Sans KR`, 12px, 400, 색, 줄 간격 19.2px, 밑줄 없음)이 완전히 같음을 확인했다. `styles.css?v=66-footer-text-style`.
+- 커밋 `9fa80b7`(`Give footer links the same text style as the copyright line`), Pages 실행 `35545718387` 성공, 공개 사이트 HTTP 200과 새 CSS 반영을 확인했다.
+
 ## 2026-09-21 푸터 계정 버튼: 로그인 상태에서 `로그아웃` 표시
 
 - 사용자 요청에 따라 푸터 계정 버튼(`.footer-account`)의 라벨을 로그인 상태에 따라 바꾼다: 로그아웃 상태 `로그인`/`Sign in`, 로그인 상태 `로그아웃`/`Sign out`. `dist/app.js`의 `updateFooterAccount()`가 `data-label-ko`/`data-label-en`과 글자를 갱신하고, `route()` 시작과 세션 만료(`AUTH`/`BLOCKED`) 처리에서 호출한다. 로그인·로그아웃·회원 탈퇴·언어 전환은 모두 `route()`를 다시 부르므로 라벨이 따라 바뀐다. `i18n.js`의 `applyShell()`은 이 data 속성을 읽으므로 언어 전환 때 라벨이 덮어써지지 않는다.
