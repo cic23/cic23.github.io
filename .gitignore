@@ -8,3 +8,9 @@ node_modules/
 *.zip
 README_old.md
 reference/
+
+# Android (TWA) signing material must never be committed
+*.jks
+*.keystore
+twa/build/
+twa/app/

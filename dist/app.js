@@ -396,4 +396,6 @@
     catch (e) { if (['AUTH','BLOCKED'].includes(e.code)) CIC_API.clear(); }
   }
   restoreSession().finally(route);
+  // Offline fallback for the installed app; a failed registration never affects the site.
+  if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 })();
