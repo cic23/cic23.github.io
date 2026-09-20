@@ -248,8 +248,15 @@
     }).join('');
     document.getElementById('reports-content').innerHTML=`<a href="#board">${t('← 게시판으로 돌아가기')}</a>`+(rows||`<p class="muted">${t('접수된 신고가 없습니다.')}</p>`);
   }
+  // The footer account button reads "로그인" when signed out and "로그아웃" when signed in; it opens the account window either way.
+  function updateFooterAccount() {
+    const button=document.querySelector('.footer-account');if(!button)return;
+    button.dataset.labelKo=member?'로그아웃':'로그인';button.dataset.labelEn=member?'Sign out':'Sign in';
+    button.textContent=L(button.dataset.labelKo,button.dataset.labelEn);
+  }
   async function route(options = {}) {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
+    updateFooterAccount();
     CIC_MEDIA.reset();
     if(!options.keepScroll)window.scrollTo(0,0);
     if(page!=='post'||part!==commentsOpenFor) commentsOpenFor=null;
@@ -272,7 +279,7 @@
       else if(anchor) anchor.scrollIntoView();
     } catch(e) {
       if(stamp!==epoch)return;
-      if(['AUTH','BLOCKED'].includes(e.code)){member=null;CIC_API.clear();}
+      if(['AUTH','BLOCKED'].includes(e.code)){member=null;CIC_API.clear();updateFooterAccount();}
       main.innerHTML=title('Community',t('페이지를 불러오지 못했습니다'))+html`<div class="reading"><p class="inline-error" role="alert">${esc(t(e.message))}</p><div class="button-row"><button class="button secondary" data-action="retry">다시 확인</button><a class="button secondary" href="#board">게시판으로</a></div></div>`;
     }
   }
