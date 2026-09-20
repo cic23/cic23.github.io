@@ -1,5 +1,22 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 Google Play(TWA) 배포 준비 1차: PWA화·워크플로 수정
+
+**목표·결정(사용자 확정):** 개인 개발자 계정 / TWA(Trusted Web Activity) 패키징 / 전체 공개로 Google Play에 등록한다. 계획 전문은 `C:\Users\NYK\.claude\plans\dynamic-tinkering-plum.md`(로컬 계획 파일, 저장소에는 없음). 요약: 기본값은 대상 연령 16세 이상, 탈퇴 시 게시글 익명화, 패키지 ID `io.github.cic23.app`, 앱 이름 `CIC 지킴이`.
+
+**이번에 배포한 것 (커밋 `ec00458`, Pages 실행 `35510367595` 성공):**
+- `dist/manifest.webmanifest`(start_url·scope `/`, standalone, 테마·배경 흰색), `dist/assets/icons/`(192, 512, maskable 512, apple-touch 180, favicon 48 PNG; `cic-logo.jpeg`에서 여백을 잘라 생성), `dist/index.html`에 manifest·favicon·apple-touch-icon·`theme-color` 링크, `app.js?v=57-pwa`에 서비스 워커 등록.
+- `dist/sw.js`: 같은 출처 GET만 네트워크 우선 + 캐시 폴백(`cic-shell-v1`, 최대 80개, 1MB 초과 이미지 미캐시). Apps Script POST·Google 로그인·Drive 업로드 등 교차 출처 요청은 가로채지 않는다. 오프라인이면 캐시된 앱 셸 또는 `dist/offline.html`을 보여 준다. 캐시 로직을 바꾸면 `CACHE` 이름 버전을 올린다.
+- `.github/workflows/pages.yml`: `actions/upload-pages-artifact`를 v4→v5로 올리고 `include-hidden-files: true`를 추가했다(v4는 점 폴더를 제외해 `.well-known/`이 배포되지 않음. v5.0.0에 이 입력이 있음을 GitHub API로 확인). 검증 스텝에 `node --check dist/sw.js` 추가. 배포 후 `.nojekyll`이 HTTP 200으로 서빙되어 숨김 파일 포함이 동작함을 확인했다. `deploy-pages`는 v4 그대로다.
+- `.gitignore`에 `*.jks`, `*.keystore`, `twa/build/`, `twa/app/` 추가(서명 키는 절대 커밋하지 않는다).
+- 검증: 서버·통신 테스트 26개·JS 문법 통과, `sw.js` 캐시·오프라인 폴백 로직을 Node 모의 환경으로 검증, 공개 URL의 매니페스트(`application/manifest+json`)·아이콘 5종·`sw.js`·`offline.html` HTTP 200. **실제 Chrome에서의 서비스 워커 등록과 Lighthouse 설치 가능성 점검은 아직 하지 않았다.**
+
+**남은 계획(단계 번호는 계획 파일 기준):**
+- 3단계 정책 대응(미구현): `dist/terms.html`, `dist/account-deletion.html`, 게시글·댓글 **신고 기능**(`Code.gs`에 `reportContent`, 새 `Reports` 시트 → `setup` 재실행 후 서버 재배포), **회원 탈퇴**(`deleteMyAccount`, 게시글·댓글 익명화), `privacy.html` 갱신, 푸터 링크, 백엔드 테스트 추가. Play UGC·계정 삭제 정책상 승인 필수다.
+- 5~7단계: TWA 빌드(Bubblewrap 또는 PWABuilder), Play Console 등록. `dist/.well-known/assetlinks.json`은 Play 콘솔의 **앱 서명 키 SHA-256**을 받은 뒤에 만든다(지금 만들면 잘못된 값이 공개되므로 아직 만들지 않았다).
+- 사용자 작업: 만 18세 이상 소유자 명의로 개인 개발자 계정 등록(US$25, 신원 확인), 비공개 테스트 테스터 12명 이상(여유 15~20명)을 Gmail 주소로 모집해 14일 연속 참여. 새 개인 계정은 이 조건을 채워야 프로덕션 신청이 가능하다.
+- 주의: 기존 사이트의 `SITE_ORIGIN`·OAuth 승인된 원본은 TWA에서도 `https://cic23.github.io` 그대로라 변경이 필요 없다. Google 로그인 팝업은 실제 Android 기기에서 확인이 필수다.
+
 ## 2026-09-20 언어 버튼 오른쪽 정렬
 
 - 사용자 요청에 따라 헤더 아래 플로팅 `한국어 / English` 버튼(`.language-float`)을 중앙에서 **오른쪽 정렬**로 바꿨다. 오른쪽 끝을 헤더 메뉴의 오른쪽 끝에 맞추기 위해 `right:max(5%,calc(50% - 648px))`(헤더 좌우 여백 5%, 헤더 최대폭 1440px 기준)를 쓰고 `left:auto; transform:none`이다. 세로 위치(`top` 109/93/79px)는 그대로다. 헤더의 좌우 여백이나 최대폭(1440px)을 바꾸면 이 `right` 값도 함께 바꾼다. 바로 아래 기록의 중앙 정렬(`left:50%`)은 이 변경으로 대체됐다.
