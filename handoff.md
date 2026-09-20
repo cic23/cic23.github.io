@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 언어 버튼 오른쪽 정렬
+
+- 사용자 요청에 따라 헤더 아래 플로팅 `한국어 / English` 버튼(`.language-float`)을 중앙에서 **오른쪽 정렬**로 바꿨다. 오른쪽 끝을 헤더 메뉴의 오른쪽 끝에 맞추기 위해 `right:max(5%,calc(50% - 648px))`(헤더 좌우 여백 5%, 헤더 최대폭 1440px 기준)를 쓰고 `left:auto; transform:none`이다. 세로 위치(`top` 109/93/79px)는 그대로다. 헤더의 좌우 여백이나 최대폭(1440px)을 바꾸면 이 `right` 값도 함께 바꾼다. 바로 아래 기록의 중앙 정렬(`left:50%`)은 이 변경으로 대체됐다.
+- 변경 파일 `dist/styles.css`, `dist/index.html`(`styles.css?v=60-language-right`). Edge에서 iframe으로 375·480·900·1600px과 한국어·영어에서 메뉴 오른쪽 끝과 정렬됨을 확인했다(1600px에서 약 5px 차이). 실제 폰 기기와 버튼 클릭 동작은 확인하지 못했다.
+- 커밋 `ef043b4`(`Right-align language toggle below header`), Pages 실행 `35509513165` 성공, 공개 사이트 HTTP 200과 새 CSS 반영을 확인했다.
+
 ## 2026-09-20 언어 버튼을 헤더 아래 상단 중앙 플로팅으로 조정
 
 - 사용자 요청에 따라 `한국어 / English` 플로팅 버튼(`.language-float`)을 헤더 안이 아니라 **헤더 바로 아래 페이지 상단 중앙**에 고정했다(`position:fixed; left:50%; transform:translateX(-50%); z-index:26`). 위치는 sticky 헤더 높이 + 8px로 계산한 `top` 값이다: 데스크톱 109px, 1100px 이하 93px, 480px 이하 79px. **헤더 높이(로고 88/72/58px + 상하 여백 6px×2 + 테두리 1px)를 바꾸면 이 값도 함께 바꿔야 한다.**
