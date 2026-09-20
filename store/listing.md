@@ -15,7 +15,7 @@
 | 개발자 연락처 이메일 | 학교 주소(`e3kim2027@chadwickschool.org`)는 졸업 시 바뀌므로 **졸업 후에도 받을 수 있는 주소 권장** |
 | 웹사이트 | `https://cic23.github.io/` |
 | 개인정보처리방침 URL | `https://cic23.github.io/privacy.html` |
-| 계정 삭제 URL (데이터 보안 양식) | `https://cic23.github.io/account-deletion.html` |
+| 계정 삭제 URL (데이터 보안 양식) | `https://cic23.github.io/privacy.html#account-deletion` (기존 `account-deletion.html`은 이 주소로 자동 이동) |
 | 광고 포함 여부 | 아니요 |
 | 앱 내 구매 | 없음 |
 

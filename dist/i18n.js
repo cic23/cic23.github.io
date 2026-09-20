@@ -172,7 +172,7 @@
     
     '이 내용을 삭제 처리할까요?':'Remove this content?','신고를 반려할까요?':'Dismiss this report?','게시글 또는 댓글이 지킴이 로그에서 더 이상 보이지 않습니다.':'The post or comment will no longer appear in Guardian Log.','내용은 그대로 유지되고 신고만 처리 완료로 바뀝니다.':'The content stays as it is and the report is marked resolved.','신고를 처리했습니다.':'The report was resolved.',
     '회원 탈퇴':'Delete account','탈퇴하면 계정 정보가 삭제되며 되돌릴 수 없습니다. 작성한 글과 댓글은 “탈퇴한 회원”으로 표시되어 남으므로, 지우고 싶은 글은 탈퇴 전에 직접 삭제해주세요.':'Deleting your account erases your account information and cannot be undone. Your posts and comments stay and are shown as “탈퇴한 회원” (Deleted member), so delete any posts you want removed before leaving.','회원 탈퇴가 완료되었습니다.':'Your account has been deleted.',
-    '개인정보처리방침':'Privacy Policy','이용약관':'Terms of Use','계정 삭제 안내':'Account deletion','정책 링크':'Policy links','로그인 / 내 계정':'Sign in / My account','← 게시판으로 돌아가기':'← Back to the board'
+    '개인정보처리방침':'Privacy Policy','이용약관':'Terms of Use','정책 링크':'Policy links','← 게시판으로 돌아가기':'← Back to the board'
   });
   const valid = value => value === 'ko' || value === 'en';
   let requested = '', saved = '';
@@ -194,6 +194,7 @@
   function applyShell() {
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-i18n]').forEach(el=>{ el.innerHTML=t(el.dataset.i18n); });
+    document.querySelectorAll('[data-label-ko]').forEach(el=>{ el.textContent = lang==='en' ? el.dataset.labelEn : el.dataset.labelKo; });
     document.querySelectorAll('[data-i18n-label]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nLabel)));
     document.querySelectorAll('[data-language]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.language===lang)));
     document.querySelectorAll('img[alt="CIC 로고"], img[alt="CIC logo"]').forEach(el=>el.alt=t('CIC 로고'));
