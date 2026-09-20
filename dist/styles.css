@@ -139,3 +139,14 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .language-float{right:max(5%,calc(50% - 648px));left:auto;bottom:auto;transform:none;top:109px;z-index:26}
 @media(max-width:1100px){.language-float{top:93px}}
 @media(max-width:480px){.language-float{top:79px}}
+.post-report-action{font-size:.85rem;font-weight:600;color:var(--muted);padding:0 4px}
+.post-report-action:hover{color:var(--orange)}
+fieldset.field{border:0;padding:0;margin:18px 0}
+fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8px}
+.radio-row{display:flex;align-items:center;gap:10px;margin:8px 0;line-height:1.5;font-weight:400}
+.field .radio-row input[type=radio]{width:auto;padding:0;margin:0;flex:none}
+.report-row p{margin:6px 0}
+.footer-links{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:flex-start;justify-content:flex-end}
+.footer-links a{color:#dae2e9}
+@media(max-width:1100px){.footer-links{justify-content:flex-start}}
+.footer-account{border:0;background:none;padding:0;color:#dae2e9;font-size:.9rem;text-decoration:underline;text-underline-offset:5px;cursor:pointer}

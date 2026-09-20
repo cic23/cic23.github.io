@@ -1,5 +1,7 @@
 /** CIC backend. Deploy as owner, access: Anyone. All private actions require a session. */
-const TABLES_ = ['Members', 'Posts', 'Comments', 'Sessions', 'Attachments', 'Likes'];
+const TABLES_ = ['Members', 'Posts', 'Comments', 'Sessions', 'Attachments', 'Likes', 'Reports'];
+const REPORT_REASONS_ = ['inappropriate', 'harassment', 'privacy', 'spam', 'other'];
+const DELETED_MEMBER_ = { id: 'deleted', name: '탈퇴한 회원' };
 const SESSION_MS_ = 6 * 60 * 60 * 1000;
 const MAX_ATTACHMENTS_ = 5;
 const MAX_ATTACHMENT_BYTES_ = 100 * 1024 * 1024;
@@ -87,7 +89,11 @@ function dispatch_(r) {
   const m = auth.member;
   if (m.status !== 'approved') fail_('PENDING', '회원 상태를 확인할 수 없습니다. 다시 로그인해주세요.');
   if (a === 'listMembers') { admin_(m); return { members: rows_('Members').map(x => ({ id: x.id, name: x.name, email: x.email, status: x.status, role: x.role, createdAt: x.createdAt })) }; }
+  if (a === 'listReports') { admin_(m); return listReports_(); }
   rate_(m.id);
+  if (a === 'reportContent') return reportContent_(d, m);
+  if (a === 'resolveReport') { admin_(m); return resolveReport_(d, m); }
+  if (a === 'deleteMyAccount') return deleteMyAccount_(d, m);
   if (a === 'setMemberStatus') {
     admin_(m);
     const target = find_('Members', d.id);
@@ -250,6 +256,74 @@ function toggleLike_(d, member, likeActor) {
   save_('Likes', { id: Utilities.getUuid(), postId: p.id, memberId: likeActor, memberName: member ? member.name : '익명', createdAt: now_() });
   return { liked: true, likeCount: likeCount_(p.id) };
 }
+function reportContent_(d, m) {
+  const type = d.targetType, reason = d.reason;
+  if (!['post', 'comment'].includes(type) || typeof d.targetId !== 'string') fail_('INVALID', '신고할 내용을 확인해주세요.');
+  if (!REPORT_REASONS_.includes(reason)) fail_('INVALID', '신고 사유를 선택해주세요.');
+  const detail = optionalText_(d.detail, 300);
+  let target, postId;
+  if (type === 'post') { target = activePost_(d.targetId); postId = target.id; }
+  else {
+    target = find_('Comments', d.targetId);
+    if (!target || target.deleted) fail_('NOT_FOUND', '댓글을 찾을 수 없습니다.');
+    activePost_(target.postId); postId = target.postId;
+  }
+  if (target.authorId === m.id) fail_('INVALID', '본인이 작성한 내용은 신고할 수 없습니다.');
+  // A repeated report of the same content by the same member is accepted without adding a row.
+  if (rows_('Reports').some(x => x.reporterId === m.id && x.targetType === type && x.targetId === target.id && x.status === 'open')) return { reported: true, duplicate: true };
+  const excerpt = String(type === 'post' ? target.title : target.body).replace(/\s+/g, ' ').trim().slice(0, 120);
+  save_('Reports', { id: Utilities.getUuid(), targetType: type, targetId: target.id, postId, targetAuthorId: target.authorId, targetAuthorName: target.authorName, excerpt, reporterId: m.id, reporterName: m.name, reason, detail, status: 'open', createdAt: now_(), updatedAt: now_() });
+  return { reported: true, duplicate: false };
+}
+function publicReport_(r) { return { id:r.id, targetType:r.targetType, targetId:r.targetId, postId:r.postId, targetAuthorId:r.targetAuthorId, targetAuthorName:r.targetAuthorName, excerpt:r.excerpt, reporterName:r.reporterName, reason:r.reason, detail:r.detail, status:r.status, resolution:r.resolution || '', createdAt:r.createdAt, resolvedAt:r.resolvedAt || '' }; }
+function listReports_() {
+  return { reports: rows_('Reports').sort((a,b) => (a.status !== 'open') - (b.status !== 'open') || b.createdAt.localeCompare(a.createdAt)).slice(0, 200).map(publicReport_) };
+}
+function resolveReport_(d, m) {
+  if (!['dismiss', 'remove'].includes(d.resolution)) fail_('INVALID', '처리 방법을 선택해주세요.');
+  const report = find_('Reports', d.id);
+  if (!report) fail_('NOT_FOUND', '신고를 찾을 수 없습니다.');
+  if (report.status !== 'open') fail_('CONFLICT', '이미 처리된 신고입니다.');
+  if (d.resolution === 'remove') {
+    const table = report.targetType === 'post' ? 'Posts' : 'Comments', target = find_(table, report.targetId);
+    if (target && !target.deleted) { target.deleted = true; target.version++; target.updatedAt = now_(); save_(table, target); }
+  }
+  const at = now_();
+  // One decision applies to every open report about the same content.
+  rows_('Reports').filter(x => x.status === 'open' && x.targetType === report.targetType && x.targetId === report.targetId).forEach(x => {
+    x.status = 'resolved'; x.resolution = d.resolution; x.resolvedBy = m.id; x.resolvedAt = at; x.updatedAt = at; save_('Reports', x);
+  });
+  return { report: publicReport_(find_('Reports', report.id)) };
+}
+// Account deletion: personal data and sessions are erased; posts and comments stay but are anonymized.
+// Content the member had already deleted, and uploads never attached to a post, are purged.
+function deleteMyAccount_(d, m) {
+  if (d.confirm !== true) fail_('INVALID', '탈퇴 확인이 필요합니다.');
+  if (m.role === 'admin') fail_('FORBIDDEN', '관리자 계정은 탈퇴할 수 없습니다. 관리자 설정을 먼저 변경해주세요.');
+  const goneIds = rows_('Posts').filter(x => x.authorId === m.id && x.deleted).map(x => x.id);
+  removeWhere_('Comments', x => (x.deleted && x.authorId === m.id) || goneIds.includes(x.postId));
+  removeWhere_('Posts', x => goneIds.includes(x.id));
+  ['Posts', 'Comments'].forEach(table => rows_(table).filter(x => x.authorId === m.id).forEach(x => {
+    x.authorId = DELETED_MEMBER_.id; x.authorName = DELETED_MEMBER_.name; x.updatedAt = now_(); save_(table, x);
+  }));
+  removeWhere_('Likes', x => x.memberId === m.id);
+  rows_('Reports').filter(x => x.reporterId === m.id || x.targetAuthorId === m.id).forEach(x => {
+    if (x.reporterId === m.id) { x.reporterId = DELETED_MEMBER_.id; x.reporterName = DELETED_MEMBER_.name; }
+    if (x.targetAuthorId === m.id) { x.targetAuthorId = DELETED_MEMBER_.id; x.targetAuthorName = DELETED_MEMBER_.name; }
+    x.updatedAt = now_(); save_('Reports', x);
+  });
+  rows_('Attachments').filter(x => x.ownerId === m.id).forEach(x => {
+    if (!x.postId || goneIds.includes(x.postId)) { trashDriveFile_(x.driveId); remove_('Attachments', x.id); }
+    else { x.ownerId = DELETED_MEMBER_.id; x.updatedAt = now_(); save_('Attachments', x); }
+  });
+  removeWhere_('Sessions', s => s.memberId === m.id);
+  removeWhere_('Members', x => x.id === m.id);
+  return { deleted: true };
+}
+function trashDriveFile_(id) {
+  try { if (id && typeof DriveApp !== 'undefined') DriveApp.getFileById(id).setTrashed(true); }
+  catch (e) { console.error('Drive file trash failed: ' + String((e && e.message) || e).slice(0, 200)); }
+}
 function commentResult_(comment, postId) {
   const all = rows_('Comments').filter(c => c.postId === postId && !c.deleted).sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
   const index = all.findIndex(c => c.id === comment.id);
@@ -346,5 +420,10 @@ function save_(name, record) {
   const i = rows.findIndex(r => r[0] === record.id), row = i < 0 ? s.getLastRow()+1 : i+2;
   // JSON objects start with '{', so user text never becomes a Sheet formula.
   s.getRange(row,1,1,2).setNumberFormat('@').setValues([[record.id, JSON.stringify(record)]]);
+}
+function removeWhere_(name, test) {
+  const s = sheet_(name); if (s.getLastRow() < 2) return;
+  const values = s.getRange(2,1,s.getLastRow()-1,2).getValues();
+  for (let i = values.length - 1; i >= 0; i--) if (test(JSON.parse(values[i][1]))) s.deleteRow(i + 2);
 }
 function remove_(name, id) { const s = sheet_(name); if (s.getLastRow() < 2) return; const i = s.getRange(2,1,s.getLastRow()-1,1).getValues().findIndex(r => r[0] === id); if (i >= 0) s.deleteRow(i+2); }

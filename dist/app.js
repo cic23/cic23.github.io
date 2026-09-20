@@ -33,6 +33,9 @@
   }
   function likeButton(p) { return `<button class="post-action ${p.likedByMe?'is-liked':''}" data-action="like" data-id="${esc(p.id)}" aria-pressed="${p.likedByMe?'true':'false'}" aria-label="${t('좋아요')} ${p.likeCount}">${icon('like')} <span>${p.likeCount}</span></button>`; }
   function shareButton(p) { return `<button class="post-action post-share-action" data-action="share" data-id="${esc(p.id)}" aria-label="${t('공유하기')}">${icon('share')}</button>`; }
+  const L=(ko,en)=>CIC_I18N.language==='en'?en:ko;
+  const reportReasons=[['inappropriate','부적절한 내용(욕설·선정·폭력 등)','Inappropriate content (abuse, sexual content, violence)'],['harassment','괴롭힘·혐오 표현','Harassment or hate speech'],['privacy','개인정보·초상권 침해','Privacy or image-rights violation'],['spam','광고·스팸','Ads or spam'],['other','기타','Other']];
+  function reportButton(type,id,className='post-action post-report-action') { return `<button class="${className}" data-action="report" data-type="${type}" data-id="${esc(id)}">${t('신고하기')}</button>`; }
   function postUrl(id) { const url=new URL(location.href); url.hash='post/'+encodeURIComponent(id); return url.href; }
   async function sharePost(id) {
     const url=postUrl(id), post=currentPost?.id===id?currentPost:postPreview.get(id), shareData={title:post?.title||document.title,url};
@@ -49,7 +52,7 @@
     postCache.forEach(data => { if (data.post?.id===id) { data.post.likedByMe=liked; data.post.likeCount=likeCount; } });
     main.querySelectorAll('[data-action="like"]').forEach(button=>{if(button.dataset.id!==id)return;button.classList.toggle('is-liked',liked);button.setAttribute('aria-pressed',String(liked));button.setAttribute('aria-label',t('좋아요')+' '+likeCount);button.querySelector('span').textContent=likeCount;});
   }
-  function commentMarkup(c) { return `<article class="comment" data-comment-id="${esc(c.id)}"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`; }
+  function commentMarkup(c) { return `<article class="comment" data-comment-id="${esc(c.id)}"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}${member?.id!==c.authorId?`<span class="comment-actions">${reportButton('comment',c.id,'text-button')}</span>`:''}</div><p>${esc(c.body)}</p></article>`; }
   function setCommentCount(id, count) { postCache.forEach(data => { if (data.post?.id===id) data.commentCount=count; }); main.querySelectorAll('[data-comment-post-id]').forEach(el=>{if(el.dataset.commentPostId===id){el.querySelector('span').textContent=count;el.setAttribute('aria-label',t('댓글')+' '+count);}}); }
   function invalidatePostCache(id) { [...postCache.keys()].forEach(key=>{if(key.startsWith(id+'/'))postCache.delete(key);}); relatedFeed=null;postPreview.delete(id); }
   function relatedShell() {
@@ -156,7 +159,7 @@
     data.posts.forEach(rememberPost);
     const canWrite=member?.status==='approved';
     const emptyBoard=html`<div class="empty"><h3>${t('아직 등록된 글이 없습니다')}</h3><p>${t('첫 번째 CIC 활동 이야기를 남겨주세요.')}</p><div class="button-row"><button class="button" data-action="${canWrite?'new-post':'login'}">${t('글쓰기')}</button></div></div>`;
-    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div><div id="board-load-status" role="status"></div>` : emptyBoard}${pagination(page,data.pages,'board')}`;
+    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a><a class="button secondary small" href="#reports">신고 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div><div id="board-load-status" role="status"></div>` : emptyBoard}${pagination(page,data.pages,'board')}`;
     if(!data.posts.length)return;
     await afterPaint(); if(stamp!==epoch)return;
     try {
@@ -219,7 +222,7 @@
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
       <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>
-      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}</div>
+      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}${member?.id!==p.authorId?reportButton('post',p.id):''}</div>
       <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(commentMarkup).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
     </article>${relatedShell()}</div></div>`;
     CIC_MEDIA.observe(main);
@@ -233,6 +236,18 @@
     const data = await CIC_API.request('listMembers'); if (stamp!==epoch) return;
     document.getElementById('members-content').innerHTML=t('<a href="#board">← 게시판으로 돌아가기</a>')+data.members.sort((a,b)=>(a.status!=='pending')-(b.status!=='pending')).map(m=>`<article class="member-row"><div><strong>${esc(m.name)}</strong>${m.role==='admin'?t(' <span class="pending">관리자</span>'):''}<p class="muted small-text">${esc(m.email)}</p><span class="pending">${esc({pending:t('승인 대기'),approved:t('승인됨'),blocked:t('이용 제한')}[m.status])}</span></div>${m.role!=='admin'?`<div class="member-actions">${m.status!=='approved'?html`<button class="button small" data-action="member-status" data-id="${m.id}" data-status="approved">승인</button>`:''}${m.status!=='blocked'?html`<button class="button secondary small" data-action="member-status" data-id="${m.id}" data-status="blocked">이용 제한</button>`:''}</div>`:''}</article>`).join('');
   }
+  async function reports(stamp) {
+    if (member?.role!=='admin') { await board(1,stamp); return; }
+    main.innerHTML=title('Reports',t('신고 관리'),t('회원이 신고한 게시글과 댓글을 확인하고 조치해주세요.'))+`<div class="reading" id="reports-content"><p role="status">${t('신고 내용을 불러오고 있습니다…')}</p></div>`;
+    const data = await CIC_API.request('listReports'); if (stamp!==epoch) return;
+    const reasons=Object.fromEntries(reportReasons.map(([v,ko,en])=>[v,L(ko,en)]));
+    const rows=data.reports.map(r=>{
+      const state=r.status==='open'?t('처리 대기'):r.resolution==='remove'?L('삭제 처리됨','Removed'):L('반려됨','Dismissed');
+      const actions=r.status==='open'?`<div class="member-actions"><button class="button small" data-action="resolve-report" data-id="${esc(r.id)}" data-post-id="${esc(r.postId)}" data-resolution="remove">${t('삭제 처리')}</button><button class="button secondary small" data-action="resolve-report" data-id="${esc(r.id)}" data-post-id="${esc(r.postId)}" data-resolution="dismiss">${L('반려','Dismiss')}</button>${r.targetAuthorId&&r.targetAuthorId!=='deleted'?`<button class="button secondary small" data-action="member-status" data-id="${esc(r.targetAuthorId)}" data-status="blocked">${t('작성자 이용 제한')}</button>`:''}</div>`:'';
+      return `<article class="member-row report-row"><div><span class="pending">${state}</span> <strong>${r.targetType==='post'?L('게시글','Post'):L('댓글','Comment')}</strong> · ${esc(reasons[r.reason]||r.reason)}<p>${esc(r.excerpt)}</p><p class="muted small-text">${L('작성자','Author')}: ${esc(r.targetAuthorName)} · ${L('신고자','Reporter')}: ${esc(r.reporterName)}</p>${r.detail?`<p class="muted small-text">${esc(r.detail)}</p>`:''}<p><a href="#post/${encodeURIComponent(r.postId)}">${t('게시글 보기')}</a></p></div>${actions}</article>`;
+    }).join('');
+    document.getElementById('reports-content').innerHTML=`<a href="#board">${t('← 게시판으로 돌아가기')}</a>`+(rows||`<p class="muted">${t('접수된 신고가 없습니다.')}</p>`);
+  }
   async function route(options = {}) {
     const stamp=++epoch, [page='home',part,third] = (location.hash.slice(1)||'home').split('/');
     CIC_MEDIA.reset();
@@ -241,7 +256,7 @@
     currentPost=null; currentComments=[];
     renderFloatingWrite();
     document.querySelectorAll('nav a').forEach(a=>{ if(a.hash==='#'+(page==='values'?'about':page)) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
-    const titles={home:t('인천 문화유산 가이드'),about:t('CIC 소개'),values:t('CIC 소개'),guide:t('인천 문화유산'),board:t('지킴이 로그'),post:t('지킴이 로그'),members:t('회원 관리')};
+    const titles={home:t('인천 문화유산 가이드'),about:t('CIC 소개'),values:t('CIC 소개'),guide:t('인천 문화유산'),board:t('지킴이 로그'),post:t('지킴이 로그'),members:t('회원 관리'),reports:t('신고 관리')};
     document.title=`CIC · ${titles[page]||titles.home}`;
     try {
       if (page==='about'||page==='values') main.innerHTML=about();
@@ -249,6 +264,7 @@
       else if(page==='board') await board(Math.max(1,parseInt(part,10)||1),stamp);
       else if(page==='post') await post(part,Math.max(1,parseInt(third,10)||1),stamp);
       else if(page==='members') await members(stamp);
+      else if(page==='reports') await reports(stamp);
       else main.innerHTML=home();
       if(stamp!==epoch)return;
       const anchor = page==='values' ? document.getElementById(part ? 'value-'+part : 'values') : part && page==='guide' ? document.getElementById('place-'+part) : null;
@@ -295,6 +311,11 @@
     form.querySelectorAll('[data-action="remove-attachment"]').forEach(button=>button.addEventListener('click',()=>{retained.delete(button.dataset.id);button.closest('li').remove();}));
     form.addEventListener('submit',e=>{e.preventDefault();submit(form,async()=>{const data=Object.fromEntries(new FormData(form));const files=[...form.elements.files.files], attachmentIds=(p?.attachments||[]).filter(a=>retained.has(a.id)).map(a=>a.id);if(files.length+attachmentIds.length>5)throw new Error('첨부 파일은 최대 5개까지 선택할 수 있습니다.');const progress=document.getElementById('upload-progress');for(const file of files){progress.hidden=false;progress.value=0;const a=await uploadFile(file,progress);attachmentIds.push(a.id);}data.attachmentIds=attachmentIds;data.mutationId=mutationId;delete data.files;if(p){data.id=p.id;data.version=p.version;}const result=await CIC_API.request(p?'updatePost':'createPost',data);invalidatePostCache(result.post.id);modal.close();toast(p?t('게시글을 수정했습니다.'):t('게시글을 등록했습니다.'));if(location.hash==='#post/'+result.post.id)await route();else location.hash='post/'+result.post.id;});});
   }
+  function reportDialog(type,id) {
+    if(!member){void loginDialog();return;}
+    openModal(`<h2 id="modal-title">${t('신고하기')}</h2><p>${t('부적절한 게시글이나 댓글을 신고하면 운영진이 확인 후 조치합니다.')}</p><form id="report-form"><fieldset class="field"><legend>${t('신고 사유')}</legend>${reportReasons.map(([v,ko,en],i)=>`<label class="radio-row"><input type="radio" name="reason" value="${v}" ${i===0?'checked':''}> ${L(ko,en)}</label>`).join('')}</fieldset><div class="field"><label for="report-detail">${t('자세한 내용 (선택)')}</label><textarea id="report-detail" name="detail" maxlength="300"></textarea></div><p class="inline-error" role="alert"></p><div class="button-row"><button type="submit" class="button accent">${t('신고 접수')}</button><button type="button" class="button secondary" data-action="close">${t('취소')}</button></div></form>`);
+    const f=document.getElementById('report-form');f.addEventListener('submit',e=>{e.preventDefault();submit(f,async()=>{await CIC_API.request('reportContent',{targetType:type,targetId:id,reason:f.elements.reason.value,detail:f.elements.detail.value});modal.close();toast(t('신고가 접수되었습니다. 운영진이 확인 후 조치합니다.'));});});
+  }
   function editComment(c) {
     openModal(html`<h2 id="modal-title">댓글 수정</h2><form id="edit-comment-form"><div class="field"><label for="edit-comment-body">내용</label><textarea id="edit-comment-body" name="body" required maxlength="2000">${esc(c.body)}</textarea></div><p class="inline-error" role="alert"></p><button type="submit" class="button">수정 저장</button></form>`);
     const f=document.getElementById('edit-comment-form');f.addEventListener('submit',e=>{e.preventDefault();submit(f,async()=>{await CIC_API.request('updateComment',{id:c.id,version:c.version,body:f.elements.body.value});invalidatePostCache(c.postId);modal.close();toast(t('댓글을 수정했습니다.'));await route();});});
@@ -310,7 +331,7 @@
   }
   async function loginDialog() {
     if(member) {
-      openModal(html`<h2 id="modal-title">${esc(member.name)} 님</h2><p>${member.status==='approved'?t('CIC 회원으로 로그인했습니다.'):t('CIC 회원으로 로그인했습니다.')}</p><div class="button-row">${member.role==='admin'?t('<a class="button secondary" href="#members" data-action="close">회원 관리</a>'):''}<button class="button secondary" data-action="logout">로그아웃</button></div><p id="logout-error" class="inline-error" role="alert"></p>`);return;
+      openModal(html`<h2 id="modal-title">${esc(member.name)} 님</h2><p>${member.status==='approved'?t('CIC 회원으로 로그인했습니다.'):t('CIC 회원으로 로그인했습니다.')}</p><div class="button-row">${member.role==='admin'?t('<a class="button secondary" href="#members" data-action="close">회원 관리</a>'):''}<button class="button secondary" data-action="logout">로그아웃</button></div>${member.role!=='admin'?t('<p><button type="button" class="text-button danger" data-action="delete-account">회원 탈퇴</button></p>'):''}<p id="logout-error" class="inline-error" role="alert"></p>`);return;
     }
     if(!CIC_API.configured()){openModal(t('<h2 id="modal-title">회원 서비스를 준비 중입니다</h2><p>Google 로그인 연결이 완료되면 회원 가입과 게시판을 이용할 수 있습니다.</p><button class="button secondary" data-action="close">확인</button>'));return;}
     openModal(t('<h2 id="modal-title">CIC에 오신 것을 환영합니다</h2><p>Google 계정으로 로그인하면 바로 지킴이 로그를 이용할 수 있습니다.</p><p class="muted">우리의 문화유산 이야기를 함께 나눠요!</p><button id="google-login" class="button secondary" disabled>Google 로그인 준비 중…</button><p class="inline-error" id="login-error" role="alert"></p>'));
@@ -345,6 +366,9 @@
         b.setAttribute('aria-expanded',String(!comments.hidden));
       }
       else if(action==='share')await sharePost(b.dataset.id);
+      else if(action==='report')reportDialog(b.dataset.type,b.dataset.id);
+      else if(action==='resolve-report'){const{id,postId,resolution}=b.dataset;confirmAction(resolution==='remove'?t('이 내용을 삭제 처리할까요?'):t('신고를 반려할까요?'),resolution==='remove'?t('게시글 또는 댓글이 지킴이 로그에서 더 이상 보이지 않습니다.'):t('내용은 그대로 유지되고 신고만 처리 완료로 바뀝니다.'),async()=>{await CIC_API.request('resolveReport',{id,resolution});invalidatePostCache(postId);toast(t('신고를 처리했습니다.'));await route();});}
+      else if(action==='delete-account'){confirmAction(t('회원 탈퇴'),t('탈퇴하면 계정 정보가 삭제되며 되돌릴 수 없습니다. 작성한 글과 댓글은 “탈퇴한 회원”으로 표시되어 남으므로, 지우고 싶은 글은 탈퇴 전에 직접 삭제해주세요.'),async()=>{await CIC_API.request('deleteMyAccount',{confirm:true});CIC_API.clear();member=null;postCache.clear();relatedFeed=null;toast(t('회원 탈퇴가 완료되었습니다.'));location.hash='home';await route();});}
       else if(action==='like'){
         const id=b.dataset.id, wasLiked=b.getAttribute('aria-pressed')==='true', oldCount=Number(b.querySelector('span').textContent)||0;
         b.disabled=true;setLikeUI(id,!wasLiked,Math.max(0,oldCount+(wasLiked?-1:1)));

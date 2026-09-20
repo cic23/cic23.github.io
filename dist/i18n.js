@@ -162,6 +162,18 @@
   messages['Google 계정으로 로그인하면 바로 활동 기록과 댓글을 읽고 작성할 수 있습니다.'] = 'Sign in with Google to read and share activity posts and comments right away.';
   messages['지킴이 로그의 글과 댓글을 읽고 작성할 수 있게 됩니다.'] = 'They will be able to read and write Guardian Log posts and comments.';
   messages['기존 로그인도 만료되며, 지킴이 로그를 이용할 수 없게 됩니다.'] = 'Their current sessions will expire and they will no longer have access to Guardian Log.';
+  Object.assign(messages,{
+    '신고하기':'Report','신고 사유':'Reason for report','자세한 내용 (선택)':'Details (optional)','신고 접수':'Submit report',
+    '부적절한 게시글이나 댓글을 신고하면 운영진이 확인 후 조치합니다.':'If you report an inappropriate post or comment, the CIC team will review it and take action.',
+    '신고가 접수되었습니다. 운영진이 확인 후 조치합니다.':'Your report was submitted. The CIC team will review it.',
+    
+    '신고 관리':'Reports','회원이 신고한 게시글과 댓글을 확인하고 조치해주세요.':'Review reported posts and comments and take action.','신고 내용을 불러오고 있습니다…':'Loading reports…',
+    '처리 대기':'Pending','삭제 처리':'Remove content','작성자 이용 제한':'Restrict author','게시글 보기':'View post','접수된 신고가 없습니다.':'There are no reports.',
+    
+    '이 내용을 삭제 처리할까요?':'Remove this content?','신고를 반려할까요?':'Dismiss this report?','게시글 또는 댓글이 지킴이 로그에서 더 이상 보이지 않습니다.':'The post or comment will no longer appear in Guardian Log.','내용은 그대로 유지되고 신고만 처리 완료로 바뀝니다.':'The content stays as it is and the report is marked resolved.','신고를 처리했습니다.':'The report was resolved.',
+    '회원 탈퇴':'Delete account','탈퇴하면 계정 정보가 삭제되며 되돌릴 수 없습니다. 작성한 글과 댓글은 “탈퇴한 회원”으로 표시되어 남으므로, 지우고 싶은 글은 탈퇴 전에 직접 삭제해주세요.':'Deleting your account erases your account information and cannot be undone. Your posts and comments stay and are shown as “탈퇴한 회원” (Deleted member), so delete any posts you want removed before leaving.','회원 탈퇴가 완료되었습니다.':'Your account has been deleted.',
+    '개인정보처리방침':'Privacy Policy','이용약관':'Terms of Use','계정 삭제 안내':'Account deletion','정책 링크':'Policy links','로그인 / 내 계정':'Sign in / My account','← 게시판으로 돌아가기':'← Back to the board'
+  });
   const valid = value => value === 'ko' || value === 'en';
   let requested = '', saved = '';
   try { requested = new URL(location.href).searchParams.get('lang'); } catch {}
