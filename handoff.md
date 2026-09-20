@@ -1,5 +1,57 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 게시판 오류(`SERVER`) 원인 및 해결: Apps Script 권한 승인 만료
+
+**증상:** 지킴이 로그 게시판이 열리지 않음. 공개 `/exec`에 `listPosts`·`getPost`를 보내면 `code: SERVER`("요청을 처리하지 못했습니다. 관리자에게 서버 설정을 확인해 달라고…")로 실패하고, 시트를 읽지 않는 `challenge`만 성공했다.
+
+**원인:** 배포 계정 `415hyunwoo@gmail.com`의 스프레드시트 권한(`https://www.googleapis.com/auth/spreadsheets`) 승인이 없는 상태였다. 진단용 배포(버전 17)로 확인한 실제 예외는 `SpreadsheetApp.openById을(를) 호출할 수 있는 권한이 없습니다. 필요한 권한은 …/auth/spreadsheets입니다.`였다. 아래는 원인이 **아니었다**: 시트 공유 권한(시트 `CIC Website Database`는 배포 계정 소유·편집 가능), `SPREADSHEET_ID` 불일치, 시트 탭·행 손상, 매니페스트 범위(이미 `spreadsheets` 포함).
+
+**해결 방법(재발 시 그대로 실행):**
+1. Apps Script 편집기를 **`415hyunwoo@gmail.com`**으로 연다.
+2. 함수 선택에서 `setup`을 고르고 **실행**한다.
+3. "권한 검토"가 뜨면 계정 선택 → 고급 → 이동 → **허용**한다(스프레드시트·Drive·외부 요청 권한이 모두 보여야 함).
+4. `준비 완료`가 나오면 게시판을 새로고침한다. 재배포는 필요 없다. 승인은 계정 소유자의 브라우저 동의가 필요해 CLI로 대신할 수 없다.
+- 2026-09-20 위 절차 후 게시판 복구를 사용자가 확인했다.
+
+**진단 중 배포한 것:** 버전 17(진단용, 응답에 예외 문구 임시 노출) → 버전 18(`Log unexpected server errors`)로 기존 `/exec` 배포를 갱신했다. 버전 18은 `doPost`의 예상치 못한 예외를 `console.error('doPost failed [action]: …')`로 실행 로그에 남기고, 사용자 응답은 기존 일반 문구를 유지한다(`startUpload`만 상세 문구). 이제 같은 장애가 나면 Apps Script **실행(Executions)** 메뉴에서 원인을 바로 볼 수 있다. `/exec` URL은 그대로다. 서버·통신 테스트 26개 통과.
+
+**재발 가능성 점검(주기적 발생 여부):** 재발 가능성이 높다. 근거: (1) 9월 13일 기록에 Cloud 프로젝트 연결과 "OAuth 테스트 사용자" 설정 후 `authorizeDrive`/`setup`을 승인했다고 되어 있고, README §3도 OAuth 앱이 "테스트 상태"임을 전제한다. (2) 장애 확인일 9월 20일은 승인일로부터 정확히 7일 뒤다. (3) Google OAuth 앱이 **테스트(Testing) 게시 상태**이고 민감·제한 범위(`spreadsheets`, `drive`)를 쓰면 승인(리프레시 토큰)이 **7일마다 만료**된다. 이 게시 상태는 CLI로 조회할 수 없어 아직 **콘솔에서 확인하지 못했다**(추정).
+
+**근본 해결 진행 기록 (2026-09-20):**
+- 확인: Google Auth Platform 대상(Audience)의 게시 상태가 **테스트 중**, 사용자 유형 **외부**, 테스트 사용자 `415hyunwoo@gmail.com` 1명이었다. 7일 만료 추정과 일치한다.
+- 게시 버튼이 비활성이던 이유: 브랜딩 구성 미완료. Google 정책상 게시에는 **앱 이름, 지원 이메일, 홈페이지 URL, 개인정보처리방침 URL**이 필요하고, URL을 넣으면 승인된 도메인(`cic23.github.io`) 입력도 필수다. 게시 버튼 툴팁 문구로 필요한 항목을 확인할 수 있다.
+- 개인정보처리방침 페이지 `dist/privacy.html`(한국어+영어 요약)을 추가해 `https://cic23.github.io/privacy.html`로 배포했다(커밋 `80e50b7`, Pages 실행 `35505061877` 성공, HTTP 200 확인). 수집 항목(Google 계정 식별자·이메일·이름, 게시글·댓글·좋아요·첨부, 익명 좋아요 해시 식별자, 세션)은 `apps-script/Code.gs` 동작에 맞춰 썼다. 삭제 요청·만 14세 미만 동의·보유 기간 문구는 운영자가 검토해야 한다. 정보 수집 방식이 바뀌면 이 페이지도 함께 고친다.
+- 브랜딩 입력 후 앱을 게시했고 **게시 상태가 "프로덕션 단계"**로 바뀐 것을 사용자가 확인했다. 인증 센터에 "앱을 인증해야 합니다" 배너가 나오지만 **인증 신청은 하지 않는다**(제한 범위 `drive`는 보안 평가 필요, 소유자 본인 승인에는 불필요).
+- 프로덕션 전환 뒤 Apps Script `setup` 재승인(고급 → 이동 → 허용, "확인되지 않은 앱" 경고 정상)을 사용자가 실행하는 것이 필요하다. 테스트 상태에서 받은 승인에는 7일 만료가 남아 있기 때문이다. 결과는 아래 항목에 기록한다.
+- 서버 쪽 게시판 공개 요청(`listPosts`)은 프로덕션 전환 직후에도 HTTP 200·정상이다.
+
+**재확인 필요(2026-09-28경):** 프로덕션 전환 후 승인이 7일이 지나도 유지되는지는 실험하지 못했다. 그날 `listPosts`가 정상이면 근본 해결이 확인된 것이다. 다시 `SERVER`가 나오면 위 해결 방법 1~4를 실행하고, 실행 기록의 `doPost failed [...]` 로그로 원인을 새로 확인한다. `setup` 재승인 실행 결과(성공/실패)를 여기에 추가로 적는다.
+
+**회원 로그인 영향:** 테스트 상태에서는 테스트 사용자로 등록한 계정만 회원 Google 로그인이 가능했을 것으로 추정한다(다른 계정으로 확인하지는 못했다). 프로덕션 전환으로 해소됐을 가능성이 높으므로, 일반 Google 계정으로 로그인·자동 승인을 실사용 검증한다(아래 "다음 할 일" 2번).
+
+- 대안(비권장): Apps Script를 표준 Cloud 프로젝트 연결 없이 기본 프로젝트로 되돌리면 7일 제한은 없지만, Drive REST API(`UrlFetchApp`) 첨부 업로드에 표준 프로젝트의 API 사용 설정이 필요해 현재 구조와 맞지 않는다.
+
+**스모크 요청(장애 여부 확인):** 브라우저 콘솔에서 `CIC_API.request('listPosts')`가 성공하면 정상이다. 실패하면 위 해결 방법을 먼저 실행하고, 그래도 안 되면 Apps Script 실행 기록의 `doPost failed [...]` 로그를 확인한다.
+
+## 2026-09-20 인트로 탐방 카드 이미지 추가 및 GitHub Pages 배포
+
+- 사용자 요청에 따라 인트로 홈페이지의 3개 탐방 카드에서 `탐방 가이드 읽기 ↗` 링크 바로 아래에 사진을 추가했다.
+- 원본 사진은 `img/incheon01.jpg`, `img/incheon02.jpg`, `img/incheon03.jpg`에 있었고, GitHub Pages 공개 배포를 위해 각각 `dist/assets/incheon01.jpg`, `dist/assets/incheon02.jpg`, `dist/assets/incheon03.jpg`로 복사했다. 원본 `img/` 폴더는 기존처럼 Git에 추가하지 않았다.
+- `dist/app.js`의 `guideCards()` 렌더링에 `<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" ...>`를 추가해 01/02/03 카드가 각각 대응되는 이미지를 표시하도록 했다. 한국어/영어 페이지 모두 같은 카드 렌더러를 사용하므로 양쪽에 반영된다.
+- `dist/styles.css`에 `.guide-card-image` 스타일을 추가해 카드 너비에 맞는 반응형 이미지로 표시되도록 했다. 기존 `.pending` 배지의 `border-radius`와 `color` 표시가 유지되도록 보정 규칙도 추가했다.
+- 배포 전 검증으로 `node --test tests/backend.test.cjs tests/transport.test.cjs` 26개 테스트 통과, `dist/*.js` 문법 체크 통과, `git diff --check` 통과를 확인했다.
+- GitHub `main`에 커밋 `bd906e3` (`Add Incheon guide card images`)를 푸시했다. GitHub Pages 워크플로 실행 `35501098344`가 성공했고, 공개 `https://cic23.github.io/` HTTP 200 및 `app.js` 내 `guide-card-image` 반영을 확인했다.
+- 공개 이미지 URL `https://cic23.github.io/assets/incheon01.jpg`, `https://cic23.github.io/assets/incheon02.jpg`, `https://cic23.github.io/assets/incheon03.jpg`는 모두 HTTP 200으로 확인했다.
+- GitHub Actions에서 Node.js 20 deprecation 및 `ubuntu-latest` 마이그레이션 안내 경고가 있었으나 배포에는 영향 없었다.
+
+## 2026-09-20 CIC 영문 명칭 수정 및 GitHub Pages 배포
+
+- 사용자 요청에 따라 영문/한글 모든 활성 페이지에서 `Chadwick International Cultural Protectors`를 `Chadwick International Culture protector`로 수정했다.
+- 변경 파일은 `dist/app.js`, `dist/content.en.js`, `dist/i18n.js`, `dist/index.html`이며, `reference/`와 `node_modules/`는 검색 참고용으로만 제외했다.
+- 배포 전 `node --test tests/backend.test.cjs tests/transport.test.cjs` 26개 테스트와 `dist/*.js` 문법 체크를 통과했다.
+- GitHub `main`에 커밋 `6f6e4c0` (`Update CIC organization name`)를 푸시했고, GitHub Pages 워크플로 실행 `35498335637`이 성공했다.
+- 공개 `https://cic23.github.io/` HTTP 200과 배포된 `app.js`, `content.en.js`, `i18n.js`에서 새 명칭 반영을 확인했다.
+
 ## 2026-09-14 지킴이로그 게시글 공유 아이콘 추가 및 배포
 
 - 게시글 상세 하단의 좋아요·댓글 액션과 같은 줄 오른쪽 끝에 Google 모바일 UI의 연결점형 공유 아이콘을 추가했다. 아이콘에는 접근성 레이블과 영어 보기 번역(`Share`)을 적용했다.

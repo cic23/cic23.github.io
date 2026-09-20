@@ -53,6 +53,7 @@ function doPost(e) {
     result = { ok: true, data: dispatch_(r) };
   } catch (err) {
     const code = err && err.cicCode, detail = String((err && err.message) || err || '').replace(/[\r\n]+/g, ' ').slice(0, 300);
+    if (!code) console.error('doPost failed [' + action + ']: ' + String((err && err.stack) || err).slice(0, 1000));
     const message = code ? err.message : action === 'startUpload' ? '첨부 업로드 요청을 처리하지 못했습니다: ' + (detail || '알 수 없는 서버 오류') : '요청을 처리하지 못했습니다. 관리자에게 서버 설정을 확인해 달라고 요청해주세요.';
     result = { ok: false, code: code || 'SERVER', message };
   } finally {
