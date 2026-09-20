@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 다섯 가지 가치를 CIC 소개 페이지로 통합
+
+- 별도 `#values` 페이지를 없애고, CIC 소개 페이지의 "함께 쌓아온 활동" 섹션(마지막 카드 `봉사의 가치를 인정받다` — 국가유산지킴이 우수활동 국가유산청장상·전국청소년자원봉사대회 수상 문구) 바로 다음, 단원 소감(`푹’ 빠진 이유`) 앞에 "다섯 가지 가치와 실천" 섹션(`valuesSection()`, `id="values"`)을 넣었다. 존중·책임감·정직·공정·배려 5개 항목 내용은 기존 그대로다.
+- 상단 메뉴(`dist/index.html`)에서 "다섯 가지 가치"를 제거했다. 기존 링크 `#values`, `#values/<가치>`(예: `#values/fairness`, 홈의 "활동 살펴보기 ↗")는 소개 페이지를 열고 해당 섹션으로 스크롤하도록 `route()`에서 별칭 처리했다. 이때 메뉴는 "CIC 소개"가 선택되고 문서 제목도 `CIC · CIC 소개`다.
+- 변경 파일: `dist/app.js`(v=56-values-in-about), `dist/index.html`, `dist/styles.css`(v=53-values-in-about). 서버 변경은 없다.
+- 검증: 테스트 26개·JS 문법 검사 통과, Edge 렌더링으로 수상 카드 → 가치 5섹션 → 소감 순서, `#about`·`#values`·`#values/fairness` 동작, 영어 제목(`Five values in practice`) 확인. 모바일(약 400px) 레이아웃은 눈으로 확인하지 않았다.
+- GitHub `main`에 커밋 `ae36003`(`Merge five core values into About CIC page`)을 푸시했고 Pages 실행 `35506780747`이 성공했다. 공개 사이트 HTTP 200, 배포된 `app.js`에 `valuesSection` 반영, 공개 `index.html`에서 `#values` 메뉴 링크 제거를 확인했다.
+
 ## 2026-09-20 게시판 오류(`SERVER`) 원인 및 해결: Apps Script 권한 승인 만료
 
 **증상:** 지킴이 로그 게시판이 열리지 않음. 공개 `/exec`에 `listPosts`·`getPost`를 보내면 `code: SERVER`("요청을 처리하지 못했습니다. 관리자에게 서버 설정을 확인해 달라고…")로 실패하고, 시트를 읽지 않는 `challenge`만 성공했다.
