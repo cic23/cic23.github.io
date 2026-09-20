@@ -134,3 +134,9 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .language-float .language-toggle{background:#fff;box-shadow:0 8px 22px #142c4240}
 @media(max-width:1100px){.language-float{right:18px;bottom:84px}}
 @media print{.language-float{display:none}}
+/* Language toggle floats at the top center; header vertical padding is trimmed. */
+.site-header{padding-block:6px;min-height:0}
+.language-float{right:auto;bottom:auto;left:50%;transform:translateX(-50%);top:33px;z-index:40}
+@media(max-width:1100px){.language-float{right:auto;bottom:auto;top:25px}}
+/* On phones the centered toggle would collide with the menu, so it gets its own strip above the logo row. */
+@media(max-width:720px){.site-header{padding-top:42px}.language-float{top:4px}}
