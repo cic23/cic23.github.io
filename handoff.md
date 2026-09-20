@@ -2,7 +2,7 @@
 
 ## 2026-09-20 Google Play 배포 준비 3차: 스토어 이미지·TWA 빌드 준비 (계획 5~7단계 중 가능한 부분)
 
-**만든 것(미커밋 상태일 수 있음, 커밋 여부는 `git status` 확인):**
+**만든 것(커밋 `aa4ac3a`로 `main`에 푸시 완료, 사이트 배포 대상 아님):**
 - `store/`: `icon-512.png`(512×512), `feature-graphic-1024x500.png`(대표 이미지: 네이비 배경 + 로고 + `CIC 지킴이` 문구, HTML을 Edge 헤드리스로 캡처), `screenshots/phone-1-home … phone-5-guide-detail.png`(1080×2160, 운영 사이트를 412×824 CSS px iframe으로 감싸 DSF 2.6213로 캡처 후 잘라냄. 헤드리스 Edge는 최소 창 너비 때문에 `--window-size=412,…`로는 폰 레이아웃이 안 나온다), `listing.md`(앱 이름·짧은/전체 설명 한·영, 카테고리 교육, URL, 데이터 보안 양식·타깃 연령·앱 액세스·비공개 테스트 안내 초안). 게시판 스크린샷은 실제 회원 글·이름이 보여 제외했다. `phone-4-values.png`에는 학생들이 뒷모습으로 나오므로 스토어 게시 전 초상권·학교 동의 확인이 필요하다.
 - `twa/twa-manifest.json`: Bubblewrap 설정(패키지 `io.github.cic23.app`, 호스트 `cic23.github.io`, 이름 `CIC 지킴이`, 흰색 테마, 아이콘·maskable 아이콘 URL, 키스토어 `./android.keystore` alias `cic-upload`, 버전 1 / 1.0.0, `fingerprints` 빈 배열). `@bubblewrap/core` 1.25.0의 `TwaManifest.validate()`로 `OK`를 확인했다. Bubblewrap 템플릿 targetSdk는 36.
 - `twa/README.md`: 키스토어 생성(`keytool`), `bubblewrap doctor/build/update`, Play 콘솔에서 SHA-256 받아 `fingerprints`에 넣고 `fingerprint generateAssetLinks`로 `dist/.well-known/assetlinks.json` 만들기, 검증 URL, 실기기 확인 목록, 출시 흐름. `README.md` 최상단에 이 준비 사항과 미해결 선행 조건을 짧게 기록했다. `.gitignore`에 `twa/*.aab`, `twa/*.apk` 추가.
