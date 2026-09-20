@@ -127,6 +127,10 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 /* Header: logo, menu and language toggle share one line with minimal spacing. */
 .site-header{flex-wrap:nowrap;gap:8px 10px;align-items:center}
 .site-header nav{order:0;width:auto;min-width:0;margin:0 0 0 auto;justify-content:flex-end;gap:4px 12px}
-.site-header .header-controls{margin-left:0;flex-shrink:0;gap:8px}
 .site-header #account-button{order:0;margin:0}
-@media(max-width:480px){.site-header .header-controls{flex-wrap:nowrap;max-width:none;gap:4px}.site-header nav{gap:2px 8px}}
+@media(max-width:480px){.site-header nav{gap:2px 8px}}
+/* Language toggle floats above the write button and stays visible while scrolling. */
+.language-float{position:fixed;right:28px;bottom:96px;z-index:26}
+.language-float .language-toggle{background:#fff;box-shadow:0 8px 22px #142c4240}
+@media(max-width:1100px){.language-float{right:18px;bottom:84px}}
+@media print{.language-float{display:none}}
