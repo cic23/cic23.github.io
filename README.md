@@ -1,5 +1,11 @@
 # CIC 홈페이지
 
+## Google Play(TWA) 배포 준비 (2026-09-20)
+
+- 사이트는 PWA(`dist/manifest.webmanifest`, `dist/sw.js`, 아이콘)이며 Android 앱은 TWA로 감쌉니다. 빌드·서명·`assetlinks.json`·실기기 확인 절차는 `twa/README.md`, 스토어 등록 문구·그래픽·정책 답변 초안은 `store/listing.md`에 있습니다.
+- 미해결 선행 조건: Play 개발자 계정(만 18세 이상 본인 명의), 테스터 12명 이상의 14일 연속 비공개 테스트, 업로드 키스토어 생성·보관, Play 앱 서명 키 SHA-256으로 `dist/.well-known/assetlinks.json` 작성.
+- 키스토어·비밀번호는 Git에 넣지 않습니다(`.gitignore`에 `*.jks`, `*.keystore`, `twa/*.aab`, `twa/*.apk` 등록).
+
 ## 문화유산 가이드 소개 문구 수정 (2026-09-14)
 
 - 문화유산 가이드 소개 문구를 `CIC가 소개하는 인천 문화유산 탐방 이야기`로 변경했습니다. 영어 보기에도 기존 번역을 반영했으며, 변경된 파일은 `?v=32-guide-copy` URL로 제공합니다.

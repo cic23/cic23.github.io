@@ -14,3 +14,5 @@ reference/
 *.keystore
 twa/build/
 twa/app/
+twa/*.aab
+twa/*.apk

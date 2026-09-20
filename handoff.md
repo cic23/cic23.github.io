@@ -1,5 +1,19 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 Google Play 배포 준비 3차: 스토어 이미지·TWA 빌드 준비 (계획 5~7단계 중 가능한 부분)
+
+**만든 것(미커밋 상태일 수 있음, 커밋 여부는 `git status` 확인):**
+- `store/`: `icon-512.png`(512×512), `feature-graphic-1024x500.png`(대표 이미지: 네이비 배경 + 로고 + `CIC 지킴이` 문구, HTML을 Edge 헤드리스로 캡처), `screenshots/phone-1-home … phone-5-guide-detail.png`(1080×2160, 운영 사이트를 412×824 CSS px iframe으로 감싸 DSF 2.6213로 캡처 후 잘라냄. 헤드리스 Edge는 최소 창 너비 때문에 `--window-size=412,…`로는 폰 레이아웃이 안 나온다), `listing.md`(앱 이름·짧은/전체 설명 한·영, 카테고리 교육, URL, 데이터 보안 양식·타깃 연령·앱 액세스·비공개 테스트 안내 초안). 게시판 스크린샷은 실제 회원 글·이름이 보여 제외했다. `phone-4-values.png`에는 학생들이 뒷모습으로 나오므로 스토어 게시 전 초상권·학교 동의 확인이 필요하다.
+- `twa/twa-manifest.json`: Bubblewrap 설정(패키지 `io.github.cic23.app`, 호스트 `cic23.github.io`, 이름 `CIC 지킴이`, 흰색 테마, 아이콘·maskable 아이콘 URL, 키스토어 `./android.keystore` alias `cic-upload`, 버전 1 / 1.0.0, `fingerprints` 빈 배열). `@bubblewrap/core` 1.25.0의 `TwaManifest.validate()`로 `OK`를 확인했다. Bubblewrap 템플릿 targetSdk는 36.
+- `twa/README.md`: 키스토어 생성(`keytool`), `bubblewrap doctor/build/update`, Play 콘솔에서 SHA-256 받아 `fingerprints`에 넣고 `fingerprint generateAssetLinks`로 `dist/.well-known/assetlinks.json` 만들기, 검증 URL, 실기기 확인 목록, 출시 흐름. `README.md` 최상단에 이 준비 사항과 미해결 선행 조건을 짧게 기록했다. `.gitignore`에 `twa/*.aab`, `twa/*.apk` 추가.
+
+**하지 않은 것(막힌 이유):**
+- **AAB 빌드는 하지 못했다.** 이 PC에는 JDK·Android SDK가 없다. Bubblewrap CLI(1.25.0)는 첫 실행 때 JDK/SDK 자동 설치를 **대화형으로 묻기 때문에**(비대화형 실행은 `ERR_USE_AFTER_CLOSE`로 종료) 사용자가 터미널에서 직접 실행해야 한다(`! npx @bubblewrap/cli doctor` 등). 대안은 PWABuilder(웹).
+- 업로드 키스토어 생성은 소유자만 할 수 있다(비밀번호를 채팅에 공유하지 않는다). `assetlinks.json`은 Play 앱 서명 키 SHA-256을 받은 뒤에 만든다(지금 만들면 잘못된 값이 공개된다).
+- 개발자 계정 등록, 테스터 12명 모집(14일 연속), 콘솔 입력은 사용자 작업이다.
+
+**남은 위험:** Google 로그인 팝업이 TWA에서 동작하는지는 실기기로 확인해야 한다(안 되면 `ux_mode:'redirect'` 전환과 서버 `redirect_uri` 변경 필요). 데이터 보안·콘텐츠 등급 답변은 초안이므로 소유자가 최종 확인한다.
+
 ## 2026-09-20 Google Play 배포 준비 2차: 신고·회원 탈퇴·정책 페이지 (계획 3단계)
 
 Play UGC·계정 삭제 정책 대응이다. 서버는 Apps Script **버전 19**(`Add content reports and account deletion`), 프런트는 커밋 `a9a3a03`(Pages 실행 `35511945608` 성공)로 배포했다. **배포 순서**: 서버 버전 19 → 사용자가 Apps Script 편집기에서 `setup` 실행(`준비 완료`, `Reports` 시트 생성) → 프런트. 순서가 반대면 신고·탈퇴가 `SETUP` 오류를 낸다. 새 OAuth 범위는 없다(`DriveApp`은 기존 `drive` 범위).
