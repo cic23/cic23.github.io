@@ -4,7 +4,7 @@ window.CIC_CONTENT_EN = {
   title: 'Incheon Cultural Heritage Guide with CIC',
   subtitle: 'We are Korea’s National Heritage Guardians, documenting and protecting heritage through young people’s eyes.',
   foreword: [
-    'Incheon is a vast historical landscape, holding the turning points, hardships and resilience of Korea’s modern history. Chadwick International Cultural Protectors (CIC) is a student-led club that takes learning beyond the classroom. We explore and help preserve the cultural heritage of the city we call home, sharing its stories with our communities and the wider world.'
+    'Incheon is a vast historical landscape, holding the turning points, hardships and resilience of Korea’s modern history. Chadwick International Culture protector (CIC) is a student-led club that takes learning beyond the classroom. We explore and help preserve the cultural heritage of the city we call home, sharing its stories with our communities and the wider world.'
   ],
   achievements: [
     {title:'A continuing commitment at Tapgol Park',text:'Each month, we pick up litter at Tapgol Park and help provide meals for older people.',asset:'plogging'},
