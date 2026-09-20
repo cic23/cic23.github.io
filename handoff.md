@@ -1,5 +1,24 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-20 Google Play 배포 준비 2차: 신고·회원 탈퇴·정책 페이지 (계획 3단계)
+
+Play UGC·계정 삭제 정책 대응이다. 서버는 Apps Script **버전 19**(`Add content reports and account deletion`), 프런트는 커밋 `a9a3a03`(Pages 실행 `35511945608` 성공)로 배포했다. **배포 순서**: 서버 버전 19 → 사용자가 Apps Script 편집기에서 `setup` 실행(`준비 완료`, `Reports` 시트 생성) → 프런트. 순서가 반대면 신고·탈퇴가 `SETUP` 오류를 낸다. 새 OAuth 범위는 없다(`DriveApp`은 기존 `drive` 범위).
+
+**서버(`apps-script/Code.gs`):**
+- `TABLES_`에 `Reports` 추가. 액션: `reportContent`(승인 회원, 사유 `inappropriate|harassment|privacy|spam|other` + 선택 설명 300자, 본인 내용 신고 불가, 같은 회원의 같은 내용 미처리 신고는 `duplicate:true`로 흡수), `listReports`(관리자, 처리 대기 우선·최신순 200건, 이메일 미노출), `resolveReport`(관리자, `dismiss|remove`, 같은 내용의 미처리 신고 전체에 적용, `remove`는 게시글/댓글을 `deleted:true`로).
+- `deleteMyAccount`(`{confirm:true}`, 관리자 불가): 이미 삭제한 본인 글과 그 글의 댓글은 완전 삭제, 남은 글·댓글은 `authorId:'deleted'`·`authorName:'탈퇴한 회원'`으로 익명화, 좋아요 삭제, 신고 기록의 신고자·작성자 이름 익명화, 글에 연결되지 않은 업로드 첨부는 행 삭제 + Drive 파일 휴지통(`trashDriveFile_`), 나머지 첨부 `ownerId:'deleted'`, 세션 삭제 후 `Members` 행 삭제. 같은 Google 계정으로 다시 로그인하면 새 회원으로 가입된다. 헬퍼 `removeWhere_(name,test)` 추가.
+- 테스트: `tests/policy.test.cjs`(신고·처리·탈퇴 3개). 워크플로가 `tests/*.test.cjs`를 실행한다. 전체 36개 통과.
+
+**프런트(`dist/`):**
+- 게시글 하단과 댓글에 `신고하기` 버튼(본인 글·댓글에는 없음, 비로그인은 로그인 창), 신고 창(사유 5종+설명), 관리자 화면 `#reports`(`신고 관리`: 삭제 처리·반려·작성자 이용 제한, 게시판 상단 관리자 툴바에 링크). 짧은 번역 키(`기타`, `작성자` 등)는 부분 문자열 치환으로 다른 문장을 깨뜨리므로 쓰지 않고 `L(ko,en)`으로 언어를 분기한다.
+- **로그인한 회원의 계정 창 진입점**: 이전 커밋 `da2a5ab`에서 헤더 로그인 버튼을 없앤 뒤로 로그인한 회원이 로그아웃·계정 창을 열 수 없었다. 푸터에 `로그인 / 내 계정` 버튼(`data-action="login"`)을 추가했다. 계정 창(로그인 상태)에 로그아웃과 `회원 탈퇴`(관리자 제외)가 있다. 탈퇴는 확인 창 → `deleteMyAccount` → 세션·캐시 정리 → 홈.
+- 정적 페이지: `terms.html`(이용약관), `account-deletion.html`(앱 내 삭제 절차, 삭제·유지 표, 접속 불가 시 이메일 요청), `privacy.html`에 탈퇴 처리·신고 기록 보관 문구 추가. 푸터에 세 페이지 링크. Play 콘솔의 개인정보처리방침 URL은 `https://cic23.github.io/privacy.html`, 계정 삭제 URL은 `https://cic23.github.io/account-deletion.html`을 쓴다. 법적 문구(삭제 요청 이메일, 만 14세 미만 동의, 보유 기간)는 운영자 검토가 필요하다.
+- 파일 버전: `app.js?v=58-policy`, `styles.css?v=61-policy`, `i18n.js?v=35-policy`.
+
+**검증:** 모의 API로 실제 화면(신고 버튼·신고 창·`#reports`·계정 창·푸터) 렌더링, 클릭 시뮬레이션으로 `reportContent`(글·댓글), `deleteMyAccount`(→`#home`), `resolveReport`(→목록 갱신), 본인 댓글 신고 버튼 없음, 관리자 탈퇴 버튼 없음, 비로그인 신고 → 로그인 창(`challenge`) 확인, 영어 보기 번역 확인. 배포 후 공개 URL: 홈·`terms.html`·`account-deletion.html`·`privacy.html` HTTP 200, 배포된 `app.js`에 `deleteMyAccount`, 푸터 링크·버튼 마크업, 운영 `/exec`의 `listPosts` 정상, 비로그인 `reportContent`·`listReports`는 `AUTH`. **로그인한 실제 계정으로 신고·탈퇴를 실제로 눌러 보는 검증은 아직 하지 않았다**(운영 데이터를 건드리므로 테스트 계정으로 확인 필요, 특히 탈퇴는 되돌릴 수 없다).
+
+**남은 것(계획 5~7단계, 사용자 작업 포함):** 개발자 계정 등록·테스터 12명 모집(사용자), 로고 기반 스토어 이미지·스크린샷 준비, TWA 빌드(Bubblewrap/PWABuilder, 키스토어는 커밋 금지), Play 앱 서명 키 SHA-256을 받은 뒤 `dist/.well-known/assetlinks.json` 작성, Play Console 등록·데이터 보안 양식·비공개 테스트 14일. 자세한 계획은 로컬 계획 파일 `C:\Users\NYK\.claude\plans\dynamic-tinkering-plum.md`와 바로 아래 1차 기록을 본다.
+
 ## 2026-09-20 Google Play(TWA) 배포 준비 1차: PWA화·워크플로 수정
 
 **목표·결정(사용자 확정):** 개인 개발자 계정 / TWA(Trusted Web Activity) 패키징 / 전체 공개로 Google Play에 등록한다. 계획 전문은 `C:\Users\NYK\.claude\plans\dynamic-tinkering-plum.md`(로컬 계획 파일, 저장소에는 없음). 요약: 기본값은 대상 연령 16세 이상, 탈퇴 시 게시글 익명화, 패키지 ID `io.github.cic23.app`, 앱 이름 `CIC 지킴이`.
