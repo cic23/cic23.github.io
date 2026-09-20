@@ -136,9 +136,9 @@
   function about() {
     const reflections = C.reflections.filter(x => x.text.trim());
     const forewordHeading = CIC_I18N.language === 'en' ? 'Carrying the heritage of this land into the future' : '우리가 서 있는 이 땅의 역사를<br>미래로 연결합니다';
-    return title('About CIC',t('작은 관심에서 시작된, 진정성 있는 실천'), t('채드윅송도국제학교 청소년 국가유산지킴이')) + html`<div class="reading"><span class="eyebrow">발간사</span><h2>${forewordHeading}</h2>${C.foreword.map(p=>`<p>${esc(p)}</p>`).join('')}</div><section class="wrap tinted"><div class="section-heading"><div><span class="eyebrow">Our Journey</span><h2>함께 쌓아온 활동</h2></div></div><div class="activity-grid">${C.achievements.map(a=>`<article class="activity"><h3>${esc(a.title)}</h3>${activityPhoto(a.asset,a.title)}<p>${esc(a.text)}</p></article>`).join('')}</div></section><section class="reading"><span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2>${reflections.length ? reflections.map(r=>html`<blockquote class="quote-block">${esc(r.text)}<p class="muted small-text">${esc(r.name)} · ${r.grade}학년</p></blockquote>`).join('') : t('<p class="muted">단원들의 소감을 모으고 있습니다. 직접 경험하고 느낀 이야기를 곧 이곳에서 전하겠습니다.</p>')}</section>`;
+    return title('About CIC',t('작은 관심에서 시작된, 진정성 있는 실천'), t('채드윅송도국제학교 청소년 국가유산지킴이')) + html`<div class="reading"><span class="eyebrow">발간사</span><h2>${forewordHeading}</h2>${C.foreword.map(p=>`<p>${esc(p)}</p>`).join('')}</div><section class="wrap tinted"><div class="section-heading"><div><span class="eyebrow">Our Journey</span><h2>함께 쌓아온 활동</h2></div></div><div class="activity-grid">${C.achievements.map(a=>`<article class="activity"><h3>${esc(a.title)}</h3>${activityPhoto(a.asset,a.title)}<p>${esc(a.text)}</p></article>`).join('')}</div></section>${valuesSection()}<section class="reading"><span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2>${reflections.length ? reflections.map(r=>html`<blockquote class="quote-block">${esc(r.text)}<p class="muted small-text">${esc(r.name)} · ${r.grade}학년</p></blockquote>`).join('') : t('<p class="muted">단원들의 소감을 모으고 있습니다. 직접 경험하고 느낀 이야기를 곧 이곳에서 전하겠습니다.</p>')}</section>`;
   }
-  function values() { return title('Five Core Values',t('다섯 가지 가치와 실천'), t('존중 · 책임감 · 정직 · 공정 · 배려')) + `<div class="wrap">${C.values.map((v,i)=>`<section id="value-${v.en.toLowerCase()}" class="value-section"><div><span class="value-index">0${i+1}</span><h2>${CIC_I18N.language === 'en' ? v.en : v.ko}</h2><span class="english">${v.en}</span></div><div class="value-body"><blockquote>“${esc(v.quote)}”</blockquote>${valuePhotos(v,(CIC_I18N.language === 'en' ? v.en : v.ko)+t(' 활동'))}${v.activities.map(([h,p])=>`<h3>${esc(h)}</h3><p>${esc(p)}</p>`).join('')}</div></section>`).join('')}</div>`; }
+  function valuesSection() { return `<div class="wrap" id="values"><div class="section-heading"><div><span class="eyebrow">Five Core Values</span><h2>${esc(t('다섯 가지 가치와 실천'))}</h2><p class="muted">${esc(t('존중 · 책임감 · 정직 · 공정 · 배려'))}</p></div></div>${C.values.map((v,i)=>`<section id="value-${v.en.toLowerCase()}" class="value-section"><div><span class="value-index">0${i+1}</span><h2>${CIC_I18N.language === 'en' ? v.en : v.ko}</h2><span class="english">${v.en}</span></div><div class="value-body"><blockquote>“${esc(v.quote)}”</blockquote>${valuePhotos(v,(CIC_I18N.language === 'en' ? v.en : v.ko)+t(' 활동'))}${v.activities.map(([h,p])=>`<h3>${esc(h)}</h3><p>${esc(p)}</p>`).join('')}</div></section>`).join('')}</div>`; }
   function guide() { return title('Incheon Heritage Guide',t('도시를 걷고, 역사를 읽다'), t('CIC가 소개하는 인천 문화유산 탐방 이야기'))+html`<div class="wrap">${C.places.map(p=>html`<article class="place-section" id="place-${p.id}"><div><span class="place-number">${p.number}</span><p class="eyebrow" style="margin-top:20px">${p.category}</p><h2>${esc(p.title)}</h2></div><div>${activityPhoto(p.id,p.title)}${p.paragraphs.map(([h,b])=>`<h3>${esc(h)}</h3><p>${esc(b)}</p>`).join('')}<aside class="tip"><strong>지킴이의 추천 팁</strong><p>${esc(p.tip)}</p></aside>${p.id==='openport'?guidePhoto('openport',p.title+t(' 지도')):''}${p.source ? html`<a class="source" href="${esc(p.source[1])}" target="_blank" rel="noopener noreferrer">${esc(p.source[0])} · 참고 자료 ↗</a>` : ''}</div></article>`).join('')}</div><section class="wrap tinted"><div class="section-heading"><div><span class="eyebrow">Leave Care, Keep Heritage</span><h2>미래 세대를 위한 탐방 에티켓</h2></div></div><div class="grid-3">${C.etiquette.map(([h,p],i)=>`<article class="etiquette"><div class="number">0${i+1}</div><h3>${esc(h)}</h3><p>${esc(p)}</p></article>`).join('')}</div></section>`; }
   function lockedBoard() {
     let heading, message, button;
@@ -240,19 +240,18 @@
     if(page!=='post'||part!==commentsOpenFor) commentsOpenFor=null;
     currentPost=null; currentComments=[];
     renderFloatingWrite();
-    document.querySelectorAll('nav a').forEach(a=>{ if(a.hash==='#'+page) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
-    const titles={home:t('인천 문화유산 가이드'),about:t('CIC 소개'),values:t('다섯 가지 가치'),guide:t('인천 문화유산'),board:t('지킴이 로그'),post:t('지킴이 로그'),members:t('회원 관리')};
+    document.querySelectorAll('nav a').forEach(a=>{ if(a.hash==='#'+(page==='values'?'about':page)) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    const titles={home:t('인천 문화유산 가이드'),about:t('CIC 소개'),values:t('CIC 소개'),guide:t('인천 문화유산'),board:t('지킴이 로그'),post:t('지킴이 로그'),members:t('회원 관리')};
     document.title=`CIC · ${titles[page]||titles.home}`;
     try {
-      if (page==='about') main.innerHTML=about();
-      else if(page==='values') main.innerHTML=values();
+      if (page==='about'||page==='values') main.innerHTML=about();
       else if(page==='guide') main.innerHTML=guide();
       else if(page==='board') await board(Math.max(1,parseInt(part,10)||1),stamp);
       else if(page==='post') await post(part,Math.max(1,parseInt(third,10)||1),stamp);
       else if(page==='members') await members(stamp);
       else main.innerHTML=home();
       if(stamp!==epoch)return;
-      const anchor = part && ['values','guide'].includes(page) ? document.getElementById((page==='values'?'value-':'place-')+part) : null;
+      const anchor = page==='values' ? document.getElementById(part ? 'value-'+part : 'values') : part && page==='guide' ? document.getElementById('place-'+part) : null;
       if(options.keepScroll) window.scrollTo(0,options.scrollY || 0);
       else if(anchor) anchor.scrollIntoView();
     } catch(e) {

@@ -21,7 +21,7 @@ html{scroll-padding-top:calc(var(--header-height) + 20px)}
 .language-toggle button:hover:not([aria-pressed="true"]){background:#e1e7ec}
 #account-button{max-width:180px;overflow-wrap:anywhere}
 .skip{position:fixed;z-index:40}
-.value-section,.place-section{scroll-margin-top:20px}
+.value-section,.place-section,#values{scroll-margin-top:20px}
 html[lang="en"] h1,html[lang="en"] h2{letter-spacing:-.025em}
 html[lang="en"] .hero-copy h1{font-size:clamp(2rem,3.7vw,3.4rem);line-height:1.3}
 
