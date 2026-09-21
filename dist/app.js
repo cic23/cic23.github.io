@@ -130,7 +130,21 @@
   }
   function openModal(html) { document.getElementById('modal-content').innerHTML = html; if (!modal.open) modal.showModal(); }
   function toast(message) { const el = document.getElementById('toast'); clearTimeout(toastTimer); el.textContent = message; el.hidden = false; toastTimer = setTimeout(() => el.hidden = true, 6000); }
-  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a><img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async"></article>`).join(''); }
+  const guideCardStories = {
+    '01': {
+      title:'인천문화유산 대장정, 자유의 뿌리를 찾아서: 인천상륙작전기념관과 자유공원에서 마주한 역사',
+      addresses:['인천상륙작전기념관 : 인천광역시 연수구 청량로 138','자유공원 : 인천광역시 중구 자유공원남로 25'],
+      paragraphs:[
+        '인천문화유산 대장정의 이번 발걸음은 연수구 옥련동, 청량산 자락의 인천상륙작전기념관으로 향했습니다. 평소 저는 이 일대를 지날 때마다 떠들썩한 음식점 거리의 활기만을 스쳐 지나가곤 했습니다. 맛있는 냄새가 진동하는 골목 뒤편, 청량산 중턱에 화강암으로 조용히 서 있는 기념관의 존재를 온전히 마주한 것은 이번이 처음이었습니다. CIC 단원들과 함께 발걸음을 옮기며, 우리가 무심코 지나쳤던 일상의 풍경 바로 곁에 대한민국 현대사의 물줄기를 바꾼 현장이 자리하고 있었다는 사실을 새삼 깨달았습니다.',
+        '1984년 9월 15일, 인천상륙작전이 개시된 바로 그 날짜에 맞추어 문을 연 이 기념관은 두 개의 직삼각형을 대칭으로 세운 독특한 형태로 청량산 중턱을 지키고 있습니다. 제1전시관에서는 암호명 \'크로마이트 작전(Operation Chromite)\'으로 불린 상륙작전의 구상과 계획이 어떻게 발전해 나갔는지, 그리고 전세를 뒤집기 위해 육군과 해군, 해병대가 각각 어떤 역할을 수행했는지를 촘촘히 살펴볼 수 있었습니다. 이어진 제2전시관과 야외전시관에서는 실제 상륙 당시 사용된 장비의 복제품과 참전용사들의 기록을 마주하며 교과서 속 몇 줄로만 배웠던 사건이 실은 무수한 젊은이들의 결단과 희생 위에 세워진 것이었음을 실감했습니다. 기념관을 나서며 올려다본 \'자유 수호의 탑\'은 청량산 아래 평화로운 서해를 굽어보고 있었고, 그 고요한 풍경은 오히려 1950년 9월의 긴박했던 순간을 더욱 선명하게 떠올리게 했습니다.',
+        '기념관에서 마주한 역사는 자연스럽게 우리의 발걸음을 중구 응봉산의 자유공원으로 이끌었습니다. 1888년 조성 당시 각국공원이라 불렸던 이곳은 우리나라 최초의 서구식 공원으로, 서울 탑골공원보다도 9년이나 앞선 근대의 산물이었습니다. 일제강점기에는 서공원으로, 광복 이후에는 다시 만국공원으로 이름이 바뀌는 굴곡을 겪었고, 1919년에는 전국 13도 대표자들이 이곳에 모여 한성임시정부 수립을 의결하며 대한민국 임시정부의 뿌리를 놓기도 했습니다. 그리고 1957년, 인천상륙작전 승리 7주년을 맞아 공원 정상에 맥아더 장군의 동상이 세워지면서 비로소 \'자유공원\'이라는 지금의 이름을 얻게 되었습니다. 동상 앞에 서서 내려다본 인천항과 그 너머 아스라이 떠 있는 월미도를 바라보며, 기념관에서 배운 작전의 개요가 실제 지형 위에서 하나로 이어지는 순간을 경험했습니다.',
+        '기념관의 전시실 안에서 읽은 숫자와 연표가, 공원의 언덕에 올라 두 눈으로 확인한 탁 트인 서해 앞에서 비로소 살아있는 역사로 다가왔습니다. 우리가 오늘 이토록 자유롭게 이 거리를 오가고, 친구들과 어울려 맛있는 음식을 나눌 수 있는 일상은 결코 당연한 것이 아니라, 조국을 지키기 위해 목숨을 걸었던 국군 장병들과 낯선 땅의 자유를 위해 바다를 건너온 연합군 참전용사들의 희생 위에 세워진 것임을 다시 한번 마음에 새겼습니다. 청소년 국가유산지킴이로서, 우리는 이제 이 소중한 자유와 평화의 유산을 정확히 기억하고 다음 세대에게 온전히 전달해야 할 책임을 지니고 있습니다. 앞으로도 인천의 곳곳에 새겨진 역사의 흔적을 찾아 나서며, 그 안에 담긴 의미를 되새기는 걸음을 계속 이어가고자 합니다.'
+      ],
+      author:'청소년 국가유산지킴이 김 연 후'
+    }
+  };
+  function guideCardStory(p) { const story=guideCardStories[p.number]; return story ? html`<div class="guide-card-story"><h4>${esc(story.title)}</h4><div class="story-addresses">${story.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>${story.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}<p class="story-author">${esc(story.author)}</p></div>` : ''; }
+  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a><img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">${guideCardStory(p)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div><a href="#guide">전체 가이드 ↗</a></div><div class="grid-3">${guideCards()}</div></section>
