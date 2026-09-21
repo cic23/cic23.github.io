@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 영문 표기 수정: Incheon Landing Operation Memorial Hall
+
+- 사용자 요청에 따라 영문 페이지의 `Memorial Hall for Incheon Landing Operation`을 `Incheon Landing Operation Memorial Hall`로 바꿨다(5곳). `dist/content.en.js` 3곳(소개 페이지 "Visits for remembrance and gratitude" 설명, 가이드 01 카드 제목 `… & Jayu Park`, 가이드 상세 소제목)과 `dist/i18n.js` 2곳(사진 캡션 `CIC members at the …`, `… · CIC visit`). 다른 변형 표기는 코드에 없었고 한국어(`인천상륙작전기념관`)와 `store/listing.md`(이미 새 표기)는 바꿀 것이 없었다. 새 영문 콘텐츠를 추가할 때도 이 표기를 쓴다.
+- 파일 버전: `content.en.js?v=28-memorial-hall`, `i18n.js?v=37-memorial-hall`.
+- 검증: 영어로 렌더링한 `#about`·`#guide`·`#home`에서 새 표기가 나오고 옛 표기는 없음, 테스트 36개·JS 문법 통과.
+- 커밋 `99e9dfb`(`Fix English name: Incheon Landing Operation Memorial Hall`), Pages 실행 `35599419180` 성공. 공개 사이트 HTTP 200, 배포된 `content.en.js`(새 표기 3곳)·`i18n.js`(2곳)에 옛 표기가 남지 않음을 확인했다.
+
 ## 2026-09-21 개인정보처리방침·이용약관 본문 글자 14px
 
 - 푸터에서 여는 상세 페이지(`dist/privacy.html`, `dist/terms.html`)의 본문 글자를 인트로 `기억과 평화`(`.guide-card .category`, `.875rem`=14px)와 같게 맞췄다. 본문(문단·목록)은 `body{font:.875rem/1.75 …}`(이전 16px), 시행일·영어 요약(`.meta, .en`)은 `.875rem`(이전 `.92rem`), 개인정보처리방침의 표는 `.875rem`(이전 `.95rem`)이다. 제목은 위계를 위해 그대로다(`h1` 1.7rem=27.2px, `h2` 1.15rem=18.4px). 상단 공용 헤더 메뉴(`static-header.css`)는 이미 14px였다.
