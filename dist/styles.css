@@ -129,16 +129,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .site-header nav{order:0;width:auto;min-width:0;margin:0 0 0 auto;justify-content:flex-end;gap:4px 12px}
 .site-header #account-button{order:0;margin:0}
 @media(max-width:480px){.site-header nav{gap:2px 8px}}
-/* Language toggle floats above the write button and stays visible while scrolling. */
-.language-float{position:fixed;right:28px;bottom:96px;z-index:26}
-.language-float .language-toggle{background:#fff;box-shadow:0 8px 22px #142c4240}
-@media(max-width:1100px){.language-float{right:18px;bottom:84px}}
-@media print{.language-float{display:none}}
-/* Language toggle floats at the top right just below the sticky header, aligned with the header's right edge; header vertical padding is trimmed. */
 .site-header{padding-block:6px;min-height:0}
-.language-float{right:max(5%,calc(50% - 648px));left:auto;bottom:auto;transform:none;top:109px;z-index:26}
-@media(max-width:1100px){.language-float{top:93px}}
-@media(max-width:480px){.language-float{top:79px}}
 .post-report-action{font-size:.85rem;font-weight:600;color:var(--muted);padding:0 4px}
 .post-report-action:hover{color:var(--orange)}
 fieldset.field{border:0;padding:0;margin:18px 0}
@@ -152,3 +143,9 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 .footer-account{border:0;background:none;padding:0;text-decoration:none;cursor:pointer}
 /* Keep the last footer row clear of the floating write button when scrolled to the bottom. */
 .site-footer{padding-bottom:88px}
+/* Header (see reference/헤더이미지 예시화면.png): logo on the left; the language toggle sits above the menu and both are right-aligned. */
+.site-header{padding-block:8px;align-items:center}
+.site-header .header-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0}
+.site-header .header-right nav{margin:0;width:auto;justify-content:flex-end}
+.site-header .header-right .language-toggle{background:#fff;box-shadow:0 8px 22px #142c4240}
+.site-header .header-right nav a{padding:4px 0}
