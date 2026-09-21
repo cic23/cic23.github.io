@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 헤더 UI를 참조 이미지에 맞춰 개편
+
+- 사용자가 `reference/헤더이미지 예시화면.png`(566×88)를 참조해 헤더 UI를 수정하도록 요청했다. 참조 이미지를 픽셀로 측정한 값: 로고 눈에 보이는 원 높이 58px(이미지 여백을 감안하면 로고 이미지 72px), 왼쪽 여백 29px, 토글 알약 높이 약 35px(그림자 있음)이 오른쪽 끝(여백 33px)에 붙고 그 아래에 메뉴가 같은 오른쪽 끝으로 정렬, 헤더 높이 약 88px.
+- **구조 변경(`dist/index.html`)**: `<header>` 안에 `<div class="header-right">`(위 `.language-toggle`, 아래 `<nav>`)를 두었다. 이전의 `.language-float`(헤더 아래 고정 위치 토글)는 없앴고 관련 CSS도 모두 삭제했다. 헤더가 sticky라 토글도 스크롤 중 항상 보인다. **바로 아래·이전 기록들의 "언어 버튼 플로팅/상단 중앙/오른쪽 정렬(`top` 109/93/79px, `right:max(5%,…)`)" 내용은 이 변경으로 대체됐다.**
+- **CSS(`dist/styles.css` 끝의 `/* Header (see reference/...) */` 블록)**: `.site-header{padding-block:8px;align-items:center}`, `.header-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}`, `.header-right nav{margin:0;width:auto;justify-content:flex-end}`, `.header-right .language-toggle{background:#fff;box-shadow:0 8px 22px #142c4240}`, `.header-right nav a{padding:4px 0}`. 로고 이미지 크기는 기존 브레이크포인트(88px, 1100px 이하 72px, 480px 이하 58px)를 유지한다(58px로 줄이면 참조보다 작아진다). 앞선 변경의 푸터 아래 여백 88px은 그대로다. `styles.css?v=67-header-reference`.
+- 측정(폭 566px): 헤더 높이 89px(참조 88px), 토글 y 11~46px(참조 12~47px), 메뉴 오른쪽 정렬·토글 아래, 오른쪽 여백 34px(참조 33px). 폭 1100·768·375·360px, 한국어·영어에서 렌더링 확인, 375/360px 영어 메뉴도 한 줄이며 토글과 겹치지 않는다. 현재 페이지 메뉴의 주황 밑줄은 유지했다(참조는 홈 화면이라 선택 항목이 없었다). 데스크톱(1100px 초과)은 참조가 없어 같은 구조를 적용했다. 실제 폰 기기는 확인하지 못했다. 테스트 36개·JS 문법 통과.
+- 커밋 `f1d5352`(`Restyle header per reference: toggle above right-aligned menu`), Pages 실행 `35546395193` 성공. 공개 사이트 HTTP 200, `header-right` 마크업과 새 CSS 반영, `language-float` 잔존 없음을 확인했다.
+
 ## 2026-09-21 푸터 링크 글자 스타일을 저작권 문구에 맞춤
 
 - 사용자 요청에 따라 푸터 링크(`개인정보처리방침`·`이용약관`·`로그인/로그아웃`)의 글자 스타일을 `© 2026 CIC. Chadwick International Culture protector` 문구와 같게 했다: 12px(`.75rem`), 두께 400, 줄 간격 `1.6`(19.2px), 색 `rgba(255,255,255,.38)`. 규칙은 `.site-footer .footer-links a,.site-footer .footer-links .footer-account{font-size:.75rem;line-height:1.6;color:rgba(255,255,255,.38)}`이고 호버 색(`#fff`)은 그대로다. 저작권 문구의 스타일(`.site-footer p` + `.footer-copyright` 색 `.38`)은 바꾸지 않았다.
