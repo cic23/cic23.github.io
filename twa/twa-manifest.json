@@ -8,6 +8,8 @@
   "themeColorDark": "#FFFFFF",
   "navigationColor": "#FFFFFF",
   "navigationColorDark": "#FFFFFF",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
   "backgroundColor": "#FFFFFF",
   "enableNotifications": false,
   "startUrl": "/",
@@ -18,14 +20,16 @@
     "path": "./android.keystore",
     "alias": "cic-upload"
   },
-  "appVersionCode": 1,
-  "appVersion": "1.0.0",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 2,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://cic23.github.io/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {},
-  "alphaDependencies": { "enabled": false },
+  "alphaDependencies": {
+    "enabled": false
+  },
   "enableSiteSettingsShortcut": false,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
@@ -33,5 +37,8 @@
   "minSdkVersion": 21,
   "orientation": "default",
   "fingerprints": [],
-  "additionalTrustedOrigins": []
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "1.0.0"
 }

@@ -16,3 +16,14 @@ twa/build/
 twa/app/
 twa/*.aab
 twa/*.apk
+# Bubblewrap-generated Android project (reproducible from twa/twa-manifest.json via `bubblewrap update`)
+twa/.gradle/
+twa/gradle/
+twa/gradlew
+twa/gradlew.bat
+twa/build.gradle
+twa/settings.gradle
+twa/gradle.properties
+twa/manifest-checksum.txt
+twa/store_icon.png
+twa/*.idsig

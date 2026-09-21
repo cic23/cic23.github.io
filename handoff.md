@@ -1,5 +1,34 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 `assetlinks.json` 배포(업로드 키 지문)
+
+- 사용자가 `keytool -list -v`로 얻은 업로드 키 SHA-256(`49:CB:64:73:7F:8F:22:67:8A:12:18:56:56:E2:19:E2:68:45:DA:67:29:71:7C:31:F2:4E:C6:3F:8A:20:43:A0`, 공개 값)을 알려 줘서 `dist/.well-known/assetlinks.json`을 만들었다(패키지 `io.github.cic23.app`, 릴레이션 `delegate_permission/common.handle_all_urls`, 지문 1개). 지문 형식(32바이트 hex)과 패키지 이름(`twa/twa-manifest.json`의 `packageId`와 일치)을 확인했다.
+- 커밋 `411b5a7`(`Add Android app links (assetlinks.json) for the upload key`), Pages 실행 `35605873820` 성공. 확인: `https://cic23.github.io/.well-known/assetlinks.json`이 HTTP 200, `Content-Type: application/json`으로 서빙되고, Google Digital Asset Links API(`statements:list?source.web.site=https://cic23.github.io&relation=delegate_permission/common.handle_all_urls`)가 패키지와 지문 1건을 그대로 돌려준다. `upload-pages-artifact@v5`의 `include-hidden-files: true`로 점 폴더(`.well-known`)가 배포되는 것이 실제로 검증됐다.
+- 효과: **직접 설치한 `app-release-signed.apk`(업로드 키로 서명)는 주소창 없는 전체 화면 TWA로 열린다.** Play 없이도 실기기에서 Google 로그인 팝업을 확인할 수 있다.
+- **Play에서 설치한 앱은 Google이 다시 서명한 키를 쓰므로**, Play Console `앱 무결성 → 앱 서명 키 인증서`의 SHA-256을 받으면 이 파일의 `sha256_cert_fingerprints` 배열에 **두 번째 항목으로 추가**해야 한다(지금 항목은 그대로 유지: 직접 설치 APK와 내부 테스트 확인용). 지문이 어긋나면 앱이 전체 화면이 아니라 주소창이 보이는 모드로 열린다.
+- 이 커밋에 함께 넣은 변경: `.gitignore`(Bubblewrap 생성 파일 제외), `twa/twa-manifest.json`(빌드가 채운 `appVersionCode:2` 등), 이 문서.
+
+## 2026-09-21 TWA 첫 빌드 성공(AAB·APK 생성)
+
+- 사용자가 별도 터미널에서 업로드 키스토어(`twa/android.keystore`, alias `cic-upload`, RSA 2048, 유효 10000일)를 만들고 `cd C:\Users\NYK\CIC\twa` → `npx @bubblewrap/cli build`를 실행했다. 체크섬 파일이 없다는 질문에는 `Yes`(프로젝트 재생성 = `bubblewrap update`와 같음), `versionName`에는 `1.0.0`을 답했다. 결과: `Generated Android APK at ./app-release-signed.apk`, `Generated Android App Bundle at ./app-release-bundle.aab`(각 약 2.2MB). Bubblewrap이 `twa/twa-manifest.json`에 `appVersionName:"1.0.0"`, `appVersionCode:2`, `navigationDividerColor` 등을 채워 넣었다(첫 Play 업로드는 versionCode 2로 나간다. 이후 업로드마다 +1).
+- 커밋 제외 확인: `android.keystore`, `*.aab`, `*.apk`, `twa/app/`, `twa/build/`는 `.gitignore`로 제외돼 있다. 빌드가 만든 재생성 가능한 파일(`twa/.gradle/`, `twa/gradle/`, `gradlew(.bat)`, `build.gradle`, `settings.gradle`, `gradle.properties`, `manifest-checksum.txt`, `store_icon.png`, `*.idsig`)도 `.gitignore`에 추가했다(비밀번호 문자열 없음 확인). 저장소에는 `twa/twa-manifest.json`과 `twa/README.md`만 남긴다. 클린 체크아웃에서는 `npx @bubblewrap/cli update` 후 `build`를 실행하면 된다.
+- **키스토어·비밀번호는 소유자가 오프라인에 백업해야 한다(잃으면 Play에서 업로드 키 재설정 요청 필요).** 채팅·저장소에 올리지 않는다.
+- **다음 진행:** (1) 업로드 키 SHA-256 확보: `twa` 폴더에서 `"C:\Users\NYK\.bubblewrap\jdk\jdk-17.0.11+9\bin\keytool.exe" -list -v -keystore android.keystore -alias cic-upload`(키스토어 비밀번호 입력, 출력의 `SHA256:` 줄만 공유. 지문은 공개 값이라 안전). (2) 이 지문으로 `dist/.well-known/assetlinks.json`(패키지 `io.github.cic23.app`)을 만들어 배포하면, **Play 없이 APK를 기기에 직접 설치해도 주소창 없는 TWA 전체 화면으로 열려** Google 로그인 팝업 동작을 미리 실기기로 확인할 수 있다(직접 설치한 APK는 업로드 키로 서명됨). Play 앱 서명 키 지문은 콘솔에서 받은 뒤 두 번째 항목으로 추가한다. (3) Play 개발자 계정·테스터 12명 14일은 사용자 작업.
+
+## 2026-09-21 Bubblewrap 환경 준비 완료(`doctor` 통과)
+
+- 사용자가 별도 터미널에서 `cd C:\Users\NYK\CIC\twa` → `npx @bubblewrap/cli doctor`를 직접 실행해 JDK·Android SDK 설치 질문과 SDK 약관 동의에 `Yes`로 답했고 `doctor Your jdkpath and androidSdkPath are valid.`가 나왔다. `~/.bubblewrap/config.json`: `jdkPath` `C:\Users\NYK\.bubblewrap\jdk\jdk-17.0.11+9`, `androidSdkPath` `C:\Users\NYK\.bubblewrap\android_sdk`(cmdline `tools`, 약 82MB). `keytool.exe`(`…\jdk-17.0.11+9\bin\keytool.exe`) 실행 확인. 프로젝트의 `twa/android.keystore`는 아직 없다.
+- 교훈: 이 명령은 **입력 창(TTY)이 있는 별도 터미널에서만** 끝까지 실행된다. Claude Code의 `!` 셸이나 백그라운드 실행은 질문에서 `ERR_USE_AFTER_CLOSE`로 종료한다(JDK는 그 과정에서 이미 설치됐다). 또 프로젝트 폴더(`C:\Users\NYK\CIC\twa`)로 이동한 뒤 실행해야 한다.
+- **다음 진행:** (1) 소유자가 업로드 키스토어 생성 — `"C:\Users\NYK\.bubblewrap\jdk\jdk-17.0.11+9\bin\keytool.exe" -genkeypair -v -keystore android.keystore -alias cic-upload -keyalg RSA -keysize 2048 -validity 10000`(`twa` 폴더에서, 비밀번호는 채팅에 공유하지 않고 오프라인 백업, `*.keystore`는 `.gitignore`로 제외됨). (2) `npx @bubblewrap/cli build`로 AAB 생성 — 첫 빌드는 Android build-tools·platform·Gradle을 추가로 내려받아 시간이 걸린다. Play 개발자 계정 없이도 빌드해 볼 수 있다. (3) Play 앱 서명 키 SHA-256을 받으면 `assetlinks.json` 작성·배포.
+
+## 2026-09-21 PWA 실제 브라우저 검증(Play 준비 보강)
+
+- 앞선 기록에서 "실제 Chrome에서의 서비스 워커 등록과 설치 가능성은 확인하지 못했다"고 남긴 항목을 확인했다. Edge(Chromium)를 원격 디버깅 모드로 띄워 운영 사이트(`https://cic23.github.io/`)를 열고 CDP로 조회했다(검증용 임시 스크립트는 삭제, 저장소에는 없음).
+- 결과: `Page.getInstallabilityErrors` **오류 0개**, 매니페스트 URL `https://cic23.github.io/manifest.webmanifest`(오류 0개; 이름 `CIC 지킴이 · 인천 문화유산 가이드`, `start_url`·`scope` `/`, `standalone`, 아이콘 192·512·512 maskable). 서비스 워커 `https://cic23.github.io/sw.js`가 scope `/`에서 `activated`, 페이지가 컨트롤됨, 캐시 `cic-shell-v1`. 첫 방문에는 사전 캐시 2개(`offline.html`, `icon-192.png`)뿐이고, **두 번째 로드 후 14개**(`/`, `styles.css`, `config.js`, `content.js`, `content.en.js`, `i18n.js`, `api.js`, `media.js`, `app.js`, `manifest.webmanifest`, `assets/cic-logo.jpeg` 등)로 늘었다.
+- **오프라인 재로드**(`Network.emulateNetworkConditions offline`): 헤더·로고·본문(`CIC · CHADWICK INTERNATIONAL CULTURE PROTECTOR …`)이 캐시에서 정상 표시됐다. 오프라인 상태에서 서버 요청(게시판 API 등)이 어떻게 보이는지는 확인하지 않았다.
+- 같은 날 운영 서버 상태: 공개 `listPosts` 정상(권한 승인 유지 확인, 다음 정식 재확인은 9월 28일경).
+- **결론:** PWA 요건(설치 가능성, 서비스 워커, 오프라인 셸)은 사이트 쪽에서 충족됐다. Play 등록의 남은 일은 모두 사용자 작업 또는 사용자 정보가 필요하다: JDK·SDK 설치(`! cd twa && npx @bubblewrap/cli doctor`를 셸 모드에서 직접), 업로드 키스토어, Play 개발자 계정, 테스터 12명 14일, 앱 서명 키 SHA-256(→ `assetlinks.json`), Android 실기기 로그인 확인.
+
 ## 2026-09-21 영문 표기 수정: Incheon Landing Operation Memorial Hall
 
 - 사용자 요청에 따라 영문 페이지의 `Memorial Hall for Incheon Landing Operation`을 `Incheon Landing Operation Memorial Hall`로 바꿨다(5곳). `dist/content.en.js` 3곳(소개 페이지 "Visits for remembrance and gratitude" 설명, 가이드 01 카드 제목 `… & Jayu Park`, 가이드 상세 소제목)과 `dist/i18n.js` 2곳(사진 캡션 `CIC members at the …`, `… · CIC visit`). 다른 변형 표기는 코드에 없었고 한국어(`인천상륙작전기념관`)와 `store/listing.md`(이미 새 표기)는 바꿀 것이 없었다. 새 영문 콘텐츠를 추가할 때도 이 표기를 쓴다.
