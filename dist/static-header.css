@@ -1,0 +1,12 @@
+/* Header for the static policy pages. Mirrors the app header (logo + top menu) in dist/styles.css. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+.site-header{position:sticky;top:0;z-index:30;box-sizing:border-box;max-width:1440px;margin:0 auto;padding:6px 5%;display:flex;align-items:center;flex-wrap:nowrap;gap:8px 10px;background:#fff;border-bottom:1px solid #dce2e7;font-family:'Noto Sans KR',sans-serif;line-height:1.5}
+.site-header a{color:#192d3d;text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:15px;flex-shrink:0}
+.site-header .brand img{display:block;flex-shrink:0;width:88px;height:88px;object-fit:contain}
+.site-header .brand-description{display:none;font-size:.75rem;font-weight:600;letter-spacing:.08em;line-height:1.65;color:#192d3d}
+.site-header nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 12px;margin-left:auto;min-width:0}
+.site-header nav a{padding:8px 0;font-size:.875rem;font-weight:500;white-space:nowrap}
+@media(min-width:1351px){.site-header .brand-description{display:block}}
+@media(max-width:1100px){.site-header .brand img{width:72px;height:72px}}
+@media(max-width:480px){.site-header .brand img{width:58px;height:58px}.site-header nav{gap:2px 8px}.site-header nav a{white-space:normal}}

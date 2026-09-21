@@ -401,6 +401,9 @@
     document.querySelector('.wordmark').replaceWith(makeLogo());
   }
 
+  // Keep the floating language toggle just below the header even when the menu wraps (e.g. English on narrow phones).
+  const headerElement=document.querySelector('.site-header');
+  if(headerElement&&'ResizeObserver' in window)new ResizeObserver(()=>document.documentElement.style.setProperty('--header-h',headerElement.offsetHeight+'px')).observe(headerElement);
   CIC_I18N.applyShell();
   // Re-render in place: keep the active route, member/session and comment draft.
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',async()=>{
