@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-21 헤더 메뉴 글자 크기 변경 + 개인정보처리방침·이용약관 상단에 공용 헤더
+
+- **메뉴 글자**: 헤더 메뉴(`CIC 소개 · 인천 문화유산 · 지킴이 로그`)를 인트로 `기억과 평화`(`.guide-card .category`, `.875rem`=14px)와 같은 크기로 키웠다. `dist/styles.css`의 `.site-header nav a` 두 규칙(기본 `.756rem`, 1000px 이하 `.735rem`)을 모두 `.875rem`으로 바꿨다. 이전 "메뉴 20% 확대"(12.1px) 기록은 이 값으로 대체됐다.
+- 메뉴가 커져서 폭 375px 이하 **영어** 화면에서는 메뉴가 두 줄(`Guardian Log`가 다음 줄)이 되고 헤더가 71px→87px로 커진다(한국어는 375px에서도 한 줄). 헤더 아래 고정된 언어 토글(`.language-float`)이 헤더와 겹치지 않도록 `top`을 고정 픽셀(109/93/79px)에서 `calc(var(--header-h,101px) + 8px)`로 바꿨고, `dist/app.js`가 `ResizeObserver`로 헤더 높이를 `--header-h`에 넣는다. **이제 헤더 높이·로고 크기를 바꿔도 토글 위치를 손으로 고칠 필요가 없다**(이전 기록의 `top` 값 주의 사항은 해소).
+- **상세 페이지 헤더**: `dist/privacy.html`·`dist/terms.html` 상단의 `← CIC 홈페이지` 링크를 지우고 사이트와 같은 헤더(로고 + 메뉴, 로고는 홈, 메뉴는 `./#about`·`./#guide`·`./#board`)를 넣었다. 스타일은 새 공용 파일 `dist/static-header.css`(`?v=1`)이며 사이트 헤더의 계산값(로고 88/72/58px, 패딩 `6px 5%`, 메뉴 14px/500, 상단 고정, 흰 배경·`#dce2e7` 테두리)을 그대로 옮긴 것이다. **사이트 헤더 CSS(`styles.css`)를 바꾸면 `static-header.css`도 함께 맞춘다.** 상세 페이지 헤더에는 언어 토글이 없다(페이지 자체가 한국어+영어 요약). `account-deletion.html`은 이동 안내 페이지라 헤더를 넣지 않았다.
+- 검증: 폭 1200·800·375px에서 사이트 헤더와 상세 페이지 헤더의 높이(101/85/71px)·로고 위치·메뉴 위치·글꼴(`Noto Sans KR` 14px)이 같음을 DOM 값으로 확인했고, 토글이 헤더 아래 8px에 붙음을 헤더 71px·87px 모두에서 확인했다. 테스트 36개·JS 문법 통과. 실제 폰 기기는 확인하지 못했다. 버전: `styles.css?v=68-nav-font`, `app.js?v=60-header-follow`.
+- 커밋 `70aa9d4`(`Match header menu font to guide category text; add shared header to policy pages`), Pages 실행 `35587220305` 성공. 공개 사이트 홈·`privacy.html`·`terms.html`·`static-header.css` HTTP 200, 새 CSS·JS 반영, 두 상세 페이지에 헤더가 있고 옛 링크가 없음을 확인했다.
+
 ## 2026-09-21 헤더 개편 배포 취소(되돌림)
 
 - 사용자 요청("오늘 오전 9:03 헤더 개편 배포 내용 취소")에 따라 아래 "헤더 UI를 참조 이미지에 맞춰 개편"(커밋 `f1d5352`, 오전 9:02 커밋·배포, 9:03 문서 커밋 `4205a29`)을 `git revert`로 되돌렸다. 이력은 지우지 않았고 되돌림 커밋 `70624ff`(`Revert header redesign (restore header before f1d5352)`)를 `main`에 푸시했다.
