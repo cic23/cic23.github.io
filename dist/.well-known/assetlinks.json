@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.cic23.app",
+      "sha256_cert_fingerprints": [
+        "49:CB:64:73:7F:8F:22:67:8A:12:18:56:56:E2:19:E2:68:45:DA:67:29:71:7C:31:F2:4E:C6:3F:8A:20:43:A0"
+      ]
+    }
+  }
+]
