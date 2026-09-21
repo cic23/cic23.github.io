@@ -18,7 +18,7 @@ window.CIC_CONTENT_EN = {
   ],
   values: [
     {en:'Respect',ko:'존중',quote:'We remember the sacrifices of the past and honor their enduring significance.',activities:[
-      ['Visits for remembrance and gratitude','We visited the Memorial Hall for Incheon Landing Operation, Jayu Park and Wolmido to reflect on the historical importance of the Incheon Landing during the Korean War.'],
+      ['Visits for remembrance and gratitude','We visited the Incheon Landing Operation Memorial Hall, Jayu Park and Wolmido to reflect on the historical importance of the Incheon Landing during the Korean War.'],
       ['History in young people’s own language','We created Instagram Reels to help other young people connect with history.']],asset:'respect'},
     {en:'Responsibility',ko:'책임감',quote:'We share in our community’s hardships and put social responsibility into practice.',activities:[
       ['Raising funds to restore damaged heritage','We ran traditional games booths at Round Square Day and Club Day at school to support heritage sites and communities affected by major wildfires.'],
@@ -34,8 +34,8 @@ window.CIC_CONTENT_EN = {
       ['Growing through service','By listening and speaking with older people sincerely, we learned that service helps us grow as we care for others.']],asset:'compassion'}
   ],
   places: [
-    {id:'memory',number:'01',category:'Remembrance & peace',title:'Memorial Hall for Incheon Landing Operation & Jayu Park',short:'Remembering sacrifice and the value of peace while looking out over the city.',paragraphs:[
-      ['Memorial Hall for Incheon Landing Operation','This memorial commemorates the Incheon Landing of September 15, 1950, and the dedication of the nations that participated in the Korean War. Exploring this history invites us to reflect on the peace we enjoy today.'],
+    {id:'memory',number:'01',category:'Remembrance & peace',title:'Incheon Landing Operation Memorial Hall & Jayu Park',short:'Remembering sacrifice and the value of peace while looking out over the city.',paragraphs:[
+      ['Incheon Landing Operation Memorial Hall','This memorial commemorates the Incheon Landing of September 15, 1950, and the dedication of the nations that participated in the Korean War. Exploring this history invites us to reflect on the peace we enjoy today.'],
       ['Jayu Park','Located on Eungbongsan, Jayu Park was established in 1888 as Korea’s first Western-style modern park. Visit the statue of General MacArthur and the monument marking 100 years of Korea–US diplomatic relations, and enjoy views of Incheon Port and the city.']],tip:'Explore the memorial’s outdoor exhibits and the scenery of Jayu Park together. Discuss how memories of the past connect with everyday life today.'},
     {id:'wolmi',number:'02',category:'History & nature',title:'Wolmido & Wolmi Park',short:'From a strategic military location to a green space for everyone.',paragraphs:[
       ['A meeting point of modern history','Wolmido holds layers of history: the site of the Joseon-era Wolmi royal residence, a strategic military position during the port-opening period, and Green Beach, the first landing point of the Incheon Landing.'],
