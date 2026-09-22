@@ -136,7 +136,14 @@
       addresses:['인천상륙작전기념관 : 인천 연수구 청량로 138','자유공원 : 인천 중구 자유공원남로 25'],
       paragraphs:[
         '인천문화유산 대장정의 이번 발걸음은 연수구 옥련동, 청량산 자락의 인천상륙작전기념관으로 향했습니다. 평소 저는 이 일대를 지날 때마다 떠들썩한 음식점 거리의 활기만을 스쳐 지나가곤 했습니다. 맛있는 냄새가 진동하는 골목 뒤편, 청량산 중턱에 화강암으로 조용히 서 있는 기념관의 존재를 온전히 마주한 것은 이번이 처음이었습니다. CIC 단원들과 함께 발걸음을 옮기며, 우리가 무심코 지나쳤던 일상의 풍경 바로 곁에 대한민국 현대사의 물줄기를 바꾼 현장이 자리하고 있었다는 사실을 새삼 깨달았습니다.'
-      ]
+      ],
+      en:{
+        title:'Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey: History Encountered at the Memorial Hall for the Incheon Landing Operation and Jayu Park',
+        addresses:[],
+        paragraphs:[
+          'This leg of the Incheon Cultural Heritage Journey took us to the Memorial Hall for the Incheon Landing Operation, set against the slopes of Cheongnyangsan in Ongnyeon-dong, Yeonsu-gu. I had passed through this area many times before, catching only the bustle of its lively restaurant street in passing. This was the first time I fully faced what stood quietly behind that alley of good smells: a memorial built of granite, halfway up Cheongnyangsan. Walking there together with the other CIC members, I realized for the first time that a site which had redirected the course of modern Korean history stood just beside a stretch of everyday scenery we had always overlooked.'
+        ]
+      }
     },
     '02': {
       title:'인천문화유산 기억과 감사의 대장정을 마치며: 월미도에서 마주한 역사와 미래',
