@@ -149,12 +149,13 @@
         addresses:[],
         paragraphs:[
           "For the final leg of our ‘Great Journey of Incheon's Cultural Heritage’ we made our way to Wolmido. Today the island greets visitors with the blue waves of the West Sea and lively crowds, a picture of perfect peace — yet in September 1950 this was the front line on which the fate of the Incheon Landing, the operation that redirected the course of modern Korean history, was decided. General MacArthur recognized that Wolmido and the artillery unit garrisoned there posed the single greatest threat to the landing and formed the only gateway into Incheon, and he resolved to seize the island first, as the opening move of the entire operation."
-        ]
+        ],
+        moreUrl:'https://cic23.github.io/?lang=en#post/c5bc18c3-b800-4ea4-85e1-a0201e35d101'
       },
       moreUrl:'#post/0654570e-6d1e-4581-af6c-bf627d25d1a4'
     }
   };
-  function guideCardStory(p) { const story=guideCardStories[p.number]; if(!story)return ''; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story"><h4>${esc(view.title)}</h4>${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${story.moreUrl?`<a class="button secondary small story-more" href="${esc(story.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
+  function guideCardStory(p) { const story=guideCardStories[p.number]; if(!story)return ''; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story"><h4>${esc(view.title)}</h4>${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><p>${esc(p.short)}</p><a class="card-link" href="#guide/${p.id}">탐방 가이드 읽기 ↗</a><img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">${guideCardStory(p)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
