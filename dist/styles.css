@@ -138,6 +138,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 /* Language toggle floats at the top right just below the sticky header, aligned with the header's right edge; header vertical padding is trimmed. */
 .site-header{padding-block:6px;min-height:0}
 .language-float{right:max(5%,calc(50% - 648px));left:auto;bottom:auto;transform:none;top:calc(var(--header-h,101px) + 8px);z-index:26}
+@media(max-width:480px){html[lang="en"] .site-header nav{flex-wrap:nowrap;gap:2px 7px;max-width:calc(100% - 70px)}html[lang="en"] .site-header nav a{white-space:nowrap;font-size:.72rem;padding:6px 0}}
 .post-report-action{font-size:.85rem;font-weight:600;color:var(--muted);padding:0 4px}
 .post-report-action:hover{color:var(--orange)}
 fieldset.field{border:0;padding:0;margin:18px 0}
