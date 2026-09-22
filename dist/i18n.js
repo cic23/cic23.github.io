@@ -67,7 +67,7 @@
     '신청 정보를 불러오고 있습니다…':'Loading membership requests…',
     '게시판으로 돌아가기':'Back to the board', '관리자':'Administrator',
     '승인 대기':'Awaiting approval', '승인됨':'Approved', '이용 제한':'Blocked', '승인':'Approve',
-    'CIC 소개':'CIC', '다섯 가지 가치':'Our five values', '인천 문화유산':'Incheon heritage',
+    'CIC 소개':'CIC', 'CIC소개':'CIC', '다섯 가지 가치':'Our five values', '인천 문화유산':'Incheon heritage', '인천문화유산':'Incheon heritage', '지킴이로그':'Guardian Log',
     '페이지를 불러오지 못했습니다':'Unable to load this page', '다시 확인':'Try again', '게시판으로':'Go to the board',
     '게시글 수정':'Edit post', '문화유산 이야기':'Heritage story', '분류':'Category', '제목':'Title',
     '어떤 이야기를 나누고 싶으신가요?':'What would you like to share?', '내용':'Content',
