@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-28 영어 인트로 카드 01 제목·소개 글 제목 축약
+
+- 사용자 요청에 따라 영어 인트로 카드 01의 소개 글 제목(`guideCardStories['01'].en.title`)을 "Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey"로 줄였다. 이로써 9/27 기록에 남겨 둔 옛 표기("Memorial Hall for the Incheon Landing Operation")는 제목에서 사라졌다(영어 본문 문단에는 아직 남아 있다).
+- 영어 카드 제목은 "Incheon Landing Operation Memorial Hall & Jayu Park" → "Incheon Landing Operation Memorial Hall". 이 `title`은 `#guide` 장소 제목·영상 `aria-label`과 공유되므로, **인트로 카드 전용 필드 `cardTitle`**을 `content.en.js`의 `memory` 장소에 추가하고 `guideCards()`가 `p.cardTitle||p.title`을 쓰게 했다. 영어 `#guide` 제목은 본문이 자유공원도 다루므로 "… & Jayu Park" 그대로 두었다(사용자에게 알림). 한국어는 변경 없음.
+- 버전 `app.js?v=75-en-card-titles`, `content.en.js?v=29-card-title`. 테스트 36개·JS 문법 통과. 로컬과 공개 사이트에서 headless Edge로 영어 인트로·영어 가이드·한국어 인트로 제목을 확인했다.
+- 커밋 `3232210`, Pages 실행 `36328365031` 성공.
+
 ## 2026-09-27 인트로 카드 01 소개 글 제목 축약
 
 - 사용자 요청에 따라 `guideCardStories['01'].title`을 "인천문화유산 대장정, 자유의 뿌리를 찾아서: 인천상륙작전기념관과 자유공원에서 마주한 역사" → "인천문화유산 대장정, 자유의 뿌리를 찾아서"로 바꿨다(사이트 전체에서 이곳뿐). 영어 제목은 그대로다(옛 표기 "Memorial Hall for the Incheon Landing Operation" 포함, 아래 기록 참고).
