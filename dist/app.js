@@ -148,7 +148,7 @@
     },
     '02': {
       title:'인천문화유산 기억과 감사의 대장정을 마치며: 월미도에서 마주한 역사와 미래',
-      addresses:['월미도 : 인천 중구 북성동 1가 98-352','국립인천해양박물관 : 인천광역시 중구 월미로 294'],
+      addresses:['월미도 : 인천 중구 북성동 1가 98-352','국립인천해양박물관 : 인천 중구 월미로 294'],
       paragraphs:[
         '우리는 ‘인천문화유산 대장정’의 대미를 장식할 마지막 여정으로 월미도로 향했습니다. 서해의 푸른 물결과 활기찬 인파가 반겨주는 오늘날의 월미도는 평화롭기 그지없지만, 이곳은 1950년 9월 대한민국 현대사의 물줄기를 바꾼 인천상륙작전의 승패가 갈린 최전선이었습니다. 당시 맥아더 장군은 월미도와 그곳에 주둔한 포병부대가 상륙작전의 최대 위협이자 인천으로 통하는 유일한 관문임을 간파하고, 작전의 첫 단추로서 가장 먼저 월미도를 확보하도록 결단을 내렸습니다.'
       ],
@@ -163,8 +163,8 @@
       moreUrl:'#post/0654570e-6d1e-4581-af6c-bf627d25d1a4'
     }
   };
-  function guideCardStory(p) { const story=guideCardStories[p.number]; if(!story)return ''; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story"><h4>${esc(view.title)}</h4>${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
-  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p)}<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">${guideCardStory(p)}</article>`).join(''); }
+  function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story"><h4>${esc(view.title)}</h4>${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
+  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p)}${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div></div><div class="grid-3">${guideCards()}</div></section>

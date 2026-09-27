@@ -48,6 +48,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .guide-map{display:block;width:100%;height:auto;margin:28px 0 0;border:1px solid var(--line);border-radius:6px}
 .guide-video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin:20px 0 0;border:1px solid var(--line);border-radius:6px;background:#000}
 .guide-card .guide-video{margin:18px 0 14px}
+.guide-card-story .guide-card-image{margin-bottom:18px}
 .value-photo-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 26px}.value-photo-gallery:has(:only-child){grid-template-columns:1fr}.value-photo-gallery .activity-photo{width:100%;height:250px;max-height:none;object-fit:cover;margin:0;border-radius:6px}@media(max-width:520px){.value-photo-gallery{grid-template-columns:1fr}.value-photo-gallery .activity-photo{height:220px}}
 
 /* Public guardian-log cards: media first, copy and actions below. */

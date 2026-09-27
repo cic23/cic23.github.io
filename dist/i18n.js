@@ -107,7 +107,7 @@
     '우리의 진정 어린 기록과 관심이 소중한 국가유산을 미래로 전달합니다.':'Our sincere care and storytelling carry our precious heritage into the future.',
     '문의':'Contact', '문의하기':'Get in touch', '채드윅 청소년 국가유산지킴이':'Chadwick Youth Heritage Guardians', '이메일 문의':'Email us',
     '학교':'School', 'CIC 연락처':'CIC contact information',
-    '인천광역시 연수구 아트센터대로97번길 45, 22002':'45 Art center-daero 97beon-gil, Yeonsu-gu, Incheon 22002, Republic of Korea',
+    '인천 연수구 아트센터대로97번길 45, 22002':'45 Art center-daero 97beon-gil, Yeonsu-gu, Incheon 22002, Republic of Korea',
     '게시판을 이용하려면 브라우저에서 JavaScript를 허용해주세요.':'Please enable JavaScript in your browser to use the board.',
     '서버 응답을 확인하지 못했습니다.':'Unable to read the server response.',
     '서버 응답이 지연되고 있습니다. 작성 중인 내용을 보관한 뒤 다시 확인해주세요.':'The server is taking longer than expected. Keep a copy of your draft and try again.',
