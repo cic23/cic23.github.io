@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-27 인트로 카드 01 소개 글 제목 축약
+
+- 사용자 요청에 따라 `guideCardStories['01'].title`을 "인천문화유산 대장정, 자유의 뿌리를 찾아서: 인천상륙작전기념관과 자유공원에서 마주한 역사" → "인천문화유산 대장정, 자유의 뿌리를 찾아서"로 바꿨다(사이트 전체에서 이곳뿐). 영어 제목은 그대로다(옛 표기 "Memorial Hall for the Incheon Landing Operation" 포함, 아래 기록 참고).
+- `app.js?v=74-memory-story-title`. 테스트 36개·JS 문법 통과. 커밋 `7d9399f`, Pages 실행 `36327639333` 성공, 배포된 `app.js`에 새 제목만 있음을 확인했다.
+
 ## 2026-09-27 인트로 카드 02 소개 글 제목 축약
 
 - 사용자 요청에 따라 `guideCardStories['02'].title`을 "인천문화유산 기억과 감사의 대장정을 마치며: 월미도에서 마주한 역사와 미래" → "월미도에서 마주한 역사와 미래"로 바꿨다(사이트 전체에서 이 문구는 이곳뿐). 영어 제목("At the End of the Incheon Cultural Heritage Journey: Facing History and the Future on Wolmido")은 그대로이며, 줄일지 사용자에게 물어 두었다.
