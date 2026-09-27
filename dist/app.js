@@ -139,7 +139,7 @@
         '인천문화유산 대장정의 이번 발걸음은 연수구 옥련동, 청량산 자락의 인천상륙작전기념관으로 향했습니다. 평소 저는 이 일대를 지날 때마다 떠들썩한 음식점 거리의 활기만을 스쳐 지나가곤 했습니다. 맛있는 냄새가 진동하는 골목 뒤편, 청량산 중턱에 화강암으로 조용히 서 있는 기념관의 존재를 온전히 마주한 것은 이번이 처음이었습니다. CIC 단원들과 함께 발걸음을 옮기며, 우리가 무심코 지나쳤던 일상의 풍경 바로 곁에 대한민국 현대사의 물줄기를 바꾼 현장이 자리하고 있었다는 사실을 새삼 깨달았습니다.'
       ],
       en:{
-        title:'Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey: History Encountered at the Memorial Hall for the Incheon Landing Operation and Jayu Park',
+        title:'Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey',
         addresses:[],
         paragraphs:[
           'This leg of the Incheon Cultural Heritage Journey took us to the Memorial Hall for the Incheon Landing Operation, set against the slopes of Cheongnyangsan in Ongnyeon-dong, Yeonsu-gu. I had passed through this area many times before, catching only the bustle of its lively restaurant street in passing. This was the first time I fully faced what stood quietly behind that alley of good smells: a memorial built of granite, halfway up Cheongnyangsan. Walking there together with the other CIC members, I realized for the first time that a site which had redirected the course of modern Korean history stood just beside a stretch of everyday scenery we had always overlooked.'
@@ -178,7 +178,7 @@
     }
   };
   function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story">${view.title?`<h4>${esc(view.title)}</h4>`:''}${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
-  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p)}${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
+  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.cardTitle||p.title)}</a></h3>${guideVideo(p)}${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div></div><div class="grid-3">${guideCards()}</div></section>
