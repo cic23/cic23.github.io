@@ -161,9 +161,23 @@
         moreUrl:'https://cic23.github.io/?lang=en#post/c5bc18c3-b800-4ea4-85e1-a0201e35d101'
       },
       moreUrl:'#post/0654570e-6d1e-4581-af6c-bf627d25d1a4'
+    },
+    '03': {
+      title:'인천 개항장 거리의 또 다른 이야기',
+      addresses:['개항장 거리 : 인천 중구 관동1가','청일조계지경계계단 : 인천 중구 신포로27번길 106'],
+      paragraphs:[
+        '이번 방문에서 가장 기억에 남는 것은 같은 건물이 시대에 따라 전혀 다른 역할을 해 왔다는 점이었습니다. 외국인들의 사교장이었던 제물포구락부는 이후 여러 용도를 거쳐 지금은 시민들이 찾는 문화 공간이 되었고, 항구의 물건을 보관하던 옛 창고들은 인천아트플랫폼이라는 예술 공간으로 다시 태어났습니다. 또한 중국 음식점이었던 공화춘 건물은 이제 짜장면의 역사를 소개하는 박물관이 되어, 우리가 흔히 먹는 음식에도 개항의 역사가 담겨 있다는 것을 알려 주었습니다.'
+      ],
+      en:{
+        title:'',
+        addresses:[],
+        paragraphs:[
+          "Climbing the hill behind the Open Port street brings you to Jayu Park. Created in 1888, it was Korea's first Western-style park, and it was originally called \"Manguk Park\" (the Park of All Nations) because people from many countries used it together. Below the park stands the Jemulpo Club, built in 1901 as a social gathering place for foreigners, and a short distance away is Hongyemun, a stone archway that the Japanese built by cutting through the hill."
+        ]
+      }
     }
   };
-  function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story"><h4>${esc(view.title)}</h4>${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
+  function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story">${view.title?`<h4>${esc(view.title)}</h4>`:''}${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p)}${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사,<br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
