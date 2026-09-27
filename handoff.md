@@ -1,5 +1,14 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-27 인천 문화유산 페이지에 탐방 영상 3개 추가
+
+- 사용자 요청에 따라 `#guide`(인천 문화유산) 페이지의 각 장소 내용 맨 아래(지킴이의 추천 팁 아래, 03은 개항장 지도 아래)에 영상을 넣었다: 01 인천상륙작전기념관 ← `img/01Incheon.mp4`, 02 월미도 ← `img/02Wolmido.mp4`, 03 인천 개항장 거리 ← `img/03Incheon.mp4`. 한국어·영어 페이지 모두 같은 렌더러(`guide()`)를 쓴다. 홈 화면의 탐방 카드에는 넣지 않았다.
+- **원본은 그대로 쓸 수 없었다:** HEVC(H.265) 1080p, 71MB·132MB·84MB. GitHub는 100MB 초과 파일 push를 거부하고, HEVC는 Firefox·일부 Windows Chrome에서 재생되지 않는다. 그래서 H.264 720p/30fps(CRF 26, AAC 96k, `+faststart`)로 다시 인코딩했다 → `dist/assets/incheon01-video.mp4`(3.3MB), `incheon02-video.mp4`(6.7MB), `incheon03-video.mp4`(14.6MB). 첫 화면 이미지(1초 지점)는 `incheon0N-video-poster.jpg`. 화질은 원본과 같은 프레임을 비교해 눈으로 차이가 없음을 확인했다. ffmpeg는 이 PC에 없어서 세션 임시 폴더에 `ffmpeg-static`을 받아 썼다(저장소에는 추가하지 않음). 새 영상을 넣을 때도 같은 설정으로 변환한다. 원본 `img/`는 계속 Git에 넣지 않는다.
+- 코드: `dist/app.js`에 `guideVideo(p)`(`<video controls playsinline preload="none" poster=…>`, 파일 이름은 `incheon${p.number}-video`, `aria-label`은 장소명 + `탐방 영상`/`visit video`), `dist/styles.css`에 `.guide-video`(`.guide-map`과 같은 여백·테두리, 16:9, 검은 배경). `preload="none"`이라 페이지를 열 때는 첫 화면 이미지만 받는다. 서비스 워커는 Range 요청과 1MB 초과 영상을 캐시하지 않으므로 변경하지 않았다. 버전: `app.js?v=66-guide-video`, `styles.css?v=72-guide-video`, 영상·포스터 `?v=1`.
+- 검증: 테스트 36개·JS 문법 통과. 로컬과 공개 사이트 모두 headless Edge에서 한국어 1200px·영어 375px로 세 영상이 각 장소의 마지막 요소이고, 메타데이터(1280×720, 62/75/71초)가 로드됨을 확인했다. 공개 URL에서 영상·포스터 HTTP 200(`video/mp4`, `image/jpeg`), Range 요청 206을 확인했다. 실제 폰 기기 재생은 확인하지 못했다.
+- 커밋 `483c8be`(`Add visit videos under each Incheon heritage guide place`), Pages 실행 `36322908363` 성공. 같은 push로 앞선 문서 커밋 `0cd59f5`도 올라갔다.
+- **확인 필요:** 02 월미도 영상에 학생 얼굴과 이름(자막 "김현우")이 나온다. 공개 전 본인 동의를 확인해야 한다(Play 스토어 스크린샷의 초상권 확인과 같은 성격).
+
 ## 2026-09-27 Google Play 공개 조건 점검과 개선 계획 수립(`plan.md`)
 
 - 사용자 요청으로 Play 공개 조건과 개선 방향을 정리해 **`plan.md` 맨 위에 새 계획으로 기록**했다(기존 9/13 반응 속도 개선 계획은 "완료된 이전 계획"으로 아래에 보존). 코드·배포 변경은 없다.
