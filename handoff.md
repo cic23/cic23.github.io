@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-28 영어 기념관 이름 통일, 영어 카드 03 소개 글 제목 추가
+
+- 영어 인트로 카드 03 소개 글 제목 `guideCardStories['03'].en.title` = "Another Story of the Incheon Open Port Area"(사용자 문구). 순서: 영상 → 제목 → `incheon03.jpg` → 본문.
+- 사용자 요청("'Incheon Landing Operation Memorial Hall'로 모두 수정")에 따라 영어 표기를 통일했다: 01 소개 글 본문의 "Memorial Hall for the Incheon Landing Operation" → "Incheon Landing Operation Memorial Hall", 그리고 `content.en.js`의 `memory` 장소 `title`을 "Incheon Landing Operation Memorial Hall & Jayu Park" → "Incheon Landing Operation Memorial Hall"(인트로 카드·`#guide` 제목·영상 `aria-label` 공통). 바로 아래 기록에서 만든 카드 전용 `cardTitle` 필드는 필요 없어져 제거했다. **영어 화면에는 이제 옛 표기와 "& Jayu Park"가 없다.** 한국어 제목("인천상륙작전기념관 & 자유공원")은 그대로다. `#guide` 영어 본문은 여전히 자유공원도 소개한다.
+- 버전 `app.js?v=76-en-memorial-name`, `content.en.js?v=30-memorial-name`. 테스트 36개·JS 문법 통과. 로컬과 공개 사이트에서 headless Edge로 영어 인트로·가이드 제목과 카드 03 순서를 확인했고, 배포된 파일에 옛 표기가 0건임을 확인했다.
+- 커밋 `2f5ee08`, Pages 실행 `36328808690` 성공.
+- 참고(검증 스크립트): headless Edge를 연달아 띄울 때 이전 프로세스가 프로필 폴더를 잡고 있으면 다음 실행이 실패한다. `remote-debugging-port` 프로세스를 먼저 종료한다.
+
 ## 2026-09-28 영어 인트로 카드 01 제목·소개 글 제목 축약
 
 - 사용자 요청에 따라 영어 인트로 카드 01의 소개 글 제목(`guideCardStories['01'].en.title`)을 "Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey"로 줄였다. 이로써 9/27 기록에 남겨 둔 옛 표기("Memorial Hall for the Incheon Landing Operation")는 제목에서 사라졌다(영어 본문 문단에는 아직 남아 있다).
