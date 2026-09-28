@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-28 영어 홈 섹션 제목 축약
+
+- 사용자 요청에 따라 "발걸음으로 만나는 인천의 역사"의 영어 번역(`i18n.js`)을 "Discover Incheon’s history on foot" → "Discover Incheon’s history"로 바꿨다. `dist/`에 "on foot"이 더 없다. 한국어는 변경 없음.
+- 버전 `i18n.js?v=41-explore-heading`. 테스트 36개·JS 문법 통과.
+
 ## 2026-09-28 홈 첫 화면 제목도 노트북·데스크톱에서 한 줄로
 
 - 사용자 요청에 따라 제목 "우리가 지키는 역사, 함께 이어갈 미래"를 폭 1001px 이상 한국어 화면에서 한 줄로 표시한다. `home()`의 `<br>` 앞에 공백을 넣고(`역사, <br>함께`), 아래 부제목 규칙과 같은 미디어 쿼리에 `.hero-copy h1{white-space:nowrap}`와 `.hero-copy h1 br{display:none}`을 추가했다. 1000px 이하와 영어 화면은 여전히 두 줄이다(i18n은 부분 문자열 치환이라 공백 추가에 영향 없음).

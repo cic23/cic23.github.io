@@ -15,7 +15,7 @@
     '인천상륙작전기념관 · CIC 현장 탐방':'Incheon Landing Operation Memorial Hall · CIC visit',
     '자유공원에서 바라본 인천항':'Incheon Port viewed from Jayu Park',
     '2006년 등록 사진':'Photo uploaded in 2006',
-    '발걸음으로 만나는 인천의 역사':'Discover Incheon’s history on foot',
+    '발걸음으로 만나는 인천의 역사':'Discover Incheon’s history',
     '전체 가이드':'All guides',
     '유산을 지켰더니,':'In protecting our heritage,',
     '우리의 이야기가 쌓였습니다.':'we began to build our legacy.',
