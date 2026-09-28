@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-28 03 개항장 영상만 새 파일로 교체
+
+- 사용자가 `img/03Incheon.mp4`를 새로 바꿔(14:45, HEVC 1080p, 71초) 홈페이지에 덮어쓰기를 요청했다. 같은 설정(H.264 720p/30fps, CRF 26, AAC 96k, `+faststart`)으로 `dist/assets/incheon03-video.mp4`(14.7MB)를 다시 만들었다. 썸네일 `03Incheon.jpg`는 바뀌지 않아 그대로다. 40초 지점 프레임이 새 원본과 일치함을 확인했다.
+- 영상 버전은 세 영상 공통 `?v=2`→`?v=3`(`guideVideo()`), `app.js?v=82-video03-refresh`. 01·02는 파일 변경 없음(재생 시 한 번 다시 받는 정도의 영향).
+- 테스트 36개·JS 문법 통과. 커밋 `c365530`, Pages 실행 `36384396472` 성공. 공개 URL의 `incheon03-video.mp4?v=3`이 HTTP 200이고 로컬 파일과 바이트 단위로 같다. 홈 카드와 `#guide` 모두 같은 파일을 쓴다.
+- 새 영상 교체 요청 절차(참고): `img/`의 원본 확인(ffprobe) → 위 설정으로 `dist/assets/incheon0N-video.mp4` 인코딩 → `guideVideo()`의 `mp4?v=` 올림 → `index.html`의 `app.js?v=` 올림 → 배포 후 공개 파일 바이트 비교.
+
 ## 2026-09-28 홈 카드 영상에도 가운데 재생 버튼
 
 - 사용자 요청에 따라 `#home` 탐방 카드 영상 3개도 `guideVideo(p,true)`로 바꿔 `#guide`와 같은 반투명 재생 버튼(마우스 기기만)을 쓴다. 이제 `guideVideo()` 호출 3곳 모두 `.video-frame` 래퍼를 쓴다. 카드 여백은 `.guide-card .guide-video` → `.guide-card .video-frame{margin:18px 0 14px}`로 옮겼다(제목과 영상 간격 18px 유지).
