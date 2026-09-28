@@ -12,7 +12,7 @@
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
-  function guideVideo(p) { const src=`./assets/incheon${p.number}-video`; return `<video class="guide-video" controls playsinline preload="none" poster="${src}-poster.jpg?v=2" aria-label="${esc(p.title+L(' 탐방 영상',' visit video'))}"><source src="${src}.mp4?v=1" type="video/mp4"></video>`; }
+  function guideVideo(p) { const src=`./assets/incheon${p.number}-video`; return `<video class="guide-video" controls playsinline preload="none" poster="${src}-poster.jpg?v=3" aria-label="${esc(p.title+L(' 탐방 영상',' visit video'))}"><source src="${src}.mp4?v=2" type="video/mp4"></video>`; }
   function guidePhoto(key, alt) { const url = asset(CIC_CONFIG.assets.guides?.[key]); return url ? `<img class="guide-map" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
   const valueAssetKeys = Object.freeze({Respect:['value-respect'],Responsibility:['value-responsibility'],Honesty:['value-honesty-1','value-honesty-2'],Fairness:['value-fairness'],Compassion:['value-compassion-1','value-compassion-2','value-compassion-3','value-compassion-4']});
   function valuePhotos(value, alt) {
