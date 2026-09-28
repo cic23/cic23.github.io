@@ -47,7 +47,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 @media print{.contact-section{display:none}}
 .guide-map{display:block;width:100%;height:auto;margin:28px 0 0;border:1px solid var(--line);border-radius:6px}
 .guide-video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin:20px 0 0;border:1px solid var(--line);border-radius:6px;background:#000}
-.guide-card .guide-video{margin:18px 0 14px}
+.guide-card .video-frame{margin:18px 0 14px}
 .video-frame{position:relative}
 .video-frame .guide-video{margin:0}
 .video-slot-narrow .video-frame{margin-top:20px}
