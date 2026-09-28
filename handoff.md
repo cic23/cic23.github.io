@@ -3,7 +3,7 @@
 ## 2026-09-28 영어 홈 섹션 제목 축약
 
 - 사용자 요청에 따라 "발걸음으로 만나는 인천의 역사"의 영어 번역(`i18n.js`)을 "Discover Incheon’s history on foot" → "Discover Incheon’s history"로 바꿨다. `dist/`에 "on foot"이 더 없다. 한국어는 변경 없음.
-- 버전 `i18n.js?v=41-explore-heading`. 테스트 36개·JS 문법 통과.
+- 버전 `i18n.js?v=41-explore-heading`. 테스트 36개·JS 문법 통과. 커밋 `7800ace`, Pages 실행 `36419413046` 성공. 공개 영어 홈(1280px)에서 새 제목 확인.
 
 ## 2026-09-28 홈 첫 화면 제목도 노트북·데스크톱에서 한 줄로
 
