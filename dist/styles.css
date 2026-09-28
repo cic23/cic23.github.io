@@ -48,18 +48,15 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .guide-map{display:block;width:100%;height:auto;margin:28px 0 0;border:1px solid var(--line);border-radius:6px}
 .guide-video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin:20px 0 0;border:1px solid var(--line);border-radius:6px;background:#000}
 .guide-card .guide-video{margin:18px 0 14px}
-.guide-video-narrow{display:none}
-.guide-video-wide{margin:0 0 4px}
 .video-frame{position:relative}
 .video-frame .guide-video{margin:0}
-.video-frame.guide-video-narrow{margin-top:20px}
+.video-slot-narrow .video-frame{margin-top:20px}
+.video-slot-wide .video-frame{margin:0 0 4px}
 .video-play{display:none;position:absolute;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.45);cursor:pointer;transition:background .15s}
 .video-play::before{content:'';position:absolute;left:29px;top:22px;border-style:solid;border-width:14px 0 14px 22px;border-color:transparent transparent transparent #fff}
 .video-play:hover{background:rgba(0,0,0,.65)}
 .video-play:focus-visible{outline:3px solid #fff;outline-offset:3px}
-@media(hover:hover) and (pointer:fine){.video-play{display:block}.video-frame.is-playing .video-play{display:none}}
-@media(max-width:720px){.guide-video-narrow{display:block}.guide-video-wide{display:none}}
-.guide-card-story .guide-card-image{margin-bottom:18px}
+@media(hover:hover) and (pointer:fine){.video-play{display:block}.video-frame.is-playing .video-play{display:none}}.guide-card-story .guide-card-image{margin-bottom:18px}
 .value-photo-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 26px}.value-photo-gallery:has(:only-child){grid-template-columns:1fr}.value-photo-gallery .activity-photo{width:100%;height:250px;max-height:none;object-fit:cover;margin:0;border-radius:6px}@media(max-width:520px){.value-photo-gallery{grid-template-columns:1fr}.value-photo-gallery .activity-photo{height:220px}}
 
 /* Public guardian-log cards: media first, copy and actions below. */
