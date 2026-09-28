@@ -4,7 +4,8 @@
 
 - 사용자 요청에 따라 홈 히어로 부제목("청소년의 시선으로 기록하고 지켜나가는 우리는 대한민국 국가유산지킴이입니다.")이 폭 1001px 이상에서 한 줄로 보이게 했다. 원인은 `.hero-copy{max-width:760px}`에서 좌우 패딩(12%+8%)을 빼면 1200px 화면 기준 본문 폭이 약 520px라 줄바꿈된 것이다.
 - `dist/styles.css`: `@media(min-width:1001px){html:not([lang="en"]) .hero-copy{max-width:none}html:not([lang="en"]) .hero-copy p{white-space:nowrap}}`. 영어 부제목은 길어서 한 줄 고정 시 넘칠 수 있어 제외했다. 1000px 이하와 제목(`<br>`로 두 줄)은 변경 없음.
-- 버전 `styles.css?v=80-hero-subtitle-line`.
+- 버전 `styles.css?v=80-hero-subtitle-line`. 테스트 36개(`tests/*.test.cjs` 전체, AGENTS.md의 두 파일만은 26개)·JS 문법 통과. 로컬 headless Edge에서 1024·1280·1920px은 한 줄, 800px도 원래 폭 안에서 한 줄로 보였다. 공개 사이트 1280px에서도 한 줄 확인.
+- 커밋 `6f87343`, Pages 실행 `36416844868` 성공.
 
 ## 2026-09-28 03 개항장 영상만 새 파일로 교체
 
