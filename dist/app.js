@@ -197,11 +197,13 @@
     else { heading=t('회원 상태를 확인할 수 없습니다'); message=html`${member.name} 님의 계정 상태를 다시 확인해주세요.`; button=t('<button class="button secondary" data-action="refresh-member">회원 상태 확인</button>'); }
     return `<div class="empty"><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
+  // Card-shaped placeholders with an indeterminate bar while the first page of titles loads.
+  function boardSkeleton() { const card='<div class="post-card skeleton-card"><div class="post-card-media content-skeleton"></div><div class="post-card-copy"><span class="post-tag content-skeleton">&nbsp;</span><span class="content-skeleton skeleton-line"></span><span class="content-skeleton skeleton-line short"></span></div></div>'; return `<div class="board-loading" role="status" aria-busy="true"><span class="visually-hidden">${t('게시글을 불러오고 있습니다…')}</span><div class="loading-bar" aria-hidden="true"></div><div class="post-grid" aria-hidden="true">${card.repeat(6)}</div></div>`; }
   async function board(page, stamp) {
     main.innerHTML = title('Community',t('함께 기록하는 CIC'),t('기록으로 남기는 문화유산')) + '<section class="board-shell" id="board-content"></section>';
     const target = document.getElementById('board-content');
     if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
-    target.innerHTML=t('<p role="status">게시글을 불러오고 있습니다…</p>');
+    target.innerHTML=boardSkeleton();
     const data = await CIC_API.request('listPosts',{page,view:'titles'}); if (stamp !== epoch) return;
     data.posts.forEach(rememberPost);
     const canWrite=member?.status==='approved';
