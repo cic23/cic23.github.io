@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로: 장소 소개 글을 새 "지킴이 로그" 섹션으로 이동
+
+- 사용자 요청에 따라 홈 "Explore Incheon 발걸음으로 만나는 인천의 역사" 카드 3개 안에 있던 소개 글 전체(제목 "인천문화유산 대장정, 자유의 뿌리를 찾아서"부터 03의 "…개항의 역사가 담겨 있다는 것을 알려 주었습니다."까지: 주소 박스·`incheon0N.jpg`·본문·02 `more` 버튼)를 "Our Practice" 아래 새 섹션 `<span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2>`(3열 `grid-3`)으로 옮겼다. 영어는 기존 번역(Guardian Log / Why we care so deeply about heritage)과 각 이야기의 `en`을 그대로 쓴다.
+- Explore 카드는 이제 번호·분류·장소 제목·영상만 남는다. 새 `storyCards()`가 `guideCardStory()`를 재사용하고 `<article class="story-card">`로 감싼다. CSS `.story-card .guide-card-story{margin-top:0;padding-top:26px;border-top:2px solid var(--navy)}`(Explore 카드의 네이비 윗줄과 같은 모양).
+- 버전 `app.js?v=90-intro-stories`, `styles.css?v=88-intro-stories`. 테스트 36개·JS 문법 통과. 로컬(한국어 1280px, 영어 390px)과 공개 사이트에서 섹션 순서 Explore → Our Practice → 지킴이 로그, Explore 카드 안 소개 글 0개·영상 3개, 새 섹션 이야기 3개(사진 01~03)와 가로 넘침 없음을 확인했다. 커밋 `5ddf7f7`, Pages 실행 `36630134677` 성공.
+
 ## 2026-09-30 인트로 "현장에서 실천하는 가치" 카드 3개에 사진
 
 - 사용자 요청에 따라 홈(`home()`)의 활동 카드 제목 아래에 사진을 넣었다: 01 탑골공원에서 이어가는 나눔 → `plogging.jpg`, 02 국가유산 복구를 위한 모금 → `fundraising.jpg`, 03 기록으로 알리는 문화유산 → `flashmob.jpg`. 03의 `content.js` `asset`은 `media`지만 사용자 지정대로 홈에서는 `flashmob`을 쓴다(`['plogging','fundraising','flashmob'][i]`, CIC 소개 페이지는 변경 없음). `activityPhoto()`를 재사용해 `config.js`의 기존 버전 주소를 쓴다. `img/`의 세 파일은 `dist/assets`와 같은 파일(MD5 일치)이라 복사하지 않았다.
