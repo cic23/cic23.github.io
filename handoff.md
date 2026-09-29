@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 `#guide` 영상을 팁 박스 위로, 원래 자리에 장소 사진
+
+- 사용자 요청에 따라 인천문화유산(`#guide`)의 장소별 영상을 본문 소제목·문단 다음, `지킴이의 추천 팁` 박스 바로 위(`<div class="guide-tip-video">`, `margin-top:26px`)로 옮겼다. 영상은 장소마다 1개이고 이제 자리를 옮기지 않는다(재생 버튼 오버레이 유지).
+- 영상이 있던 자리(넓은 화면: 오른쪽 본문 맨 위 `.guide-slot-wide`, 720px 이하: 장소 제목 아래 `.guide-slot-narrow`)에는 `assets/incheon01~03.jpg`(`guidePlaceImage()`, 16:9 `object-fit:cover`, 둥근 모서리 6px)를 넣었다. 기존 `video-slot-*`/`.video-frame` 이동 로직을 이 사진(`.guide-place-image`) 이동으로 바꿨다(장소마다 사진 1장, 복제 없음). 홈 카드는 변경 없음. 03 개항장의 지도 사진은 팁 박스 아래 그대로다.
+- 버전 `app.js?v=88-guide-video-tip`, `styles.css?v=86-guide-video-tip`. 테스트 36개·JS 문법 통과. 로컬과 공개 사이트에서 headless Edge로 1280px(사진이 넓은 자리)·390px(좁은 자리) 모두 장소마다 사진 1장·영상 1개, 순서 사진 → 소제목·본문 → 영상 → 팁 박스(영상과 팁 간격 26px)임을 확인했다. 커밋 `bbf4ce4`, Pages 실행 `36626795188` 성공.
+- 참고: `incheon0N.jpg`는 4000×2252, 각 2.8~3.2MB로 무겁다(홈 카드와 공용). 필요하면 줄여서 교체한다.
+
 ## 2026-09-30 게시글 상세 사진 배경을 흰색으로
 
 - 사용자 요청에 따라 게시글 상세의 사진 여백(세로 사진 양옆 등 `object-fit:contain`으로 남는 부분) 배경을 연한 회색(`var(--tint)`)에서 흰색으로 바꿨다: `.post-detail .post-gallery{background:#fff}`, `.post-detail .post-gallery-media{...;background:#fff}`. 불러오는 중 자리 표시만 `.post-detail .post-gallery-media.media-pending{background:var(--tint)}`로 회색 유지. 게시판 목록 카드·편집 미리보기는 변경 없음.
