@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 게시글 상세: 다른 게시물 목록을 본문 아래로
+
+- 사용자 요청에 따라 넓은 가로 화면(`min-width:960px and orientation:landscape`)에서 오른쪽 340px 고정 사이드바였던 "다른 게시물"을 모든 화면에서 게시글(댓글 포함 카드) 아래 가로 스크롤 목록으로 바꿨다. `dist/styles.css`의 해당 미디어 쿼리 규칙(사이드바 그리드, sticky, 세로 목록, 가로형 카드, 화살표 회전, `max-width:1200px`)을 지웠다. 같은 블록 안에 있던 `.empty .button-row{justify-content:center}`는 같은 조건의 미디어 쿼리로 남겼다. 상세 화면 폭은 모든 화면에서 760px이다.
+- JS 변경 없음: 화살표 버튼은 `getComputedStyle(list).flexDirection`으로 방향을 판단하므로 자동으로 가로 스크롤한다.
+- 버전 `styles.css?v=83-related-below`. 테스트 36개·JS 문법 통과. 커밋 `25fedfa`, Pages 실행 `36617287670` 성공. 공개 사이트에서 headless Edge(DevTools)로 1280px·390px 모두 목록이 본문 바로 아래(같은 폭), `flex-direction:row`, 카드 5개, 가로 넘침 없음을 확인했다.
+- 참고(검증): `--screenshot` + `--virtual-time-budget`은 iframe 서버 응답 전에 찍혀 "불러오고 있습니다"만 보인다. `--remote-debugging-port`로 띄워 `.related-card`가 생길 때까지 기다린 뒤 캡처한다.
+
 ## 2026-09-30 지킴이 로그 글보기에서 게시글 `신고하기` 버튼 삭제
 
 - 사용자 요청에 따라 게시글 상세 화면의 액션 줄(좋아요·댓글·공유 옆)에 있던 게시글 `신고하기` 버튼을 없앴다. 모달·`reportContent` 서버 기능·관리자 `#reports` 화면은 그대로다. **댓글마다 붙은 `신고하기` 텍스트 버튼은 남아 있다**(요청 범위 밖, 사용자에게 알림).
