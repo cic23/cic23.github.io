@@ -41,7 +41,7 @@
   function shareButton(p) { return `<button class="post-action post-share-action" data-action="share" data-id="${esc(p.id)}" aria-label="${t('공유하기')}">${icon('share')}</button>`; }
   const L=(ko,en)=>CIC_I18N.language==='en'?en:ko;
   const reportReasons=[['inappropriate','부적절한 내용(욕설·선정·폭력 등)','Inappropriate content (abuse, sexual content, violence)'],['harassment','괴롭힘·혐오 표현','Harassment or hate speech'],['privacy','개인정보·초상권 침해','Privacy or image-rights violation'],['spam','광고·스팸','Ads or spam'],['other','기타','Other']];
-  function reportButton(type,id,className='post-action post-report-action') { return `<button class="${className}" data-action="report" data-type="${type}" data-id="${esc(id)}">${t('신고하기')}</button>`; }
+  function reportButton(type,id,className='text-button') { return `<button class="${className}" data-action="report" data-type="${type}" data-id="${esc(id)}">${t('신고하기')}</button>`; }
   function postUrl(id) { const url=new URL(location.href); url.hash='post/'+encodeURIComponent(id); return url.href; }
   async function sharePost(id) {
     const url=postUrl(id), post=currentPost?.id===id?currentPost:postPreview.get(id), shareData={title:post?.title||document.title,url};
@@ -275,7 +275,7 @@
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
       <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>
-      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}${member?.id!==p.authorId?reportButton('post',p.id):''}</div>
+      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}</div>
       <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(commentMarkup).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
     </article>${relatedShell()}</div></div>`;
     CIC_MEDIA.observe(main);
