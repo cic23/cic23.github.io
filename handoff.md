@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 지킴이 로그 글보기에서 게시글 `신고하기` 버튼 삭제
+
+- 사용자 요청에 따라 게시글 상세 화면의 액션 줄(좋아요·댓글·공유 옆)에 있던 게시글 `신고하기` 버튼을 없앴다. 모달·`reportContent` 서버 기능·관리자 `#reports` 화면은 그대로다. **댓글마다 붙은 `신고하기` 텍스트 버튼은 남아 있다**(요청 범위 밖, 사용자에게 알림).
+- 쓰지 않게 된 `.post-report-action` CSS를 지우고 `reportButton()` 기본 클래스를 `text-button`으로 바꿨다. 버전 `app.js?v=84-no-post-report`, `styles.css?v=82-no-post-report`.
+- 참고: Play UGC 정책은 사용자 콘텐츠 신고 수단을 요구한다. 게시글 신고 경로가 사라졌으므로 Play 심사 전에 다시 검토한다.
+- 테스트 36개·JS 문법 통과. 커밋 `6795a1f`, Pages 실행 `36616552043` 성공. 공개 `index.html`이 새 버전을 참조하고 공개 `app.js`에 게시글 신고 버튼 호출이 없음을 확인했다.
+
 ## 2026-09-28 영어 홈 섹션 제목 축약
 
 - 사용자 요청에 따라 "발걸음으로 만나는 인천의 역사"의 영어 번역(`i18n.js`)을 "Discover Incheon’s history on foot" → "Discover Incheon’s history"로 바꿨다. `dist/`에 "on foot"이 더 없다. 한국어는 변경 없음.
