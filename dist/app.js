@@ -62,21 +62,13 @@
   function setCommentCount(id, count) { postCache.forEach(data => { if (data.post?.id===id) data.commentCount=count; }); main.querySelectorAll('[data-comment-post-id]').forEach(el=>{if(el.dataset.commentPostId===id){el.querySelector('span').textContent=count;el.setAttribute('aria-label',t('댓글')+' '+count);}}); }
   function invalidatePostCache(id) { [...postCache.keys()].forEach(key=>{if(key.startsWith(id+'/'))postCache.delete(key);}); relatedFeed=null;postPreview.delete(id); }
   function relatedShell() {
-    return html`<aside class="related-posts" aria-labelledby="related-heading"><div class="related-heading"><div><h2 id="related-heading">다른 게시물</h2><span class="muted small-text">최신 게시물부터</span></div><div class="related-controls"><button type="button" class="related-arrow" data-action="related-previous" aria-label="이전 게시물 보기" aria-controls="related-list" disabled><span aria-hidden="true">‹</span></button><button type="button" class="related-arrow" data-action="related-next" aria-label="다음 게시물 보기" aria-controls="related-list" disabled><span aria-hidden="true">›</span></button></div></div><div id="related-list" class="related-list" role="region" aria-labelledby="related-heading" tabindex="0" aria-busy="true"><p class="related-status muted" role="status">게시글을 불러오고 있습니다…</p></div></aside>`;
+    return html`<aside class="related-posts" aria-labelledby="related-heading"><div class="related-heading"><div><h2 id="related-heading">다른 게시물</h2><span class="muted small-text">최신 게시물부터</span></div></div><div id="related-list" class="related-list" aria-busy="true"><p class="related-status muted" role="status">게시글을 불러오고 있습니다…</p></div></aside>`;
   }
   function relatedCard(p) {
     const attachment=p.attachments?.find(a=>!isVideo(a)) || p.attachments?.[0];
     const pending=!Object.hasOwn(p,'attachments');
     const thumbnail=pending ? '<span class="content-skeleton" aria-hidden="true"></span>' : media(attachment,'related-media');
     return `<a class="related-card" data-post-id="${esc(p.id)}" href="#post/${encodeURIComponent(p.id)}" aria-busy="${pending}"><span class="related-thumbnail">${thumbnail}</span><div class="related-copy"><h3>${esc(p.title)}</h3><p>${esc(p.authorName)}</p><span>${esc(labels[p.category] || '')}</span></div></a>`;
-  }
-  function updateRelatedControls(list) {
-    const vertical=getComputedStyle(list).flexDirection==='column';
-    const position=vertical?list.scrollTop:list.scrollLeft;
-    const extent=vertical?list.scrollHeight-list.clientHeight:list.scrollWidth-list.clientWidth;
-    const controls=list.closest('.related-posts');
-    controls.querySelector('[data-action="related-previous"]').disabled=position<=1;
-    controls.querySelector('[data-action="related-next"]').disabled=position>=extent-1;
   }
   async function renderRelatedPosts(id,stamp) {
     const list=document.getElementById('related-list');
@@ -90,10 +82,8 @@
         if(p.id===id || [...list.querySelectorAll('[data-post-id]')].some(el=>el.dataset.postId===p.id)) return;
         list.insertAdjacentHTML('beforeend',relatedCard(p));
       });
-      updateRelatedControls(list);
     };
     list.innerHTML='';
-    list.onscroll=()=>updateRelatedControls(list);
     try {
       if(relatedFeed && Date.now()-relatedFeed.at<60000) {
         append(relatedFeed.posts);
@@ -127,7 +117,6 @@
         relatedFeed={at:Date.now(),posts};
       }
       if(!list.querySelector('.related-card'))list.innerHTML=html`<p class="related-status muted" role="status">아직 다른 게시물이 없습니다.</p>`;
-      updateRelatedControls(list);
     } catch(error) {
       if(!valid())return;
       list.querySelectorAll('[aria-busy]').forEach(el=>el.setAttribute('aria-busy','false'));
@@ -416,10 +405,6 @@
       else if(action==='login')await loginDialog();
       else if(action==='retry')await route();
       else if(action==='related-retry'&&currentPost)void renderRelatedPosts(currentPost.id,epoch);
-      else if(action==='related-previous'||action==='related-next'){
-        const list=document.getElementById('related-list'), vertical=getComputedStyle(list).flexDirection==='column';
-        list.scrollBy({[vertical?'top':'left']:(action==='related-next'?1:-1)*(vertical?list.clientHeight:list.clientWidth)*.85,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-      }
       else if(action==='new-post')editor();
       else if(action==='toggle-comments'&&currentPost){
         const comments=document.getElementById('comments');
@@ -448,7 +433,6 @@
   });
   document.querySelector('.modal-close').addEventListener('click',()=>modal.close());
   window.addEventListener('hashchange',()=>{modal.close();route();});
-  window.addEventListener('resize',()=>{const list=document.getElementById('related-list');if(list)updateRelatedControls(list);});
   const logo=asset(CIC_CONFIG.assets.logo);
   if(logo){
     const makeLogo=()=>{const el=document.createElement('img');el.src=logo;el.alt=t('CIC 로고');el.width=1500;el.height=1500;return el;};
