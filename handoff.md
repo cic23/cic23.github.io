@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 "현장에서 실천하는 가치" 카드 3개에 사진
+
+- 사용자 요청에 따라 홈(`home()`)의 활동 카드 제목 아래에 사진을 넣었다: 01 탑골공원에서 이어가는 나눔 → `plogging.jpg`, 02 국가유산 복구를 위한 모금 → `fundraising.jpg`, 03 기록으로 알리는 문화유산 → `flashmob.jpg`. 03의 `content.js` `asset`은 `media`지만 사용자 지정대로 홈에서는 `flashmob`을 쓴다(`['plogging','fundraising','flashmob'][i]`, CIC 소개 페이지는 변경 없음). `activityPhoto()`를 재사용해 `config.js`의 기존 버전 주소를 쓴다. `img/`의 세 파일은 `dist/assets`와 같은 파일(MD5 일치)이라 복사하지 않았다.
+- 카드 높이를 맞추려고 `.grid-3 .activity .activity-photo{aspect-ratio:4/3;margin:12px 0 16px}`(cover로 잘림). 버전 `app.js?v=89-intro-activity-photos`, `styles.css?v=87-intro-activity-photos`. 테스트 36개·JS 문법 통과. 로컬·공개 사이트 1280px(352×264)·390px(343×257)에서 각 제목 바로 다음 요소가 해당 사진임을 확인. 커밋 `7955e58`, Pages 실행 `36628363942` 성공.
+- 참고: `plogging.jpg` 3.4MB, `fundraising.jpg` 2.7MB로 홈 첫 방문이 무거워졌다(지연 로딩). 필요하면 줄인다.
+
 ## 2026-09-30 `#guide` 영상을 팁 박스 위로, 원래 자리에 장소 사진
 
 - 사용자 요청에 따라 인천문화유산(`#guide`)의 장소별 영상을 본문 소제목·문단 다음, `지킴이의 추천 팁` 박스 바로 위(`<div class="guide-tip-video">`, `margin-top:26px`)로 옮겼다. 영상은 장소마다 1개이고 이제 자리를 옮기지 않는다(재생 버튼 오버레이 유지).
