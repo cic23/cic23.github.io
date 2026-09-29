@@ -41,7 +41,6 @@
   function shareButton(p) { return `<button class="post-action post-share-action" data-action="share" data-id="${esc(p.id)}" aria-label="${t('공유하기')}">${icon('share')}</button>`; }
   const L=(ko,en)=>CIC_I18N.language==='en'?en:ko;
   const reportReasons=[['inappropriate','부적절한 내용(욕설·선정·폭력 등)','Inappropriate content (abuse, sexual content, violence)'],['harassment','괴롭힘·혐오 표현','Harassment or hate speech'],['privacy','개인정보·초상권 침해','Privacy or image-rights violation'],['spam','광고·스팸','Ads or spam'],['other','기타','Other']];
-  function reportButton(type,id,className='text-button') { return `<button class="${className}" data-action="report" data-type="${type}" data-id="${esc(id)}">${t('신고하기')}</button>`; }
   function postUrl(id) { const url=new URL(location.href); url.hash='post/'+encodeURIComponent(id); return url.href; }
   async function sharePost(id) {
     const url=postUrl(id), post=currentPost?.id===id?currentPost:postPreview.get(id), shareData={title:post?.title||document.title,url};
@@ -58,7 +57,7 @@
     postCache.forEach(data => { if (data.post?.id===id) { data.post.likedByMe=liked; data.post.likeCount=likeCount; } });
     main.querySelectorAll('[data-action="like"]').forEach(button=>{if(button.dataset.id!==id)return;button.classList.toggle('is-liked',liked);button.setAttribute('aria-pressed',String(liked));button.setAttribute('aria-label',t('좋아요')+' '+likeCount);button.querySelector('span').textContent=likeCount;});
   }
-  function commentMarkup(c) { return `<article class="comment" data-comment-id="${esc(c.id)}"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}${member?.id!==c.authorId?`<span class="comment-actions">${reportButton('comment',c.id,'text-button')}</span>`:''}</div><p>${esc(c.body)}</p></article>`; }
+  function commentMarkup(c) { return `<article class="comment" data-comment-id="${esc(c.id)}"><div class="comment-head"><strong>${esc(c.authorName)}</strong>${c.version>1?t('<span class="muted">수정됨</span>'):''}${canEdit(c.authorId)?html`<span class="comment-actions"><button class="text-button" data-action="edit-comment" data-id="${c.id}">수정</button><button class="text-button danger" data-action="delete-comment" data-id="${c.id}">삭제</button></span>`:''}</div><p>${esc(c.body)}</p></article>`; }
   function setCommentCount(id, count) { postCache.forEach(data => { if (data.post?.id===id) data.commentCount=count; }); main.querySelectorAll('[data-comment-post-id]').forEach(el=>{if(el.dataset.commentPostId===id){el.querySelector('span').textContent=count;el.setAttribute('aria-label',t('댓글')+' '+count);}}); }
   function invalidatePostCache(id) { [...postCache.keys()].forEach(key=>{if(key.startsWith(id+'/'))postCache.delete(key);}); relatedFeed=null;postPreview.delete(id); }
   function relatedShell() {
