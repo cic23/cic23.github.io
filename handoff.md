@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 이야기 카드 전체를 클릭·터치하면 게시글로
+
+- 사용자 요청에 따라 "우리가 문화유산에 ‘푹’ 빠진 이유"의 이야기 카드(제목·주소·사진·본문 어디든)를 누르면 그 카드의 `more` 링크와 같은 곳으로 간다. `storyLink(p)`(영어는 `en.moreUrl` 우선)를 `<article class="story-card" data-href>`에 넣고, 전역 클릭 리스너가 `a`/`button` 밖의 카드 클릭을 `location.href=data-href`로 처리한다(`more` 버튼은 원래 링크 그대로).
+- CSS: `.story-card[data-href]{cursor:pointer}`, 마우스 기기(`@media(hover:hover)`)에서 올리면 제목이 주황색+밑줄, 사진이 살짝 흐려짐. 터치 기기는 hover 효과 없이 탭하면 이동.
+- 버전 `app.js?v=92-story-card-link`, `styles.css?v=89-story-card-link`. 테스트 36개·JS 문법 통과. 로컬(한국어 1280px, 영어 390px)과 공개 사이트(390px)에서 세 카드 본문 문단을 실제 마우스 이벤트로 눌러 각각 01 `4ac9ae38`, 02 `0654570e`(영어는 `c5bc18c3` 영어 게시글), 03 `2bdd3dad`로 이동함을 확인했다. 커밋 `0edb730`, Pages 실행 `36631823391` 성공.
+
 ## 2026-09-30 인트로 이야기 01·03에 `more` 버튼
 
 - 사용자 요청에 따라 `guideCardStories['01'].moreUrl='#post/4ac9ae38-a4ac-4005-98eb-b6d4a9d40bc7'`, `['03'].moreUrl='#post/2bdd3dad-6b1f-43ea-b82e-e4eb8159d353'`을 추가했다(본문 마지막 문단 바로 아래, 02와 같은 `story-more` 버튼). 사용자가 준 주소의 `?lang=ko`는 넣지 않고 02처럼 해시만 써서 현재 언어를 유지한다. 영어 화면도 같은 게시글로 연결된다(01·03은 영어 게시글이 따로 없음, 02만 영어 `moreUrl`이 별도).
