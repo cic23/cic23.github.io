@@ -175,7 +175,8 @@
   };
   function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story">${view.title?`<h4>${esc(view.title)}</h4>`:''}${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
   function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p,true)}</article>`).join(''); }
-  function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card">${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
+  function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
+  function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card"${storyLink(p)?` data-href="${esc(storyLink(p))}"`:''}>${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사, <br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div></div><div class="grid-3">${guideCards()}</div></section>
@@ -401,6 +402,8 @@
       button.textContent=t('Google 계정으로 계속');button.disabled=false;button.onclick=()=>{error.textContent='';client.requestCode();};
     }catch(e){if(error.isConnected){error.textContent=t(e.message);button.textContent=t('다시 시도');button.disabled=false;button.onclick=loginDialog;}}
   }
+  // Intro stories: the whole card opens the same post as its "more" button.
+  document.addEventListener('click',event=>{const card=event.target.closest('.story-card[data-href]');if(!card||event.target.closest('a,button'))return;location.href=card.dataset.href;});
   document.addEventListener('click',async event=>{
     const b=event.target.closest('[data-action]');if(!b)return;const action=b.dataset.action;
     try{
