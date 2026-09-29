@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 게시글 상세: 다른 게시물을 격자(노트북 3열·휴대폰 1열)로
+
+- 사용자 요청에 따라 본문 아래 "다른 게시물"을 가로 스크롤 목록에서 스크롤바 없는 격자로 바꿨다. `.related-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}`, `@media(max-width:620px)` 1열(게시판 목록 `.post-grid`의 휴대폰 기준과 같음). 카드는 순서대로 세로로 이어진다. 상세 폭 760px 기준 카드 폭 232px.
+- 스크롤이 없어져 ‹ › 화살표를 없앴다: `relatedShell()`의 `.related-controls` 마크업, `updateRelatedControls()`와 호출·`onscroll`·`resize` 리스너, `related-previous/next` 클릭 처리, `i18n.js`의 두 aria 문구, `.related-controls`/`.related-arrow` CSS. 목록의 `role="region"`·`tabindex`(스크롤 키보드 접근용)도 뺐다. 상태·오류 문구 `.related-status`는 `grid-column:1/-1`.
+- 버전 `app.js?v=85-related-grid`, `styles.css?v=84-related-grid`, `i18n.js?v=42-related-grid`. 테스트 36개·JS 문법 통과. 커밋 `7f5c524`, Pages 실행 `36619510944` 성공. 공개 사이트 1280px: 열 `232px×3`, 카드 5개가 3+2줄, 390px: 1열 세로 5줄, 둘 다 목록·페이지 가로 넘침 없음, 화살표 0개.
+- 참고: 카드는 제목만 먼저 그리고 두 번째 `listPosts`(ids)로 작성자·썸네일을 채운다. 캡처는 `.related-card[aria-busy=true]`가 없어질 때까지 기다려야 하고, 썸네일은 화면에 들어올 때 지연 로드된다.
+
 ## 2026-09-30 게시글 상세: 다른 게시물 목록을 본문 아래로
 
 - 사용자 요청에 따라 넓은 가로 화면(`min-width:960px and orientation:landscape`)에서 오른쪽 340px 고정 사이드바였던 "다른 게시물"을 모든 화면에서 게시글(댓글 포함 카드) 아래 가로 스크롤 목록으로 바꿨다. `dist/styles.css`의 해당 미디어 쿼리 규칙(사이드바 그리드, sticky, 세로 목록, 가로형 카드, 화살표 회전, `max-width:1200px`)을 지웠다. 같은 블록 안에 있던 `.empty .button-row{justify-content:center}`는 같은 조건의 미디어 쿼리로 남겼다. 상세 화면 폭은 모든 화면에서 760px이다.
