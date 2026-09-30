@@ -202,7 +202,7 @@
     '03':{title:'계단 하나로 나라가 갈라진다고?! 충격적인 실존거리 개항장',presenter:'김연후',en:{title:'One Staircase Divided Nations?! The Real Open Port Street',presenter:'Yeonhu Kim'}}
   };
   function introVideo(p) { const v=introVideos[p.number]||{title:p.title,presenter:''}; return CIC_I18N.language==='en'&&v.en?v.en:v; }
-  function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(v.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button>${moreMenu(v.title,placeUrl(p.id),L('[CIC] 영상 신고: ','[CIC] Video report: '))}</div></div></article>`; }).join(''); }
+  function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3>${esc(v.title)}</h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button>${moreMenu(v.title,placeUrl(p.id),L('[CIC] 영상 신고: ','[CIC] Video report: '))}</div></div></article>`; }).join(''); }
   function closePlaceMenus(except) { document.querySelectorAll('.discover-menu:not([hidden])').forEach(m=>{ if(m===except)return; m.hidden=true; m.previousElementSibling.setAttribute('aria-expanded','false'); }); }
   function postMoreMenu(p) { return moreMenu(p.title,postUrl(p.id),L('[CIC] 게시글 신고: ','[CIC] Post report: '),true); }
   function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
@@ -439,7 +439,7 @@
   document.addEventListener('click',event=>{ if(!event.target.closest('.discover-more'))closePlaceMenus(); else if(event.target.closest('.discover-menu a'))closePlaceMenus(); });
   document.addEventListener('keydown',event=>{ if(event.key==='Escape')closePlaceMenus(); });
   // Intro stories: the whole card opens the same post as its "more" button.
-  document.addEventListener('click',event=>{const card=event.target.closest('.story-card[data-href]');if(!card||event.target.closest('a,button'))return;location.href=card.dataset.href;});
+  document.addEventListener('click',event=>{const card=event.target.closest('.story-card[data-href]');if(!card||event.target.closest('a,button,h4'))return;location.href=card.dataset.href;});
   document.addEventListener('click',async event=>{
     const b=event.target.closest('[data-action]');if(!b)return;const action=b.dataset.action;
     try{
