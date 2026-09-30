@@ -215,7 +215,7 @@
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사, <br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천문화유산 맵</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="grid-3">${guideCards()}</div></section>
-    <section class="wrap"><div class="section-heading"><div><span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2></div></div><div class="grid-3">${storyCards()}</div></section>`;
+    <section class="wrap"><div class="section-heading"><div><span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2></div></div><div class="grid-3">${storyCards()}</div><div class="home-log" id="home-log" aria-busy="true">${boardSkeleton(9)}</div></section>`;
   }
   function about() {
     const reflections = C.reflections.filter(x => x.text.trim());
@@ -232,7 +232,7 @@
     return `<div class="empty"><h2>${esc(heading)}</h2><p>${esc(message)}</p>${button}</div>`;
   }
   // Card-shaped placeholders with an indeterminate bar while the first page of titles loads.
-  function boardSkeleton() { const card='<div class="post-card skeleton-card"><div class="post-card-media content-skeleton"></div><div class="post-card-copy"><span class="post-tag content-skeleton">&nbsp;</span><span class="content-skeleton skeleton-line"></span><span class="content-skeleton skeleton-line short"></span></div></div>'; return `<div class="board-loading" role="status" aria-busy="true"><span class="visually-hidden">${t('게시글을 불러오고 있습니다…')}</span><div class="loading-bar" aria-hidden="true"></div><div class="post-grid" aria-hidden="true">${card.repeat(6)}</div></div>`; }
+  function boardSkeleton(count=6) { const card='<div class="post-card skeleton-card"><div class="post-card-media content-skeleton"></div><div class="post-card-copy"><span class="post-tag content-skeleton">&nbsp;</span><span class="content-skeleton skeleton-line"></span><span class="content-skeleton skeleton-line short"></span></div></div>'; return `<div class="board-loading" role="status" aria-busy="true"><span class="visually-hidden">${t('게시글을 불러오고 있습니다…')}</span><div class="loading-bar" aria-hidden="true"></div><div class="post-grid" aria-hidden="true">${card.repeat(count)}</div></div>`; }
   async function board(page, stamp) {
     main.innerHTML = title('Community',t('함께 기록하는 CIC'),t('기록으로 남기는 문화유산')) + '<section class="board-shell" id="board-content"></section>';
     const target = document.getElementById('board-content');
@@ -242,29 +242,48 @@
     data.posts.forEach(rememberPost);
     const canWrite=member?.status==='approved';
     const emptyBoard=html`<div class="empty"><h3>${t('아직 등록된 글이 없습니다')}</h3><p>${t('첫 번째 CIC 활동 이야기를 남겨주세요.')}</p><div class="button-row"><button class="button" data-action="${canWrite?'new-post':'login'}">${t('글쓰기')}</button></div></div>`;
-    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a><a class="button secondary small" href="#reports">신고 관리</a></div></div>'):''}${data.posts.length ? `<div class="post-grid">${data.posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div><div id="board-load-status" role="status"></div>` : emptyBoard}${pagination(page,data.pages,'board')}`;
+    target.innerHTML=html`${member?.role==='admin'?t('<div class="board-toolbar"><div class="button-row" style="margin:0"><a class="button secondary small" href="#members">회원 관리</a><a class="button secondary small" href="#reports">신고 관리</a></div></div>'):''}${data.posts.length ? `${postCardGrid(data.posts)}<div id="board-load-status" role="status"></div>` : emptyBoard}${pagination(page,data.pages,'board')}`;
     if(!data.posts.length)return;
     await afterPaint(); if(stamp!==epoch)return;
-    try {
-      const details=await CIC_API.request('listPosts',{ids:data.posts.map(p=>p.id)});
-      if(stamp!==epoch)return;
-      details.posts.forEach(rememberPost);
-      target.querySelectorAll('.post-card').forEach(card=>{
-        const p=details.posts.find(p=>p.id===card.dataset.postId);
-        if(!p){card.remove();return;}
-        // Keep the title link in place so keyboard focus survives hydration.
-        card.querySelector('.post-card-media').outerHTML=media(p.attachments?.[0],'post-card-media');
-        const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';
-        card.querySelector('h3').textContent=p.title;
-        const summary=card.querySelector('.post-card-copy p');summary.classList.remove('content-skeleton');summary.removeAttribute('aria-hidden');summary.textContent=p.summary;
-        card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a><span class="post-card-tools"><button type="button" class="discover-action" data-action="share" data-id="${esc(p.id)}" aria-label="공유하기">${icon('share')}</button>${postMoreMenu(p)}</span>`;
-        card.setAttribute('aria-busy','false');
-      });
-      CIC_MEDIA.observe(target);
-    } catch(error) {
+    try { await hydratePostCards(target,data.posts,stamp); }
+    catch(error) {
       if(stamp!==epoch)return;
       target.querySelectorAll('.post-card').forEach(card=>card.setAttribute('aria-busy','false'));
       contentError(document.getElementById('board-load-status'));
+    }
+  }
+  // Guardian-log cards: titles render first, then media, category, summary and actions fill in.
+  function postCardGrid(posts) { return `<div class="post-grid">${posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div>`; }
+  async function hydratePostCards(target, posts, stamp) {
+    const details=await CIC_API.request('listPosts',{ids:posts.map(p=>p.id)});
+    if(stamp!==epoch)return;
+    details.posts.forEach(rememberPost);
+    target.querySelectorAll('.post-card').forEach(card=>{
+      const p=details.posts.find(p=>p.id===card.dataset.postId);
+      if(!p){card.remove();return;}
+      // Keep the title link in place so keyboard focus survives hydration.
+      card.querySelector('.post-card-media').outerHTML=media(p.attachments?.[0],'post-card-media');
+      const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';
+      card.querySelector('h3').textContent=p.title;
+      const summary=card.querySelector('.post-card-copy p');summary.classList.remove('content-skeleton');summary.removeAttribute('aria-hidden');summary.textContent=p.summary;
+      card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a><span class="post-card-tools"><button type="button" class="discover-action" data-action="share" data-id="${esc(p.id)}" aria-label="공유하기">${icon('share')}</button>${postMoreMenu(p)}</span>`;
+      card.setAttribute('aria-busy','false');
+    });
+    CIC_MEDIA.observe(target);
+  }
+  // Intro: the nine newest guardian-log posts under the stories, using the board's cards.
+  async function homeLog(stamp) {
+    const target=document.getElementById('home-log'); if(!target||!CIC_API.configured())return;
+    try {
+      const data=await CIC_API.request('listPosts',{page:1,sort:'newest',view:'titles'}); if(stamp!==epoch)return;
+      const posts=data.posts.slice(0,9); posts.forEach(rememberPost);
+      if(!posts.length){target.remove();return;}
+      target.innerHTML=postCardGrid(posts); target.setAttribute('aria-busy','false');
+      await afterPaint(); if(stamp!==epoch)return;
+      await hydratePostCards(target,posts,stamp);
+    } catch(error) {
+      if(stamp!==epoch)return;
+      target.setAttribute('aria-busy','false'); contentError(target);
     }
   }
   function renderFloatingWrite() {
@@ -357,7 +376,7 @@
       else if(page==='post') await post(part,Math.max(1,parseInt(third,10)||1),stamp);
       else if(page==='members') await members(stamp);
       else if(page==='reports') await reports(stamp);
-      else { main.innerHTML=home(); void loadPlaceLikes(); }
+      else { main.innerHTML=home(); void loadPlaceLikes(); void homeLog(stamp); }
       if(stamp!==epoch)return;
       const anchor = page==='values' ? document.getElementById(part ? 'value-'+part : 'values') : part && page==='guide' ? document.getElementById('place-'+part) : null;
       if(options.keepScroll) window.scrollTo(0,options.scrollY || 0);
