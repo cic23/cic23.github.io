@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 지킴이 로그 카드: 분류 옆에 글쓴이 이름
+
+- 사용자 요청에 따라 게시판·인트로의 지킴이 로그 카드에서 분류(예: 활동 기록) 바로 옆에 글쓴이 이름을 작은 회색 글씨로 표시한다. `hydratePostCards()`가 분류 뒤에 `<span class="post-card-author">`(이름은 `esc()`)를 넣는다. CSS `.post-card-author{margin-left:8px;font-size:.75rem;font-weight:400;color:var(--muted)}`. 게시글 상세는 기존대로 머리글에 작성자 표시.
+- 버전 `app.js?v=115-card-author`, `styles.css?v=115-card-author`. 테스트 38개·JS 문법 통과. 공개 게시판 1280px·홈 390px에서 카드 9개 모두 이름 표시(12px, 회색, 분류와 같은 줄) 확인(읽기 전용). 커밋 `39fafb7`, Pages 실행 `36785815250` 성공.
+
 ## 2026-10-01 지킴이 로그도 제목 언어별로 표시(Apps Script 버전 21)
 
 - 사용자 요청에 따라 한국어 사이트는 제목에 한글이 있는 글만, 영어 사이트는 한글이 없는 글만 보인다. 게시판이 서버에서 15개씩 페이지를 나누므로 화면이 아닌 **서버에서** 거른다: `listPosts_`에 선택 값 `d.lang`('ko'/'en', 그 외 `INVALID`)을 추가해 `/[가-힣]/.test(title)`로 필터 후 `total`·`pages` 계산. 테스트 1개 추가(총 38개).
