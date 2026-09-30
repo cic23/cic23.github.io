@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 상단 여백 축소(헤더↔첫 화면, 첫 화면↔Explore Incheon)
+
+- 사용자 요청에 따라 한·영 홈의 두 간격을 줄였다(`styles.css` 끝에 추가): `.hero-copy{padding-top:32px;padding-bottom:20px}`, `.hero+.wrap{padding-top:32px}`, 720px 이하 `.hero-copy{padding-top:20px;padding-bottom:12px}`, `.hero+.wrap{padding-top:24px}`.
+  - 헤더 아래 → "CIC · Chadwick International Culture protector": 1280px 64→32px, 390px 38→20px.
+  - 버튼 줄(부제목 아래) → "Explore Incheon": 1280px 109→52px, 390px 78→36px. 부제목↔버튼 간격(28px)은 그대로.
+- 함께 수정: 영어 영상 카드 출처 줄이 좁은 카드에서 "Youth Heritage Guardian Jun…"처럼 잘리던 것을 줄바꿈으로 바꿨다(`.discover-source` nowrap/ellipsis 제거, `overflow-wrap:anywhere`, 줄 높이 1.35). 한국어는 한 줄 그대로.
+- 버전 `styles.css?v=100-hero-spacing`. 테스트 37개 통과. 로컬 한·영 1280/900/390px 측정, 영어 320/360/390px 가로 넘침 없음, 공개 사이트 한국어 1280px·영어 390px 간격과 영어 360px 넘침 없음 재확인. 커밋 `e3cfefa`, Pages 실행 `36688193662` 성공.
+
 ## 2026-09-30 영어 홈 첫 화면 제목·부제목도 노트북·데스크톱에서 한 줄
 
 - 사용자 요청에 따라 "The history we protect, the future we share"와 "We are Korea’s National Heritage Guardians, documenting…eyes."를 폭 1001px 이상에서 각각 한 줄로 표시한다. 한국어 전용이던 규칙(`html:not([lang="en"])`)을 모든 언어로 넓혔다: `@media(min-width:1001px){.hero-copy{max-width:none}.hero-copy p,.hero-copy h1{white-space:nowrap}.hero-copy h1 br{display:none}}`. 영어 부제목은 길어서 1001~1100px에서 오른쪽 여백을 넘었으므로 같은 미디어 쿼리에 `html[lang="en"] .hero-copy p{font-size:min(1.05rem,1.5vw)}`(1120px 이상은 기존 16.8px)를 추가했다. 1000px 이하·휴대폰은 기존처럼 여러 줄.
