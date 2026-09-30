@@ -28,6 +28,7 @@
     '확인 중':'To be confirmed',
     '작은 관심에서 시작된, 진정성 있는 실천':'Small beginnings, a sincere commitment',
     '채드윅송도국제학교 청소년 국가유산지킴이':'Youth Heritage Guardians at Chadwick International',
+    '채드윅 송도국제학교':'Chadwick International School',
     '발간사':'Foreword',
     '우리가 서 있는 이 땅의 역사를':'Connecting the history beneath our feet',
     '미래로 연결합니다':'with the future',
