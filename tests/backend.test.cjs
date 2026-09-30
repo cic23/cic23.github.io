@@ -178,3 +178,15 @@ test('intro video likes work without login, count per place, and reject unknown 
   denied(()=>s.call('togglePlaceLike',{placeId:'nowhere'},undefined,v1),'INVALID');
   assert.equal(s.call('listPosts').total,0);
 });
+
+test('listPosts can return only Korean-titled or only non-Korean-titled posts',()=>{
+  const s=server(),a=s.login();
+  s.call('createPost',{...draft(),title:'한국어 제목 글'},a.session);
+  s.call('createPost',{...draft(),title:'An English title'},a.session);
+  s.call('createPost',{...draft(),title:'혼합 Mixed 제목'},a.session);
+  assert.deepEqual([...s.call('listPosts',{lang:'ko'}).posts.map(p=>p.title)].sort(),['한국어 제목 글','혼합 Mixed 제목'].sort());
+  assert.deepEqual(s.call('listPosts',{lang:'en'}).posts.map(p=>p.title),['An English title']);
+  assert.equal(s.call('listPosts',{lang:'en'}).total,1);
+  assert.equal(s.call('listPosts').total,3);
+  denied(()=>s.call('listPosts',{lang:'fr'}),'INVALID');
+});

@@ -215,6 +215,11 @@ function listPosts_(d, member, likeActor) {
     if (!Array.isArray(d.ids) || d.ids.length > size || d.ids.some(id => typeof id !== 'string')) fail_('INVALID', '게시물 목록이 올바르지 않습니다.');
     posts = posts.filter(p => d.ids.includes(p.id));
   }
+  // Optional title-language view: 'ko' = titles containing Hangul, 'en' = titles without Hangul.
+  if (d.lang !== undefined) {
+    if (d.lang !== 'ko' && d.lang !== 'en') fail_('INVALID', '게시물 목록이 올바르지 않습니다.');
+    posts = posts.filter(p => /[가-힣]/.test(String(p.title || '')) === (d.lang === 'ko'));
+  }
   const result = { page, total: posts.length, pages: Math.max(1, Math.ceil(posts.length / size)) };
   const selected = posts.slice((page - 1)*size, page*size);
   // Titles never wait for attachment, comment or like sheet reads.

@@ -95,14 +95,14 @@
     };
     list.innerHTML='';
     try {
-      if(relatedFeed && Date.now()-relatedFeed.at<60000) {
+      if(relatedFeed && relatedFeed.lang===postLang() && Date.now()-relatedFeed.at<60000) {
         append(relatedFeed.posts);
         CIC_MEDIA.observe(list);
       } else {
         const posts=[];
         // Server-side newest ordering makes the first page useful immediately.
         for(let page=1,pages=1;page<=pages;page++) {
-          const titles=await CIC_API.request('listPosts',{page,sort:'newest',view:'titles'});
+          const titles=await CIC_API.request('listPosts',{page,sort:'newest',view:'titles',lang:postLang()});
           if(!valid())return;
           pages=titles.pages; append(titles.posts);
           if(!titles.posts.length)break;
@@ -124,7 +124,7 @@
           });
           CIC_MEDIA.observe(list);
         }
-        relatedFeed={at:Date.now(),posts};
+        relatedFeed={at:Date.now(),posts,lang:postLang()};
       }
       if(!list.querySelector('.related-card'))list.innerHTML=html`<p class="related-status muted" role="status">아직 다른 게시물이 없습니다.</p>`;
     } catch(error) {
@@ -237,7 +237,7 @@
     const target = document.getElementById('board-content');
     if (!CIC_API.configured()) { target.innerHTML=lockedBoard(); return; }
     target.innerHTML=boardSkeleton();
-    const data = await CIC_API.request('listPosts',{page,view:'titles'}); if (stamp !== epoch) return;
+    const data = await CIC_API.request('listPosts',{page,view:'titles',lang:postLang()}); if (stamp !== epoch) return;
     data.posts.forEach(rememberPost);
     const canWrite=member?.status==='approved';
     const emptyBoard=html`<div class="empty"><h3>${t('아직 등록된 글이 없습니다')}</h3><p>${t('첫 번째 CIC 활동 이야기를 남겨주세요.')}</p><div class="button-row"><button class="button" data-action="${canWrite?'new-post':'login'}">${t('글쓰기')}</button></div></div>`;
@@ -252,6 +252,8 @@
     }
   }
   // Guardian-log cards: titles render first, then media, category, summary and actions fill in.
+  // Guardian-log lists show Korean-titled posts on the Korean site and the others on the English site.
+  const postLang=()=>CIC_I18N.language==='en'?'en':'ko';
   function postCardGrid(posts) { return `<div class="post-grid">${posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div>`; }
   async function hydratePostCards(target, posts, stamp) {
     const details=await CIC_API.request('listPosts',{ids:posts.map(p=>p.id)});
@@ -274,14 +276,8 @@
   async function homeLog(stamp) {
     const target=document.getElementById('home-log'); if(!target||!CIC_API.configured())return;
     try {
-      // Korean intro shows posts titled in Korean; English intro shows posts titled without Hangul.
-      const wantKo=CIC_I18N.language!=='en', hangul=/[가-힣]/, posts=[];
-      for(let page=1,pages=1;page<=pages&&posts.length<9;page++){
-        const data=await CIC_API.request('listPosts',{page,sort:'newest',view:'titles'}); if(stamp!==epoch)return;
-        pages=data.pages; if(!data.posts.length)break;
-        posts.push(...data.posts.filter(p=>hangul.test(p.title)===wantKo));
-      }
-      posts.splice(9); posts.forEach(rememberPost);
+      const data=await CIC_API.request('listPosts',{page:1,sort:'newest',view:'titles',lang:postLang()}); if(stamp!==epoch)return;
+      const posts=data.posts.slice(0,9); posts.forEach(rememberPost);
       if(!posts.length){target.closest('.home-log').remove();return;}
       target.innerHTML=postCardGrid(posts); target.setAttribute('aria-busy','false');
       await afterPaint(); if(stamp!==epoch)return;
