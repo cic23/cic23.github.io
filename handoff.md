@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 기본 언어를 항상 한국어로(`?lang=en`일 때만 영어)
+
+- 사용자 보고: `https://cic23.github.io` 접속 시 영어로 열림. 원인: `i18n.js`가 주소에 `?lang`이 없으면 브라우저에 저장된 마지막 선택(`localStorage` `cic-language`)을 따랐다(사용자가 전에 English를 눌렀던 브라우저).
+- 수정: 언어 = `?lang` 값(ko/en)이 있으면 그것, 없으면 항상 `ko`. 저장값은 더 이상 읽지 않는다(쓰기는 남아 있으나 무해). 언어 버튼은 기존대로 주소에 `?lang=`을 붙이므로(`history.replaceState`) 사이트 안 이동·새로고침에서는 선택한 언어가 유지된다. 개인정보처리방침 등 `?lang` 없이 여는 링크로 들어오면 한국어.
+- 테스트(`tests/i18n.test.cjs`) 기대값 갱신: 저장값 en + 주소에 lang 없음 → ko, 영어 번역 테스트는 `?lang=en` 주소로. 총 38개 통과. 버전 `i18n.js?v=47-korean-default`. 커밋 `f5d7c83`, Pages 실행 `36790791337` 성공.
+- 공개 사이트 확인(브라우저 저장값을 en으로 둔 상태): 주소만 입력 → 한국어, English 클릭 → `?lang=en` 영어, `#guide` 이동·새로고침 → 영어 유지, 다시 주소만 입력 → 한국어.
+
 ## 2026-10-01 Honesty02.jpg 복구
 
 - 사용자 요청에 따라 바로 전 삭제(`ac8c65a`)를 되돌렸다. `git revert`는 `index.html` 버전 표기를 옛 값으로 돌려 이후 변경(게시글 날짜 등)이 담긴 `app.js`를 옛 캐시 주소로 되돌릴 위험이 있어 쓰지 않았다. 대신 `dist/assets/Honesty02.jpg`를 삭제 전 커밋에서 되살리고(449,508바이트, 동일), `app.js` 정직 사진 목록과 `config.js` `value-honesty-2` 항목을 복원했다(`config.js`는 삭제 전과 동일). 버전은 앞으로 올림: `config.js?v=54-honesty02-back`, `app.js?v=118-honesty02-back`.
