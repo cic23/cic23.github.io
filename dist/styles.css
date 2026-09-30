@@ -56,7 +56,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .discover-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0 0 4px;font-size:1.2rem;line-height:1.45}
 .discover-card h3 a:hover{text-decoration:underline}
 .discover-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
-.discover-source{display:inline-flex;align-items:center;gap:8px;min-width:0;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.discover-source{display:inline-flex;align-items:center;gap:8px;min-width:0;font-size:.85rem;line-height:1.35;color:var(--muted);overflow-wrap:anywhere}
 .discover-source img{flex:0 0 auto;width:24px;height:24px;border-radius:50%;object-fit:cover}
 .discover-actions{display:flex;align-items:center;flex:0 0 auto}
 .discover-action{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#5f6368;cursor:pointer}
@@ -190,3 +190,7 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 .footer-account{border:0;background:none;padding:0;text-decoration:none;cursor:pointer}
 /* Keep the last footer row clear of the floating write button when scrolled to the bottom. */
 .site-footer{padding-bottom:88px}
+/* Intro: tighter spacing below the header and between the hero and Explore Incheon. */
+.hero-copy{padding-top:32px;padding-bottom:20px}
+.hero+.wrap{padding-top:32px}
+@media(max-width:720px){.hero-copy{padding-top:20px;padding-bottom:12px}.hero+.wrap{padding-top:24px}}
