@@ -1,5 +1,14 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 영상 카드 하트 옆 좋아요 숫자(서버 저장, Apps Script 버전 20)
+
+- 사용자 요청에 따라 홈 영상 카드 하트 옆에 좋아요 수를 표시한다. 모든 방문자가 같은 수를 보도록 브라우저 저장(`cic.placeLikes.v1`)을 없애고 서버에 저장한다.
+- 서버(`apps-script/Code.gs`): `PLACE_IDS_=['memory','wolmi','openport']`, 공개 액션 `listPlaceLikes`(장소별 `likeCount`·`likedByMe`)와 `togglePlaceLike {placeId}`. 게시글 좋아요와 같은 방식(로그인 없이 `visitorId` 해시 `anon:…` 또는 회원 id, `rate_` 제한)이며 `Likes` 시트에 `postId:'place:<id>'`로 저장한다. 알 수 없는 장소·방문자 ID 없음은 `INVALID`. 테스트 1개 추가(총 37개).
+- 배포: `clasp show-authorized-user` = `415hyunwoo@gmail.com` 확인 → `clasp push --force`(Code.gs·appsscript.json, 매니페스트 변경 없음) → `clasp version` **20** → 기존 배포 `AKfycbza76…` `redeploy -V 20`. 운영 `/exec`에서 `listPlaceLikes` 세 장소 0, 테스트 방문자로 `togglePlaceLike` 1 → 다시 눌러 0(흔적 제거), `listPosts` 정상.
+- 화면(`app.js`): `placeLikeState`(처음엔 null → 숫자 숨김), 홈 렌더 후 `loadPlaceLikes()`, 누르면 즉시 반영(낙관적) 후 서버 결과로 확정, 실패 시 되돌리고 토스트. `.discover-like`(하트+숫자, 알약 모양), `.discover-count:empty{display:none}`. 버전 `app.js?v=96-place-like-count`, `styles.css?v=93-place-like-count`.
+- 검증: 공개 사이트 390px에서 처음 0/0/0 → 월미도 하트 클릭 즉시 1·빨간 하트 → 서버 확정 후 1 → 새로고침 후에도 1·빨간 하트 → 다시 눌러 0(테스트 흔적 제거). 커밋 `55cc3b5`, Pages 실행 `36652516822` 성공. README에 서버 배포 기록 추가.
+- 참고: 앞서 브라우저에만 저장했던 하트(`cic.placeLikes.v1`)는 서버로 옮기지 않았다(배포 후 몇 시간 동안만 존재, 숫자 없었음).
+
 ## 2026-09-30 인트로 영상 카드 제목·출연자 이름
 
 - 사용자 요청에 따라 홈 Explore 영상 카드 제목과 출처 줄을 `introVideos`(장소 번호별)로 따로 둔다. 인천문화유산(`#guide`) 페이지의 장소 제목은 그대로다.
