@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 Honesty02.jpg 복구
+
+- 사용자 요청에 따라 바로 전 삭제(`ac8c65a`)를 되돌렸다. `git revert`는 `index.html` 버전 표기를 옛 값으로 돌려 이후 변경(게시글 날짜 등)이 담긴 `app.js`를 옛 캐시 주소로 되돌릴 위험이 있어 쓰지 않았다. 대신 `dist/assets/Honesty02.jpg`를 삭제 전 커밋에서 되살리고(449,508바이트, 동일), `app.js` 정직 사진 목록과 `config.js` `value-honesty-2` 항목을 복원했다(`config.js`는 삭제 전과 동일). 버전은 앞으로 올림: `config.js?v=54-honesty02-back`, `app.js?v=118-honesty02-back`.
+- 테스트 38개·JS 문법 통과. 공개 사이트 한·영 CIC 소개에서 Honesty02 1장 표시, 가치별 사진 수 [1,1,2,1,4], 깨진 이미지 0, 파일 HTTP 200 확인. 커밋 `9e41172`, Pages 실행 `36789264050` 성공.
+
 ## 2026-10-01 게시글 상세 머리글에 최초 작성일
 
 - 사용자 요청에 따라 게시글 상세 머리글의 분류(예: 활동 기록) 옆에 최초 작성일을 작은 회색 글씨로 표시한다: `<time class="post-date" datetime="createdAt">`, `postDate()`가 한국 시간(`Asia/Seoul`) 기준 한국어 "2026년 9월 30일", 영어 "Sep 30, 2026"으로 만든다. 수정일이 아닌 `createdAt`. 스타일은 기존 `.post-author span`(12px, `--muted`)을 따르고 `.post-author .post-date{margin-left:8px}`. 카드 목록에는 날짜 없음(이전 결정 유지).
