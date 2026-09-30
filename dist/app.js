@@ -15,6 +15,12 @@
   function guideVideo(p, overlay=false) { const src=`./assets/incheon${p.number}-video`; const video=`<video class="guide-video" controls playsinline preload="none" poster="${src}-poster.jpg?v=3" aria-label="${esc(p.title+L(' 탐방 영상',' visit video'))}"><source src="${src}.mp4?v=3" type="video/mp4"></video>`; return overlay?`<div class="video-frame">${video}<button type="button" class="video-play" data-action="play-video" aria-label="${esc(L('영상 재생','Play video'))}"></button></div>`:video; }
   const setPlaying=(event,on)=>{const frame=event.target.closest?.('.video-frame');if(frame)frame.classList.toggle('is-playing',on);};
   document.addEventListener('play',e=>setPlaying(e,true),true);
+  // Phones: tapping a playing video (outside the bottom control bar) pauses it, like the desktop click.
+  const touchLayout=matchMedia('(hover:none),(pointer:coarse)');
+  // Native mobile controls swallow the tap (no click event), so detect a short touch tap with pointer events.
+  let videoTap=null;
+  document.addEventListener('pointerdown',e=>{const v=e.target.closest?.('.video-frame video');videoTap=v&&e.pointerType!=='mouse'&&touchLayout.matches?{v,x:e.clientX,y:e.clientY,t:Date.now()}:null;},true);
+  document.addEventListener('pointerup',e=>{const tap=videoTap;videoTap=null;if(!tap||e.target.closest?.('.video-frame video')!==tap.v)return;const r=tap.v.getBoundingClientRect();if(tap.v.paused||Date.now()-tap.t>500||Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>12||e.clientY>r.bottom-56)return;tap.v.pause();},true);
   // One photo per place, moved (not duplicated) between the narrow and wide slots at the 720px layout switch.
   const narrowLayout=matchMedia('(max-width:720px)');  narrowLayout.addEventListener('change',()=>{const which=narrowLayout.matches?'narrow':'wide';document.querySelectorAll('.place-section').forEach(s=>{const photo=s.querySelector('.guide-place-image'),slot=s.querySelector(`.guide-slot-${which}`);if(photo&&slot&&photo.parentElement!==slot)slot.append(photo);});});
   function guidePlaceImage(p) { return `<img class="guide-place-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`; }

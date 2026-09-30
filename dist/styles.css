@@ -202,13 +202,13 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 .discover-card .discover-action{width:36px;height:36px}
 .discover-card .discover-like{width:auto;min-width:36px;padding:0 8px;gap:3px;font-size:.8rem}
 .discover-card .discover-source{gap:0}
-/* Phones: a lighter play button 30% smaller than the desktop one replaces the browser's dark overlay button. */
+/* Phones (intro and heritage guide videos): a lighter play button 30% smaller than the desktop one replaces the browser's dark overlay button. */
 @media(hover:none),(pointer:coarse){
-  .discover-card .video-play{display:block;width:50px;height:50px;margin:-25px 0 0 -25px;background:rgba(0,0,0,.2)}
-  .discover-card .video-play::before{left:20px;top:15px;border-width:10px 0 10px 15px}
-  .discover-card .video-frame.is-playing .video-play{display:none}
-  .discover-card .guide-video::-webkit-media-controls-overlay-play-button{display:none}
-  .discover-card .guide-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+  .video-frame .video-play{display:block;width:50px;height:50px;margin:-25px 0 0 -25px;background:rgba(0,0,0,.2)}
+  .video-frame .video-play::before{left:20px;top:15px;border-width:10px 0 10px 15px}
+  .video-frame.is-playing .video-play{display:none}
+  .video-frame .guide-video::-webkit-media-controls-overlay-play-button{display:none}
+  .video-frame .guide-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 }
 /* Intro stories: titles are plain text; thin gray separators instead of the navy top rule. */
 .story-card[data-href] h4{cursor:text}
