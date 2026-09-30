@@ -1,5 +1,12 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 이야기 아래 회색선 + 최신 지킴이 로그 카드 9개
+
+- 사용자 요청에 따라 "우리가 문화유산에 ‘푹’ 빠진 이유" 이야기(마지막 03 `more` 버튼) 아래에 가는 회색선(`.home-log{margin-top:28px;padding-top:36px;border-top:1px solid var(--line)}`)과 지킴이 로그 게시판과 같은 카드 9개를 넣었다(최신 순 `listPosts {page:1, sort:'newest', view:'titles'}` 앞 9개 → `listPosts {ids}`로 사진·분류·요약·좋아요·댓글·공유·⋮ 채움). 불러오는 동안 주황 로딩바 + 카드 틀 9개(`boardSkeleton(9)`), 실패 시 "다시 시도", 글이 없으면 영역 제거.
+- 리팩터링: 게시판 카드 마크업·채우기를 `postCardGrid(posts)`·`hydratePostCards(target,posts,stamp)`로 분리해 `board()`와 새 `homeLog(stamp)`가 함께 쓴다(게시판 동작 동일). `boardSkeleton(count=6)`.
+- 참고: 게시판 첫 페이지는 기본 정렬(공지 먼저)이고 인트로는 사용자 요청대로 올린 순서(`newest`). 현재 공지가 없어 두 순서가 같다.
+- 버전 `app.js?v=108-home-log`, `styles.css?v=113-home-log`. 테스트 37개·JS 문법 통과. 공개 사이트 1280px(3열)·390px 영어(1열)에서 회색선, 카드 9개(최신 순, 모두 버튼 줄 포함), 가로 넘침 없음, 게시판 카드 10개 정상 확인. 커밋 `0b641e7`, Pages 실행 `36701868408` 성공.
+
 ## 2026-09-30 인트로 "Our Practice / 현장에서 실천하는 가치" 섹션 삭제
 
 - 사용자 요청에 따라 `home()`에서 "Our Practice" 섹션 전체(제목, 활동 카드 3개: 탑골공원에서 이어가는 나눔·국가유산 복구를 위한 모금·기록으로 알리는 문화유산, 사진 plogging/fundraising/flashmob, 설명 문구)를 지웠다. 홈 순서: 첫 화면 → 영상 카드 3개 → "우리가 문화유산에 ‘푹’ 빠진 이유" → 푸터.
