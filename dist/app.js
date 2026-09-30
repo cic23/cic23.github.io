@@ -266,23 +266,25 @@
     document.body.insertAdjacentHTML('beforeend',`<button id="floating-write" class="floating-write" data-action="${canWrite?'new-post':'login'}" aria-label="${esc(canWrite?t('새 게시글 작성'):t('로그인 후 새 게시글 작성'))}"><span aria-hidden="true">✎</span></button>`);
   }
   function pagination(page,pages,route) { return pages>1 ? `<div class="paging">${page>1?html`<a class="button secondary small" href="#${route}/${page-1}">이전</a>`:''}<span>${page} / ${pages}</span>${page<pages?html`<a class="button secondary small" href="#${route}/${page+1}">다음</a>`:''}</div>` : ''; }
+  // Same orange indeterminate bar as the board list, above a post-shaped placeholder (title shown once known).
+  function postSkeleton(title) { return html`<div class="post-detail-shell"><div class="board-loading" role="status" aria-busy="true"><span class="visually-hidden">게시글을 불러오고 있습니다…</span><div class="loading-bar" aria-hidden="true"></div></div><article class="post-detail post-skeleton" aria-busy="true"><div class="post-detail-header" aria-hidden="true"><span class="post-avatar content-skeleton"></span><span class="content-skeleton skeleton-line skeleton-author"></span></div><div class="post-detail-copy">${title?`<h1>${esc(title)}</h1>`:'<span class="content-skeleton skeleton-line skeleton-title" aria-hidden="true"></span>'}<div id="post-load-status"><div aria-hidden="true"><span class="content-skeleton skeleton-line"></span><span class="content-skeleton skeleton-line"></span><span class="content-skeleton skeleton-line short"></span></div></div></div></article></div>`; }
   async function post(id, commentPage, stamp) {
     const cacheKey=id+'/'+commentPage, cached=postCache.get(cacheKey);
     let preview=postPreview.get(id), data=cached;
     if(!cached) {
-      main.innerHTML=title('Community',t('지킴이 로그'))+t('<div class="reading"><p role="status">게시글을 불러오고 있습니다…</p></div>');
+      main.innerHTML=postSkeleton('');
       if(!preview) {
         const result=await CIC_API.request('getPost',{id,view:'title'});
         if(stamp!==epoch)return;
         preview=result.post; rememberPost(preview);
       }
-      main.innerHTML=html`<div class="post-detail-shell"><article class="post-detail" aria-busy="true"><div class="post-detail-copy"><h1>${esc(preview.title)}</h1><div id="post-load-status"><p role="status" class="muted">게시글을 불러오고 있습니다…</p></div></div></article></div>`;
+      main.innerHTML=postSkeleton(preview.title);
       await afterPaint(); if(stamp!==epoch)return;
       try { data=await CIC_API.request('getPost',{id,commentPage}); }
       catch(error) {
         if(stamp!==epoch)return;
         if(error.code==='NOT_FOUND'){postPreview.delete(id);throw error;}
-        main.querySelector('.post-detail').setAttribute('aria-busy','false');
+        main.querySelector('.post-detail').setAttribute('aria-busy','false'); main.querySelector('.board-loading')?.remove();
         contentError(document.getElementById('post-load-status'));return;
       }
     }

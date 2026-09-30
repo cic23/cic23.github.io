@@ -148,6 +148,10 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){.loading-bar::before{animation-duration:2.4s}}
 .skeleton-card .post-card-copy{padding-bottom:18px}
 .skeleton-line{height:1.1em;margin:0 0 8px}.skeleton-line.short{width:60%;margin:0}
+.post-skeleton .skeleton-author{width:130px;margin:0}
+.post-skeleton .skeleton-title{height:1.5em;width:75%;margin:0 0 18px}
+.post-skeleton .post-detail-copy{padding-bottom:24px}
+.post-detail-shell .loading-bar{margin-bottom:14px}
 .media-pending{background:var(--tint)}
 .post-gallery-media.media-pending,.post-gallery video{min-height:220px;aspect-ratio:16/9}
 #board-load-status:not(:empty){padding:20px 0}
