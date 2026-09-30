@@ -50,6 +50,23 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .guide-map{display:block;width:100%;height:auto;margin:28px 0 0;border:1px solid var(--line);border-radius:6px}
 .guide-video{display:block;width:100%;height:auto;aspect-ratio:16/9;margin:20px 0 0;border:1px solid var(--line);border-radius:6px;background:#000}
 .guide-card .video-frame{margin:18px 0 14px}
+.discover-card{padding:0 0 10px;border-top:0}
+.discover-card .video-frame{margin:0 0 14px}
+.discover-card .guide-video{border:0;border-radius:10px}
+.discover-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:0 0 4px;font-size:1.2rem;line-height:1.45}
+.discover-card h3 a:hover{text-decoration:underline}
+.discover-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.discover-source{display:inline-flex;align-items:center;gap:8px;min-width:0;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.discover-source img{flex:0 0 auto;width:24px;height:24px;border-radius:50%;object-fit:cover}
+.discover-actions{display:flex;align-items:center;flex:0 0 auto;margin-right:-10px}
+.discover-action{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#5f6368;cursor:pointer}
+.discover-action:hover{background:#f1f3f4;color:#202124}
+.discover-action.is-liked{color:#e63950}.discover-action.is-liked .action-icon{fill:currentColor}
+.discover-more{position:relative}
+.discover-menu{position:absolute;top:calc(100% + 2px);right:4px;z-index:30;min-width:168px;padding:6px 0;border-radius:10px;background:#fff;box-shadow:0 4px 18px #142c4233,0 1px 3px #142c421f}
+.discover-menu[hidden]{display:none}
+.discover-menu a{display:block;padding:11px 18px;color:var(--ink);font-size:.95rem;text-decoration:none;white-space:nowrap}
+.discover-menu a:hover,.discover-menu a:focus-visible{background:var(--tint)}
 .video-frame{position:relative}
 .video-frame .guide-video{margin:0}
 .guide-place-image{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:var(--tint)}

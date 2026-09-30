@@ -148,6 +148,9 @@
   messages['비워 두면 본문 앞부분을 표시합니다.'] = 'Leave blank to show the beginning of your post.';
   messages['좋아요'] = 'Likes';
   messages['공유하기'] = 'Share';
+  messages['청소년 국가유산지킴이'] = 'Youth Heritage Guardians';
+  messages['의견 보내기'] = 'Send feedback';
+  messages['더보기'] = 'More options';
   messages['링크를 복사했습니다.'] = 'Link copied.';
   messages['링크를 복사하지 못했습니다.'] = 'Could not copy the link.';
   messages['댓글 달기…'] = 'Add a comment…';

@@ -25,7 +25,7 @@
     const photos=(valueAssetKeys[value.en]||[]).map((key,index)=>activityPhoto(key,`${alt} ${index+1}`));
     return photos.length ? `<div class="value-photo-gallery">${photos.join('')}</div>` : '';
   }
-  const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':name==='share'?'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
+  const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':name==='share'?'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>':name==='more'?'<g fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></g>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
   const isVideo = a => /^video\//.test(a?.mimeType || '');
   function media(a, className='') {
     if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
@@ -44,7 +44,11 @@
   const reportReasons=[['inappropriate','부적절한 내용(욕설·선정·폭력 등)','Inappropriate content (abuse, sexual content, violence)'],['harassment','괴롭힘·혐오 표현','Harassment or hate speech'],['privacy','개인정보·초상권 침해','Privacy or image-rights violation'],['spam','광고·스팸','Ads or spam'],['other','기타','Other']];
   function postUrl(id) { const url=new URL(location.href); url.hash='post/'+encodeURIComponent(id); return url.href; }
   async function sharePost(id) {
-    const url=postUrl(id), post=currentPost?.id===id?currentPost:postPreview.get(id), shareData={title:post?.title||document.title,url};
+    const post=currentPost?.id===id?currentPost:postPreview.get(id);
+    await shareLink(postUrl(id), post?.title||document.title);
+  }
+  async function shareLink(url, title) {
+    const shareData={title,url};
     if (navigator.share) {
       try { await navigator.share(shareData); return; }
       catch (error) { if (error?.name==='AbortError') return; }
@@ -174,7 +178,13 @@
     }
   };
   function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story">${view.title?`<h4>${esc(view.title)}</h4>`:''}${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
-  function guideCards() { return C.places.map(p => html`<article class="guide-card"><span class="number">${p.number}</span><p class="category">${p.category}</p><h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3>${guideVideo(p,true)}</article>`).join(''); }
+  // Intro videos styled like Google app Discover cards: video, title, then source and actions.
+  const CONTACT_EMAIL='e3kim2027@chadwickschool.org', placeLikeKey='cic.placeLikes.v1';
+  function placeLikes() { try { const v=JSON.parse(localStorage.getItem(placeLikeKey)||'[]'); return Array.isArray(v)?v:[]; } catch { return []; } }
+  function placeUrl(id) { const url=new URL(location.href); url.hash='guide/'+id; return url.href; }
+  function placeMail(kind, p) { const subject=kind==='report'?L('[CIC] 영상 신고: ','[CIC] Video report: ')+p.title:L('[CIC] 의견 보내기: ','[CIC] Feedback: ')+p.title; return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(placeUrl(p.id))}`; }
+  function guideCards() { const liked=placeLikes(); return C.places.map(p => { const on=liked.includes(p.id); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(p.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">청소년 국가유산지킴이</span><div class="discover-actions"><button type="button" class="discover-action${on?' is-liked':''}" data-action="like-place" data-id="${p.id}" aria-pressed="${on}" aria-label="좋아요">${icon('like')}</button><button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button><div class="discover-more"><button type="button" class="discover-action" data-action="place-menu" aria-haspopup="true" aria-expanded="false" aria-label="더보기">${icon('more')}</button><div class="discover-menu" hidden><a href="${esc(placeMail('report',p))}">신고하기</a><a href="${esc(placeMail('feedback',p))}">의견 보내기</a></div></div></div></div></article>`; }).join(''); }
+  function closePlaceMenus(except) { document.querySelectorAll('.discover-menu:not([hidden])').forEach(m=>{ if(m===except)return; m.hidden=true; m.previousElementSibling.setAttribute('aria-expanded','false'); }); }
   function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
   function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card"${storyLink(p)?` data-href="${esc(storyLink(p))}"`:''}>${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
@@ -404,6 +414,8 @@
       button.textContent=t('Google 계정으로 계속');button.disabled=false;button.onclick=()=>{error.textContent='';client.requestCode();};
     }catch(e){if(error.isConnected){error.textContent=t(e.message);button.textContent=t('다시 시도');button.disabled=false;button.onclick=loginDialog;}}
   }
+  document.addEventListener('click',event=>{ if(!event.target.closest('.discover-more'))closePlaceMenus(); else if(event.target.closest('.discover-menu a'))closePlaceMenus(); });
+  document.addEventListener('keydown',event=>{ if(event.key==='Escape')closePlaceMenus(); });
   // Intro stories: the whole card opens the same post as its "more" button.
   document.addEventListener('click',event=>{const card=event.target.closest('.story-card[data-href]');if(!card||event.target.closest('a,button'))return;location.href=card.dataset.href;});
   document.addEventListener('click',async event=>{
@@ -421,6 +433,9 @@
         b.setAttribute('aria-expanded',String(!comments.hidden));
       }
       else if(action==='share')await sharePost(b.dataset.id);
+      else if(action==='like-place'){const id=b.dataset.id,list=placeLikes(),on=!list.includes(id),next=on?[...list,id]:list.filter(x=>x!==id);try{localStorage.setItem(placeLikeKey,JSON.stringify(next));}catch{}b.classList.toggle('is-liked',on);b.setAttribute('aria-pressed',String(on));}
+      else if(action==='share-place'){const p=C.places.find(x=>x.id===b.dataset.id);closePlaceMenus();await shareLink(placeUrl(b.dataset.id),p?.title||document.title);}
+      else if(action==='place-menu'){const menu=b.nextElementSibling,open=menu.hidden;closePlaceMenus(menu);menu.hidden=!open;b.setAttribute('aria-expanded',String(open));}
       else if(action==='report')reportDialog(b.dataset.type,b.dataset.id);
       else if(action==='resolve-report'){const{id,postId,resolution}=b.dataset;confirmAction(resolution==='remove'?t('이 내용을 삭제 처리할까요?'):t('신고를 반려할까요?'),resolution==='remove'?t('게시글 또는 댓글이 지킴이 로그에서 더 이상 보이지 않습니다.'):t('내용은 그대로 유지되고 신고만 처리 완료로 바뀝니다.'),async()=>{await CIC_API.request('resolveReport',{id,resolution});invalidatePostCache(postId);toast(t('신고를 처리했습니다.'));await route();});}
       else if(action==='delete-account'){confirmAction(t('회원 탈퇴'),t('탈퇴하면 계정 정보가 삭제되며 되돌릴 수 없습니다. 작성한 글과 댓글은 “탈퇴한 회원”으로 표시되어 남으므로, 지우고 싶은 글은 탈퇴 전에 직접 삭제해주세요.'),async()=>{await CIC_API.request('deleteMyAccount',{confirm:true});CIC_API.clear();member=null;postCache.clear();relatedFeed=null;toast(t('회원 탈퇴가 완료되었습니다.'));location.hash='home';await route();});}
