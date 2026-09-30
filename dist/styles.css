@@ -210,3 +210,11 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 /* Intro stories: thin gray separators instead of the navy top rule. */
 .story-card .guide-card-story{border-top:1px solid var(--line)}
 @media(max-width:720px){.story-card:first-child .guide-card-story{border-top:0;padding-top:0}}
+/* Intro videos as framed cards, matching the guardian-log cards: video on top, title and actions inside. */
+.discover-card{overflow:hidden;padding:0;border:1px solid #d7dde2;border-radius:8px;background:#fff;box-shadow:0 1px 2px #142c4210}
+.discover-card .video-frame{margin:0}
+.discover-card .guide-video{border:0;border-radius:0}
+.discover-card h3{margin:14px 17px 4px}
+.discover-card .discover-meta{padding:0 8px 8px 17px}
+.discover-card h3{-webkit-line-clamp:3}
+@media(max-width:720px){.grid-3:has(>.discover-card){gap:16px}}

@@ -9,6 +9,7 @@
     '함께 이어갈 미래':'the future we share',
     '채드윅송도국제학교 CIC와 함께하는':'With CIC at Chadwick International',
     '인천 문화유산 가이드':'Incheon Cultural Heritage Guide',
+    '인천문화유산 맵':'Incheon Heritage Map',
     '회원 게시판':'Member board',
     '인천상륙작전기념관에서 함께한 CIC 단원들':'CIC members at the Incheon Landing Operation Memorial Hall',
     '자유공원에서 바라본 인천항의 과거 풍경':'An archival view of Incheon Port from Jayu Park',
