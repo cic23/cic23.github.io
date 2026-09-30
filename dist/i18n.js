@@ -102,7 +102,7 @@
     '이 회원의 이용을 제한할까요?':'Block this member?',
     '회원 게시글과 댓글을 읽고 작성할 수 있게 됩니다.':'They will be able to read and write member posts and comments.',
     '기존 로그인도 만료되며, 회원 게시판을 이용할 수 없게 됩니다.':'Their current sessions will expire and they will no longer have access to the member board.',
-    '회원 로그인':'Member sign-in', '활동 기록':'Activity stories', '자유 게시판':'General discussion', '공지':'Notice',
+    '회원 로그인':'Member sign-in', '활동 기록':'Activity stories', '자유 게시판':'General discussion', '문화 유산':'Cultural heritage', '공지':'Notice',
     '본문으로 이동':'Skip to content', 'CIC 홈':'CIC home', '주 메뉴':'Main navigation', '닫기':'Close',
     '우리의 진정 어린 기록과 관심이':'Our sincere care and storytelling',
     '소중한 국가유산을 미래로 전달합니다.':'carry our precious heritage into the future.',

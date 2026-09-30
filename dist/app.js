@@ -3,7 +3,7 @@
   const {t,html} = window.CIC_I18N;
   let C = CIC_I18N.content;
   const main = document.getElementById('main'), modal = document.getElementById('modal');
-  let labels = { activity: t('활동 기록'), free: t('자유 게시판'), notice: t('공지') };
+  let labels = { activity: t('활동 기록'), free: t('문화 유산'), notice: t('공지') };
   let member = null, epoch = 0, currentPost = null, currentComments = [], commentsOpenFor = null, toastTimer, gisPromise;
   const postCache = new Map(), postPreview = new Map();
   let relatedFeed = null;
@@ -274,8 +274,14 @@
   async function homeLog(stamp) {
     const target=document.getElementById('home-log'); if(!target||!CIC_API.configured())return;
     try {
-      const data=await CIC_API.request('listPosts',{page:1,sort:'newest',view:'titles'}); if(stamp!==epoch)return;
-      const posts=data.posts.slice(0,9); posts.forEach(rememberPost);
+      // Korean intro shows posts titled in Korean; English intro shows posts titled without Hangul.
+      const wantKo=CIC_I18N.language!=='en', hangul=/[가-힣]/, posts=[];
+      for(let page=1,pages=1;page<=pages&&posts.length<9;page++){
+        const data=await CIC_API.request('listPosts',{page,sort:'newest',view:'titles'}); if(stamp!==epoch)return;
+        pages=data.pages; if(!data.posts.length)break;
+        posts.push(...data.posts.filter(p=>hangul.test(p.title)===wantKo));
+      }
+      posts.splice(9); posts.forEach(rememberPost);
       if(!posts.length){target.closest('.home-log').remove();return;}
       target.innerHTML=postCardGrid(posts); target.setAttribute('aria-busy','false');
       await afterPaint(); if(stamp!==epoch)return;
@@ -517,7 +523,7 @@
     const routeBefore=location.hash, y=window.scrollY;
     const drafts=Array.from(main.querySelectorAll('textarea,input,select')).filter(el=>el.id).map(el=>({id:el.id,value:el.value,start:el.selectionStart,end:el.selectionEnd}));
     C=CIC_I18N.content;
-    labels={activity:t('활동 기록'),free:t('자유 게시판'),notice:t('공지')};
+    labels={activity:t('활동 기록'),free:t('문화 유산'),notice:t('공지')};
     CIC_I18N.applyShell();
     const toastElement=document.getElementById('toast');toastElement.hidden=true;clearTimeout(toastTimer);
     await route({keepScroll:true,scrollY:y});
