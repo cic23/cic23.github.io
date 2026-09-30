@@ -223,3 +223,9 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 .guide-card-story .story-more:hover{background:#f1f3f4;color:#202124}
 /* Intro: gray rule under the stories, then the newest guardian-log cards. */
 .home-log{margin-top:28px;padding-top:36px;border-top:1px solid var(--line)}
+/* Phones: page side gutters 30% narrower (6% -> 4.2%, header 20 -> 14px, post detail 12 -> 8px). */
+@media(max-width:720px){
+  .site-header{padding-left:14px;padding-right:14px}
+  .hero-copy,.wrap,.page-title,.reading,.board-shell,.contact-section,.site-footer{padding-left:4.2%;padding-right:4.2%}
+  .post-detail-shell{padding-left:8px;padding-right:8px}
+}
