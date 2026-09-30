@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 푸터 학교 카드 문구 변경
+
+- 사용자 요청에 따라 푸터 연락처의 학교 카드(`index.html` `.contact-card` 첫 번째) 문구를 `채드윅송도국제학교 청소년 국가유산지킴이` → `채드윅 송도국제학교`, 영어 `Youth Heritage Guardians at Chadwick International` → `Chadwick International School`로 바꿨다(`data-i18n="채드윅 송도국제학교"`, `i18n.js`에 번역 추가). 같은 원래 문구를 쓰는 CIC 소개 부제목, 메타 설명, 개인정보처리방침·이용약관 머리글은 그대로.
+- 버전 `i18n.js?v=45-footer-school`. 테스트 37개·JS 문법 통과. 로컬·공개 한·영 390px에서 학교 카드 문구 확인, CIC 소개 부제목 변화 없음 확인(읽기 전용). 커밋 `f6dc9be`, Pages 실행 `36707712961` 성공.
+
 ## 2026-09-30 인트로 이야기 `more` 버튼을 인천문화유산 장소로 연결
 
 - 사용자 요청에 따라 `guideCardStories`의 `moreUrl`을 게시글에서 인천문화유산 페이지 장소로 바꿨다: 01 `#guide/memory`(인천상륙작전기념관 & 자유공원), 02 `#guide/wolmi`(월미도 & 월미공원), 03 `#guide/openport`(인천 개항장 거리). 02의 영어 전용 `en.moreUrl`(영어 게시글)은 지워 한·영 모두 같은 장소로 간다(해시만 써서 언어 유지). 라우터가 `#place-<id>`로 스크롤하며 `.place-section{scroll-margin-top}` 덕분에 제목이 헤더에 가리지 않는다.
