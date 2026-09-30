@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 제목: 이야기 위 "인천문화유산", 카드 9개 위 "지킴이 로그 / 기록으로 남기는 문화유산"
+
+- 사용자 요청에 따라 홈 이야기 섹션 작은 제목(eyebrow)을 `지킴이 로그` → `인천문화유산`(영어 INCHEON HERITAGE)으로 바꿨다. CIC 소개 페이지의 같은 "지킴이 로그 / 우리가 문화유산에 ‘푹’ 빠진 이유"(소감 인용 영역)는 그대로 — `home()` 안에서만 치환했다.
+- 회색선 아래 카드 9개 위에 `section-heading`(eyebrow `지킴이 로그`, h2 `기록으로 남기는 문화유산`; 영어 GUARDIAN LOG / Heritage, recorded for tomorrow)을 넣었다. 구조: `.home-log`(회색선) > 제목 + `#home-log`(카드). 글이 없으면 `.home-log` 전체를 지운다.
+- 버전 `app.js?v=109-home-headings`. 테스트 37개·JS 문법 통과. 로컬 한·영, 공개 한국어 1280/390px에서 두 제목, 회색선 1px, 카드 9개 확인, CIC 소개 제목 변화 없음 확인. 커밋 `4b2c595`, Pages 실행 `36703158107` 성공.
+
 ## 2026-09-30 인트로 이야기 아래 회색선 + 최신 지킴이 로그 카드 9개
 
 - 사용자 요청에 따라 "우리가 문화유산에 ‘푹’ 빠진 이유" 이야기(마지막 03 `more` 버튼) 아래에 가는 회색선(`.home-log{margin-top:28px;padding-top:36px;border-top:1px solid var(--line)}`)과 지킴이 로그 게시판과 같은 카드 9개를 넣었다(최신 순 `listPosts {page:1, sort:'newest', view:'titles'}` 앞 9개 → `listPosts {ids}`로 사진·분류·요약·좋아요·댓글·공유·⋮ 채움). 불러오는 동안 주황 로딩바 + 카드 틀 9개(`boardSkeleton(9)`), 실패 시 "다시 시도", 글이 없으면 영역 제거.
