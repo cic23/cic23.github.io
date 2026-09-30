@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 게시글 상세 머리글에 최초 작성일
+
+- 사용자 요청에 따라 게시글 상세 머리글의 분류(예: 활동 기록) 옆에 최초 작성일을 작은 회색 글씨로 표시한다: `<time class="post-date" datetime="createdAt">`, `postDate()`가 한국 시간(`Asia/Seoul`) 기준 한국어 "2026년 9월 30일", 영어 "Sep 30, 2026"으로 만든다. 수정일이 아닌 `createdAt`. 스타일은 기존 `.post-author span`(12px, `--muted`)을 따르고 `.post-author .post-date{margin-left:8px}`. 카드 목록에는 날짜 없음(이전 결정 유지).
+- 버전 `app.js?v=117-post-date`, `styles.css?v=116-post-date`. 테스트 38개·JS 문법 통과. 공개 사이트 한국어 390px(`2bdd3dad` → 2026년 9월 28일), 영어 1280px(`c5bc18c3`, UTC 9/13 16:59 → Sep 14, 2026 KST) 확인(읽기 전용). 커밋 `a7e0582`, Pages 실행 `36787919444` 성공.
+
 ## 2026-10-01 CIC 소개 "정직" 사진 Honesty02.jpg 삭제
 
 - 사용자 요청에 따라 CIC 소개 다섯 가지 가치 중 정직(Honesty)의 두 번째 사진을 없앴다: `app.js` 가치별 사진 목록에서 `value-honesty-2` 제거, `config.js`의 `value-honesty-2` 항목 제거, `dist/assets/Honesty02.jpg` 삭제(`git rm`, 원본은 `img/`와 Git 기록에 있음). 정직은 이제 `Honesty01.jpeg` 1장(다른 가치와 같은 1장 배치, 배려만 4장).
