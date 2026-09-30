@@ -142,7 +142,7 @@
       paragraphs:[
         '인천문화유산 대장정의 이번 발걸음은 연수구 옥련동, 청량산 자락의 인천상륙작전기념관으로 향했습니다. 평소 저는 이 일대를 지날 때마다 떠들썩한 음식점 거리의 활기만을 스쳐 지나가곤 했습니다. 맛있는 냄새가 진동하는 골목 뒤편, 청량산 중턱에 화강암으로 조용히 서 있는 기념관의 존재를 온전히 마주한 것은 이번이 처음이었습니다. CIC 단원들과 함께 발걸음을 옮기며, 우리가 무심코 지나쳤던 일상의 풍경 바로 곁에 대한민국 현대사의 물줄기를 바꾼 현장이 자리하고 있었다는 사실을 새삼 깨달았습니다.'
       ],
-      moreUrl:'#post/4ac9ae38-a4ac-4005-98eb-b6d4a9d40bc7',
+      moreUrl:'#guide/memory',
       en:{
         title:'Retracing the Roots of Freedom on the Incheon Cultural Heritage Journey',
         addresses:[],
@@ -162,10 +162,9 @@
         addresses:[],
         paragraphs:[
           "For the final leg of our ‘Great Journey of Incheon's Cultural Heritage’ we made our way to Wolmido. Today the island greets visitors with the blue waves of the West Sea and lively crowds, a picture of perfect peace — yet in September 1950 this was the front line on which the fate of the Incheon Landing, the operation that redirected the course of modern Korean history, was decided. General MacArthur recognized that Wolmido and the artillery unit garrisoned there posed the single greatest threat to the landing and formed the only gateway into Incheon, and he resolved to seize the island first, as the opening move of the entire operation."
-        ],
-        moreUrl:'https://cic23.github.io/?lang=en#post/c5bc18c3-b800-4ea4-85e1-a0201e35d101'
+        ]
       },
-      moreUrl:'#post/0654570e-6d1e-4581-af6c-bf627d25d1a4'
+      moreUrl:'#guide/wolmi'
     },
     '03': {
       title:'인천 개항장 거리의 또 다른 이야기',
@@ -173,7 +172,7 @@
       paragraphs:[
         '이번 방문에서 가장 기억에 남는 것은 같은 건물이 시대에 따라 전혀 다른 역할을 해 왔다는 점이었습니다. 외국인들의 사교장이었던 제물포구락부는 이후 여러 용도를 거쳐 지금은 시민들이 찾는 문화 공간이 되었고, 항구의 물건을 보관하던 옛 창고들은 인천아트플랫폼이라는 예술 공간으로 다시 태어났습니다. 또한 중국 음식점이었던 공화춘 건물은 이제 짜장면의 역사를 소개하는 박물관이 되어, 우리가 흔히 먹는 음식에도 개항의 역사가 담겨 있다는 것을 알려 주었습니다.'
       ],
-      moreUrl:'#post/2bdd3dad-6b1f-43ea-b82e-e4eb8159d353',
+      moreUrl:'#guide/openport',
       en:{
         title:'Another Story of the Incheon Open Port Area',
         addresses:[],
