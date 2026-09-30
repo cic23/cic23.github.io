@@ -62,6 +62,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .video-play:focus-visible{outline:3px solid #fff;outline-offset:3px}
 @media(hover:hover) and (pointer:fine){.video-play{display:block}.video-frame.is-playing .video-play{display:none}}.guide-card-story .guide-card-image{margin-bottom:18px}
 .story-card .guide-card-story{margin-top:0;padding-top:26px;border-top:2px solid var(--navy)}
+.story-card .guide-card-story h4{font-family:"Noto Sans KR",sans-serif;font-size:1.25rem;font-weight:700;line-height:1.5}
 .story-card[data-href]{cursor:pointer}
 .story-card[data-href] h4,.story-card[data-href] .guide-card-image{transition:color .15s,opacity .15s}
 @media(hover:hover){.story-card[data-href]:hover h4{color:var(--orange);text-decoration:underline}.story-card[data-href]:hover .guide-card-image{opacity:.88}}
