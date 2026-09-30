@@ -178,10 +178,10 @@
     '개인정보처리방침':'Privacy Policy','이용약관':'Terms of Use','정책 링크':'Policy links','← 게시판으로 돌아가기':'← Back to the board'
   });
   const valid = value => value === 'ko' || value === 'en';
-  let requested = '', saved = '';
+  let requested = '';
   try { requested = new URL(location.href).searchParams.get('lang'); } catch {}
-  try { saved = localStorage.getItem('cic-language'); } catch {}
-  let lang = valid(requested) ? requested : valid(saved) ? saved : 'ko';
+  // Korean by default: only an explicit ?lang= (added by the language buttons) switches to English.
+  let lang = valid(requested) ? requested : 'ko';
   try { localStorage.setItem('cic-language',lang); } catch {}
   const pattern = new RegExp(Object.keys(messages).sort((a,b)=>b.length-a.length).map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
   const t = source => lang === 'ko' ? String(source) : String(source).replace(pattern, match => messages[match]);
