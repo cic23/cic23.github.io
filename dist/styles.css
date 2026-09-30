@@ -194,3 +194,6 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 .hero-copy{padding-top:32px;padding-bottom:20px}
 .hero+.wrap{padding-top:32px}
 @media(max-width:720px){.hero-copy{padding-top:20px;padding-bottom:12px}.hero+.wrap{padding-top:24px}}
+/* Heritage guide: half the space between the page title and the first place. */
+.guide-places{padding-top:10px}
+@media(max-width:720px){.guide-places{padding-top:4px}}
