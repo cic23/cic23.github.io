@@ -229,3 +229,5 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
   .hero-copy,.wrap,.page-title,.reading,.board-shell,.contact-section,.site-footer{padding-left:4.2%;padding-right:4.2%}
   .post-detail-shell{padding-left:8px;padding-right:8px}
 }
+/* Guardian-log cards: author name in small gray type beside the category. */
+.post-card-author{margin-left:8px;font-size:.75rem;font-weight:400;color:var(--muted)}

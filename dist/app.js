@@ -264,7 +264,7 @@
       if(!p){card.remove();return;}
       // Keep the title link in place so keyboard focus survives hydration.
       card.querySelector('.post-card-media').outerHTML=media(p.attachments?.[0],'post-card-media');
-      const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';
+      const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';card.querySelector('.post-card-author')?.remove();if(p.authorName)tag.insertAdjacentHTML('afterend',`<span class="post-card-author">${esc(p.authorName)}</span>`);
       card.querySelector('h3').textContent=p.title;
       const summary=card.querySelector('.post-card-copy p');summary.classList.remove('content-skeleton');summary.removeAttribute('aria-hidden');summary.textContent=p.summary;
       card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a><span class="post-card-tools"><button type="button" class="discover-action" data-action="share" data-id="${esc(p.id)}" aria-label="공유하기">${icon('share')}</button>${postMoreMenu(p)}</span>`;
