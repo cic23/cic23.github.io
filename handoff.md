@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 영어 홈 첫 화면 제목·부제목도 노트북·데스크톱에서 한 줄
+
+- 사용자 요청에 따라 "The history we protect, the future we share"와 "We are Korea’s National Heritage Guardians, documenting…eyes."를 폭 1001px 이상에서 각각 한 줄로 표시한다. 한국어 전용이던 규칙(`html:not([lang="en"])`)을 모든 언어로 넓혔다: `@media(min-width:1001px){.hero-copy{max-width:none}.hero-copy p,.hero-copy h1{white-space:nowrap}.hero-copy h1 br{display:none}}`. 영어 부제목은 길어서 1001~1100px에서 오른쪽 여백을 넘었으므로 같은 미디어 쿼리에 `html[lang="en"] .hero-copy p{font-size:min(1.05rem,1.5vw)}`(1120px 이상은 기존 16.8px)를 추가했다. 1000px 이하·휴대폰은 기존처럼 여러 줄.
+- 버전 `styles.css?v=98-en-hero-one-line`. 테스트 37개 통과. 로컬 영어 1001/1024/1100/1280/1920px 모두 두 문구 1줄·내용 영역 안·가로 넘침 없음, 한국어 1001/1280px 변화 없음, 영어 390·1000px 여러 줄 유지 확인. 공개 사이트 영어 1024·1280px 재확인. 커밋 `de142ce`, Pages 실행 `36663912539` 성공.
+
 ## 2026-09-30 글쓰기 창에서 `요약 (선택)` 입력칸 삭제
 
 - 사용자 요청에 따라 게시글 작성·수정 창(`editor()`)의 `요약 (선택)` 텍스트 영역(`#post-summary`)을 지웠다. 이제 폼에 `summary`가 없어 서버 `optionalText_(undefined)`가 빈 값으로 저장하고, 카드에는 서버가 본문 앞부분(`legacySummary_`)을 요약으로 보여준다. **기존 글을 수정하면 저장돼 있던 요약이 지워지고 본문 앞부분으로 바뀐다**(수정하지 않은 글의 기존 요약은 그대로 표시). 서버 코드는 변경 없음.
