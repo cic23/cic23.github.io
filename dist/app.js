@@ -193,15 +193,18 @@
     paintPlaceLike(id);
   }
   function placeUrl(id) { const url=new URL(location.href); url.hash='guide/'+id; return url.href; }
-  function placeMail(kind, p) { const subject=kind==='report'?L('[CIC] 영상 신고: ','[CIC] Video report: ')+introVideo(p).title:L('[CIC] 의견 보내기: ','[CIC] Feedback: ')+introVideo(p).title; return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(placeUrl(p.id))}`; }
+  function menuMail(kind, title, url, reportLabel) { const subject=kind==='report'?reportLabel+title:L('[CIC] 의견 보내기: ','[CIC] Feedback: ')+title; return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(url)}`; }
+  // Vertical-dots menu (report / feedback by email). `up` opens above the button inside clipped cards.
+  function moreMenu(title, url, reportLabel, up=false) { return `<div class="discover-more${up?' menu-up':''}"><button type="button" class="discover-action" data-action="place-menu" aria-haspopup="true" aria-expanded="false" aria-label="${esc(t('더보기'))}">${icon('more')}</button><div class="discover-menu" hidden><a href="${esc(menuMail('report',title,url,reportLabel))}">${t('신고하기')}</a><a href="${esc(menuMail('feedback',title,url,reportLabel))}">${t('의견 보내기')}</a></div></div>`; }
   const introVideos={
     '01':{title:'모두가 뜯어말렸던 작전! 인천상륙작전 영웅들의 이야기',presenter:'이준혁',en:{title:'The Operation Everyone Opposed! Heroes of the Incheon Landing',presenter:'Junhyuk Lee'}},
     '02':{title:'놀이기구 타러 가는 월미도? 사실 맥아더 장군의 최후 승부처',presenter:'김현우',en:{title:"Wolmido for the Rides? Actually, General MacArthur's Final Gamble",presenter:'Hyunwoo Kim'}},
     '03':{title:'계단 하나로 나라가 갈라진다고?! 충격적인 실존거리 개항장',presenter:'김연후',en:{title:'One Staircase Divided Nations?! The Real Open Port Street',presenter:'Yeonhu Kim'}}
   };
   function introVideo(p) { const v=introVideos[p.number]||{title:p.title,presenter:''}; return CIC_I18N.language==='en'&&v.en?v.en:v; }
-  function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(v.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button><div class="discover-more"><button type="button" class="discover-action" data-action="place-menu" aria-haspopup="true" aria-expanded="false" aria-label="더보기">${icon('more')}</button><div class="discover-menu" hidden><a href="${esc(placeMail('report',p))}">신고하기</a><a href="${esc(placeMail('feedback',p))}">의견 보내기</a></div></div></div></div></article>`; }).join(''); }
+  function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(v.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button>${moreMenu(v.title,placeUrl(p.id),L('[CIC] 영상 신고: ','[CIC] Video report: '))}</div></div></article>`; }).join(''); }
   function closePlaceMenus(except) { document.querySelectorAll('.discover-menu:not([hidden])').forEach(m=>{ if(m===except)return; m.hidden=true; m.previousElementSibling.setAttribute('aria-expanded','false'); }); }
+  function postMoreMenu(p) { return moreMenu(p.title,postUrl(p.id),L('[CIC] 게시글 신고: ','[CIC] Post report: '),true); }
   function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
   function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card"${storyLink(p)?` data-href="${esc(storyLink(p))}"`:''}>${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
@@ -250,7 +253,7 @@
         const tag=card.querySelector('.post-tag');tag.classList.remove('content-skeleton');tag.removeAttribute('aria-hidden');tag.textContent=labels[p.category]||'';
         card.querySelector('h3').textContent=p.title;
         const summary=card.querySelector('.post-card-copy p');summary.classList.remove('content-skeleton');summary.removeAttribute('aria-hidden');summary.textContent=p.summary;
-        card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a>`;
+        card.querySelector('.post-card-actions').innerHTML=html`${likeButton(p)}<a class="post-action" href="#post/${encodeURIComponent(p.id)}" aria-label="댓글 ${p.commentCount}">${icon('comment')} <span>${p.commentCount}</span></a><span class="post-card-tools"><button type="button" class="discover-action" data-action="share" data-id="${esc(p.id)}" aria-label="공유하기">${icon('share')}</button>${postMoreMenu(p)}</span>`;
         card.setAttribute('aria-busy','false');
       });
       CIC_MEDIA.observe(target);
@@ -300,7 +303,7 @@
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
       <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>
-      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}</div>
+      <div class="post-detail-actions">${likeButton(p)}<button class="post-action" data-action="toggle-comments" data-comment-post-id="${esc(p.id)}" aria-label="댓글 ${data.commentCount}" aria-expanded="${commentsOpen}" aria-controls="comments">${icon('comment')}<span>${data.commentCount}</span></button>${shareButton(p)}${postMoreMenu(p)}</div>
       <section class="comments" id="comments" aria-labelledby="comments-heading" ${commentsOpen?'':'hidden'}><h2 id="comments-heading" class="visually-hidden">댓글</h2><div class="comment-list">${data.comments.length ? data.comments.map(commentMarkup).join('') : t('<p class="comment-empty muted">첫 번째 댓글을 남겨주세요.</p>')}${pagination(commentPage,data.commentPages,'post/'+id)}</div>${commentForm}</section>
     </article>${relatedShell()}</div></div>`;
     CIC_MEDIA.observe(main);
