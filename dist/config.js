@@ -17,6 +17,7 @@ window.CIC_CONFIG = Object.freeze({
       'value-respect': './assets/Respect.jpeg?v=1-values-photo',
       'value-responsibility': './assets/Responsibility.jpg?v=1-values-photo',
       'value-honesty-1': './assets/Honesty01.jpeg?v=1-values-photo',
+      'value-honesty-2': './assets/Honesty02.jpg?v=1-values-photo',
       'value-fairness': './assets/Fairness.jpeg?v=1-values-photo',
       'value-compassion-1': './assets/Compassion01.jpeg?v=2-values-photo',
       'value-compassion-2': './assets/Compassion02.jpeg?v=2-values-photo',
