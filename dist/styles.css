@@ -149,6 +149,7 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .skeleton-card .post-card-copy{padding-bottom:18px}
 .skeleton-line{height:1.1em;margin:0 0 8px}.skeleton-line.short{width:60%;margin:0}
 .post-skeleton .skeleton-author{width:130px;margin:0}
+.post-skeleton .post-avatar{border-radius:50%}
 .post-skeleton .skeleton-title{height:1.5em;width:75%;margin:0 0 18px}
 .post-skeleton .post-detail-copy{padding-bottom:24px}
 .post-detail-shell .loading-bar{margin-bottom:14px}
