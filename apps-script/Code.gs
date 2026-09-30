@@ -5,6 +5,8 @@ const DELETED_MEMBER_ = { id: 'deleted', name: '탈퇴한 회원' };
 const SESSION_MS_ = 6 * 60 * 60 * 1000;
 const MAX_ATTACHMENTS_ = 5;
 const MAX_ATTACHMENT_BYTES_ = 100 * 1024 * 1024;
+// Intro video cards on the homepage. Their likes share the Likes sheet under a 'place:' key.
+const PLACE_IDS_ = ['memory', 'wolmi', 'openport'];
 const MEDIA_TYPES_ = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
 
 function setup() {
@@ -83,6 +85,8 @@ function dispatch_(r) {
   if (a === 'listPosts') return listPosts_(d, reader, likeActor);
   if (a === 'getPost') return getPost_(d, reader, likeActor);
   if (a === 'toggleLike') return toggleLike_(d, reader, likeActor);
+  if (a === 'listPlaceLikes') return listPlaceLikes_(likeActor);
+  if (a === 'togglePlaceLike') return togglePlaceLike_(d, reader, likeActor);
   const auth = authenticate_(r.session);
   if (a === 'logout') { remove_('Sessions', auth.session.id); return {}; }
   if (a === 'me') return { member: publicMember_(auth.member) };
@@ -337,6 +341,20 @@ function publicAttachment_(a) {
   return { id:a.id, name:a.name, mimeType:a.mimeType, size:a.size, url:imageUrl, thumbnailUrl: /^image\//.test(a.mimeType || '') && a.driveId ? imageUrl + '=w480' : '' };
 }
 function legacySummary_(body) { return String(body || '').replace(/\s+/g, ' ').trim().slice(0, 300); }
+function placeKey_(id) { if (!PLACE_IDS_.includes(id)) fail_('INVALID', '영상 정보를 확인하지 못했습니다.'); return 'place:' + id; }
+function listPlaceLikes_(likeActor) {
+  const likes = rows_('Likes'), places = {};
+  PLACE_IDS_.forEach(id => { const key = 'place:' + id, rows = likes.filter(x => x.postId === key); places[id] = { likeCount: rows.length, likedByMe: !!likeActor && rows.some(x => x.memberId === likeActor) }; });
+  return { places };
+}
+function togglePlaceLike_(d, member, likeActor) {
+  if (!likeActor) fail_('INVALID', '좋아요 정보를 확인하지 못했습니다. 새로고침 후 다시 시도해주세요.');
+  rate_('like:' + likeActor);
+  const key = placeKey_(d.placeId), old = rows_('Likes').find(x => x.postId === key && x.memberId === likeActor);
+  if (old) remove_('Likes', old.id);
+  else save_('Likes', { id: Utilities.getUuid(), postId: key, memberId: likeActor, memberName: member ? member.name : '익명', createdAt: now_() });
+  return { liked: !old, likeCount: likeCount_(key) };
+}
 function likeCount_(postId) { return rows_('Likes').filter(x => x.postId === postId).length; }
 function activePost_(id) { const p = find_('Posts', id); if (!p || p.deleted) fail_('NOT_FOUND', '게시글을 찾을 수 없습니다.'); return p; }
 function category_(v, m) { if (!['activity', 'free', 'notice'].includes(v)) fail_('INVALID', '게시글 분류를 선택해주세요.'); if (v === 'notice') admin_(m); return v; }

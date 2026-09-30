@@ -179,8 +179,19 @@
   };
   function guideCardStory(p, image) { const story=guideCardStories[p.number]; if(!story)return image; const view=CIC_I18N.language==='en'&&story.en?{...story,...story.en}:story; return html`<div class="guide-card-story">${view.title?`<h4>${esc(view.title)}</h4>`:''}${view.addresses?.length?`<div class="story-addresses">${view.addresses.map(a=>`<p>${esc(a)}</p>`).join('')}</div>`:''}${image}${view.paragraphs.map(text=>`<p>${esc(text)}</p>`).join('')}${view.moreUrl?`<a class="button secondary small story-more" href="${esc(view.moreUrl)}">more</a>`:''}${view.author?`<p class="story-author">${esc(view.author)}</p>`:''}</div>`; }
   // Intro videos styled like Google app Discover cards: video, title, then source and actions.
-  const CONTACT_EMAIL='e3kim2027@chadwickschool.org', placeLikeKey='cic.placeLikes.v1';
-  function placeLikes() { try { const v=JSON.parse(localStorage.getItem(placeLikeKey)||'[]'); return Array.isArray(v)?v:[]; } catch { return []; } }
+  const CONTACT_EMAIL='e3kim2027@chadwickschool.org';
+  // Shared like counts come from the server (anonymous visitors allowed); null until the first load.
+  let placeLikeState=null;
+  function placeLikeButton(id) { const st=placeLikeState?.[id], on=!!st?.likedByMe, n=st?String(st.likeCount):''; return `<button type="button" class="discover-action discover-like${on?' is-liked':''}" data-action="like-place" data-id="${esc(id)}" aria-pressed="${on}" aria-label="${esc(t('좋아요')+(n?' '+n:''))}">${icon('like')}<span class="discover-count">${n}</span></button>`; }
+  function paintPlaceLike(id) { document.querySelectorAll(`.discover-like[data-id="${id}"]`).forEach(b=>b.outerHTML=placeLikeButton(id)); }
+  async function loadPlaceLikes() { if(!CIC_API.configured())return; try { placeLikeState=(await CIC_API.request('listPlaceLikes')).places; Object.keys(placeLikeState).forEach(paintPlaceLike); } catch {} }
+  async function togglePlaceLike(id) {
+    const before=placeLikeState?.[id]||{likeCount:0,likedByMe:false}, on=!before.likedByMe;
+    placeLikeState={...placeLikeState,[id]:{likeCount:Math.max(0,before.likeCount+(on?1:-1)),likedByMe:on}}; paintPlaceLike(id);
+    try { const r=await CIC_API.request('togglePlaceLike',{placeId:id}); placeLikeState={...placeLikeState,[id]:{likeCount:r.likeCount,likedByMe:r.liked}}; }
+    catch(e) { placeLikeState={...placeLikeState,[id]:before}; toast(e.message||t('요청을 처리하지 못했습니다.')); }
+    paintPlaceLike(id);
+  }
   function placeUrl(id) { const url=new URL(location.href); url.hash='guide/'+id; return url.href; }
   function placeMail(kind, p) { const subject=kind==='report'?L('[CIC] 영상 신고: ','[CIC] Video report: ')+introVideo(p).title:L('[CIC] 의견 보내기: ','[CIC] Feedback: ')+introVideo(p).title; return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(placeUrl(p.id))}`; }
   const introVideos={
@@ -189,7 +200,7 @@
     '03':{title:'계단 하나로 나라가 갈라진다고?! 충격적인 실존거리 개항장',presenter:'김연후',en:{title:'One Staircase Divided Nations?! The Real Open Port Street',presenter:'Yeonhu Kim'}}
   };
   function introVideo(p) { const v=introVideos[p.number]||{title:p.title,presenter:''}; return CIC_I18N.language==='en'&&v.en?v.en:v; }
-  function guideCards() { const liked=placeLikes(); return C.places.map(p => { const on=liked.includes(p.id); const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(v.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions"><button type="button" class="discover-action${on?' is-liked':''}" data-action="like-place" data-id="${p.id}" aria-pressed="${on}" aria-label="좋아요">${icon('like')}</button><button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button><div class="discover-more"><button type="button" class="discover-action" data-action="place-menu" aria-haspopup="true" aria-expanded="false" aria-label="더보기">${icon('more')}</button><div class="discover-menu" hidden><a href="${esc(placeMail('report',p))}">신고하기</a><a href="${esc(placeMail('feedback',p))}">의견 보내기</a></div></div></div></div></article>`; }).join(''); }
+  function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3><a href="#guide/${p.id}">${esc(v.title)}</a></h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button><div class="discover-more"><button type="button" class="discover-action" data-action="place-menu" aria-haspopup="true" aria-expanded="false" aria-label="더보기">${icon('more')}</button><div class="discover-menu" hidden><a href="${esc(placeMail('report',p))}">신고하기</a><a href="${esc(placeMail('feedback',p))}">의견 보내기</a></div></div></div></div></article>`; }).join(''); }
   function closePlaceMenus(except) { document.querySelectorAll('.discover-menu:not([hidden])').forEach(m=>{ if(m===except)return; m.hidden=true; m.previousElementSibling.setAttribute('aria-expanded','false'); }); }
   function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
   function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card"${storyLink(p)?` data-href="${esc(storyLink(p))}"`:''}>${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
@@ -337,7 +348,7 @@
       else if(page==='post') await post(part,Math.max(1,parseInt(third,10)||1),stamp);
       else if(page==='members') await members(stamp);
       else if(page==='reports') await reports(stamp);
-      else main.innerHTML=home();
+      else { main.innerHTML=home(); void loadPlaceLikes(); }
       if(stamp!==epoch)return;
       const anchor = page==='values' ? document.getElementById(part ? 'value-'+part : 'values') : part && page==='guide' ? document.getElementById('place-'+part) : null;
       if(options.keepScroll) window.scrollTo(0,options.scrollY || 0);
@@ -439,7 +450,7 @@
         b.setAttribute('aria-expanded',String(!comments.hidden));
       }
       else if(action==='share')await sharePost(b.dataset.id);
-      else if(action==='like-place'){const id=b.dataset.id,list=placeLikes(),on=!list.includes(id),next=on?[...list,id]:list.filter(x=>x!==id);try{localStorage.setItem(placeLikeKey,JSON.stringify(next));}catch{}b.classList.toggle('is-liked',on);b.setAttribute('aria-pressed',String(on));}
+      else if(action==='like-place')await togglePlaceLike(b.dataset.id);
       else if(action==='share-place'){const p=C.places.find(x=>x.id===b.dataset.id);closePlaceMenus();await shareLink(placeUrl(b.dataset.id),p?introVideo(p).title:document.title);}
       else if(action==='place-menu'){const menu=b.nextElementSibling,open=menu.hidden;closePlaceMenus(menu);menu.hidden=!open;b.setAttribute('aria-expanded',String(open));}
       else if(action==='report')reportDialog(b.dataset.type,b.dataset.id);

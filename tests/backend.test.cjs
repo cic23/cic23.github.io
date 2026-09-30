@@ -166,3 +166,15 @@ test('removing admin from server properties revokes privileges immediately',()=>
 test('HTML transport uses exact target origin and safely encodes user text',()=>{
   const s=server(),a=s.login();s.approve(a.member.id);const p=s.call('createPost',{...draft(),body:'</script><script>alert(1)</script>'},a.session).post;const payload={requestId:'a'.repeat(64),origin:s.props.SITE_ORIGIN,action:'getPost',session:a.session,data:{id:p.id}};const out=s.context.doPost({parameter:{payload:JSON.stringify(payload)}}).html;assert.ok(out.includes('https://example.github.io'));assert.equal((out.match(/<script>/g)||[]).length,1);assert.ok(out.includes('\\u003c/script>'));
 });
+
+test('intro video likes work without login, count per place, and reject unknown places',()=>{
+  const s=server(),v1='a'.repeat(64),v2='b'.repeat(64);
+  assert.deepEqual(JSON.parse(JSON.stringify(s.call('listPlaceLikes').places.memory)),{likeCount:0,likedByMe:false});
+  let r=s.call('togglePlaceLike',{placeId:'memory'},undefined,v1);assert.equal(r.liked,true);assert.equal(r.likeCount,1);
+  r=s.call('togglePlaceLike',{placeId:'memory'},undefined,v2);assert.equal(r.likeCount,2);
+  const listed=s.call('listPlaceLikes',{},undefined,v1).places;assert.equal(listed.memory.likeCount,2);assert.equal(listed.memory.likedByMe,true);assert.equal(listed.wolmi.likeCount,0);
+  r=s.call('togglePlaceLike',{placeId:'memory'},undefined,v1);assert.equal(r.liked,false);assert.equal(r.likeCount,1);
+  denied(()=>s.call('togglePlaceLike',{placeId:'memory'}),'INVALID');
+  denied(()=>s.call('togglePlaceLike',{placeId:'nowhere'},undefined,v1),'INVALID');
+  assert.equal(s.call('listPosts').total,0);
+});

@@ -61,6 +61,8 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 .discover-actions{display:flex;align-items:center;flex:0 0 auto;margin-right:-10px}
 .discover-action{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:#5f6368;cursor:pointer}
 .discover-action:hover{background:#f1f3f4;color:#202124}
+.discover-like{display:inline-flex;gap:4px;width:auto;min-width:44px;padding:0 10px;border-radius:22px;font-size:.9rem;font-variant-numeric:tabular-nums}
+.discover-count:empty{display:none}
 .discover-action.is-liked{color:#e63950}.discover-action.is-liked .action-icon{fill:currentColor}
 .discover-more{position:relative}
 .discover-menu{position:absolute;top:calc(100% + 2px);right:4px;z-index:30;min-width:168px;padding:6px 0;border-radius:10px;background:#fff;box-shadow:0 4px 18px #142c4233,0 1px 3px #142c421f}
