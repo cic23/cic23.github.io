@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인천문화유산 장소 번호(01~03) 삭제
+
+- 사용자 요청에 따라 `#guide` 각 장소 왼쪽 칸의 큰 번호(`.place-number`)를 지웠다. 이제 분류(기억과 평화 등) → 장소 제목 순서이고, 번호 아래 띄우던 분류의 `margin-top:20px` 인라인 스타일도 뺐다(넓은 화면에서 분류 윗선이 오른쪽 사진 윗선과 맞음). `p.number`는 영상·사진 파일명과 인트로 카드에 계속 쓰인다. `.place-number` CSS는 남아 있다(미사용).
+- 버전 `app.js?v=100-guide-no-number`. 테스트 37개·JS 문법 통과. 로컬 한국어 1280px·영어 390px, 공개 사이트 한국어 390px에서 세 장소 모두 번호 없음 확인. 커밋 `5a97a24`, Pages 실행 `36688820892` 성공.
+
 ## 2026-09-30 인트로 상단 여백 축소(헤더↔첫 화면, 첫 화면↔Explore Incheon)
 
 - 사용자 요청에 따라 한·영 홈의 두 간격을 줄였다(`styles.css` 끝에 추가): `.hero-copy{padding-top:32px;padding-bottom:20px}`, `.hero+.wrap{padding-top:32px}`, 720px 이하 `.hero-copy{padding-top:20px;padding-bottom:12px}`, `.hero+.wrap{padding-top:24px}`.
