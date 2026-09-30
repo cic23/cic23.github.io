@@ -12,7 +12,7 @@
   const canEdit = id => member && (member.id === id || member.role === 'admin');
   function asset(url) { if (!url) return ''; try { const u = new URL(url, location.href); return ['https:','http:'].includes(u.protocol) ? u.href : ''; } catch { return ''; } }
   function activityPhoto(key, alt) { const url = asset(CIC_CONFIG.assets.activities[key]); return url ? `<img class="activity-photo" src="${esc(url)}" alt="${esc(alt)}" loading="lazy">` : ''; }
-  function guideVideo(p, overlay=false) { const src=`./assets/incheon${p.number}-video`; const video=`<video class="guide-video" controls playsinline preload="none" poster="${src}-poster.jpg?v=3" aria-label="${esc(p.title+L(' 탐방 영상',' visit video'))}"><source src="${src}.mp4?v=3" type="video/mp4"></video>`; return overlay?`<div class="video-frame">${video}<button type="button" class="video-play" data-action="play-video" aria-label="${esc(L('영상 재생','Play video'))}"></button></div>`:video; }
+  function guideVideo(p, overlay=false) { const src=`./assets/incheon${p.number}-video`; const video=`<video class="guide-video" controls playsinline preload="none" poster="${src}-poster.jpg?v=4" aria-label="${esc(p.title+L(' 탐방 영상',' visit video'))}"><source src="${src}.mp4?v=4" type="video/mp4"></video>`; return overlay?`<div class="video-frame">${video}<button type="button" class="video-play" data-action="play-video" aria-label="${esc(L('영상 재생','Play video'))}"></button></div>`:video; }
   const setPlaying=(event,on)=>{const frame=event.target.closest?.('.video-frame');if(frame)frame.classList.toggle('is-playing',on);};
   document.addEventListener('play',e=>setPlaying(e,true),true);
   // Phones: tapping a playing video (outside the bottom control bar) pauses it, like the desktop click.
