@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 인트로 카드: 제목 언어별 필터, 분류 "자유 게시판" → "문화 유산"
+
+- 사용자 요청에 따라 홈 "기록으로 남기는 문화유산" 카드(`homeLog()`)를 언어별로 거른다: 한국어 홈은 제목에 한글(`/[가-힣]/`)이 있는 글, 영어 홈은 한글이 없는 글만 최신순 9개. 한 페이지(15개)에서 모자라면 다음 페이지를 이어 조회한다. 2026-10-01 기준 영어 제목 글은 1개("At the End of the Incheon…")뿐이라 영어 홈에는 카드 1개가 나온다.
+- 글 분류 `free`의 이름을 `자유 게시판` → `문화 유산`(영어 `Cultural heritage`)으로 바꿨다(`labels` 두 곳, `i18n.js`). 글쓰기 분류 목록·카드 태그·상세 모두 이 이름표를 쓴다. 서버 값(`free`)과 기존 글 데이터는 그대로.
+- 버전 `app.js?v=113-home-log-language`, `i18n.js?v=46-heritage-category`. 테스트 37개·JS 문법 통과. 공개 사이트 한국어 홈 카드 9개 모두 한글 제목, 영어 홈 카드 1개(영어 제목) 확인(읽기 전용). 커밋 `420c7ab`, Pages 실행 `36781677928` 성공. 글쓰기 창은 로그인 필요라 화면 확인 못 함.
+
 ## 2026-10-01 탐방 영상 3개·월미도 포스터 새 파일로 교체
 
 - 사용자 요청에 따라 `img/01Incheon.mp4`·`02Wolmido.mp4`·`03Incheon.mp4`(HEVC 1080p, 02는 60fps)와 `02Wolmido.jpg`를 반영했다. 이 컴퓨터에 ffmpeg가 없어 `pip install --user imageio-ffmpeg`(ffmpeg 7.1 포함)로 설치해 사용했다: `python -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"`.
