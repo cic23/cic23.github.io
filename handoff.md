@@ -1,5 +1,15 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 휴대폰: 인트로·CIC 소개·인천문화유산 사진/영상 좌우 여백 없이
+
+- 사용자 요청에 따라 720px 이하에서만 다음 요소를 화면 끝까지 꽉 차게(`width:100vw; margin-left/right:calc(50% - 50vw); border-radius:0`) 했다(`styles.css` 끝 미디어 쿼리):
+  - 홈: 영상 카드 전체(`.discover-card`, 좌우 테두리·그림자 제거, 카드 안 제목·출처 줄은 본문과 같은 6vw 들여쓰기), 활동 사진(`.grid-3 .activity .activity-photo`), 이야기 사진(`.story-card .guide-card-image`).
+  - CIC 소개: 활동 사진(`.activity-grid .activity-photo`), 가치 사진 묶음(`.value-photo-gallery`).
+  - 인천문화유산: 장소 사진(`.guide-place-image`), 영상(`.guide-tip-video`), 개항장 지도(`.place-section .guide-map`).
+  - 지킴이 로그(게시판 카드·게시글 상세)는 제외 — 그대로 24px/13px 여백.
+- 가로 넘침 안전장치로 720px 이하 `html,body{overflow-x:clip}`(sticky에 영향 없음).
+- 버전 `styles.css?v=110-mobile-full-bleed`. 테스트 37개 통과. 로컬·공개 390px(한국어), 로컬 360px(영어)에서 위 요소 좌우 여백 0/0, `scrollWidth`=화면 폭, 공개 게시판·게시글 상세 여백 변화 없음, 1280px 변화 없음 확인. 커밋 `8e65507`, Pages 실행 `36699262093` 성공.
+
 ## 2026-09-30 인트로 이야기 `more` 버튼을 작은 회색 버튼으로
 
 - 사용자 요청("회색으로, 여백 줄이기, 너무 큼")에 따라 이야기 3개의 `more` 버튼(`.button.secondary.small.story-more`)을 바꿨다. 원인: 기존 `.story-more{padding:5px 8px;font-size:.4375rem}`가 `.button.small`(선택자 우선순위 높음)에 져서 실제로는 10px 16px·14px·네이비로 보였다. `styles.css` 끝에 `.guide-card-story .story-more{padding:4px 12px;border:1px solid #c9d1d8;border-radius:6px;background:#fff;color:#5f6368;font-size:.8rem;line-height:1.4;margin:0 0 12px}`, hover `#f1f3f4`/`#202124`.
