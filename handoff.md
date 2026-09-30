@@ -1,5 +1,14 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 Explore 영상 3개를 Google 앱(Discover) 카드 UI로
+
+- 사용자 요청(`reference/Google.jpg` 참조)에 따라 홈 "Explore Incheon" 카드를 영상 → 장소 제목(2줄 제한, `#guide/<id>` 링크) → 메타 줄(왼쪽: CIC 로고 24px 원형 + "청소년 국가유산지킴이", 오른쪽: 하트·공유·세로 점 3개) 구성으로 바꿨다. 기존 번호(01~03)·분류 문구와 네이비 윗줄은 빼고, 영상 테두리를 없애고 모서리를 10px로 했다(`.discover-card`, `.discover-*` CSS).
+- **하트:** 로그인 없이 누를 수 있고 방문자 브라우저 `localStorage` `cic.placeLikes.v1`(장소 id 배열)에만 저장한다. 서버 저장·숫자 표시는 없다(참조 UI도 숫자 없음). 누르면 `#e63950` 채운 하트.
+- **공유:** `shareLink(url,title)`로 기존 `sharePost()` 로직을 분리해 재사용 — 휴대폰은 기본 공유창, 없으면 링크 복사 후 토스트. 공유 주소는 현재 주소의 해시를 `#guide/<id>`로 바꾼 것.
+- **⋮ 메뉴:** 누르면 버튼 아래 팝업(`.discover-menu`)에 `신고하기`·`의견 보내기`. 바깥 클릭·Esc·항목 선택 시 닫힌다. 영상 신고를 받을 서버 기능이 없어 두 항목 모두 `mailto:e3kim2027@chadwickschool.org`로 제목(`[CIC] 영상 신고: <장소>` / `[CIC] 의견 보내기: <장소>`)과 본문(장소 주소)을 채운 메일 작성 창을 연다. 서버 신고(`reportContent`)로 받으려면 `targetType` 확장과 Apps Script 재배포가 필요하다(미구현).
+- 영어: `i18n.js`에 `청소년 국가유산지킴이`→Youth Heritage Guardians, `의견 보내기`→Send feedback, `더보기`→More options 추가. 새 아이콘 `icon('more')`.
+- 버전 `app.js?v=94-discover-videos`, `styles.css?v=92-discover-videos`, `i18n.js?v=43-discover-videos`. 테스트 36개·JS 문법 통과. 로컬(한국어 390px, 영어 1280px)과 공개 사이트(390px)에서 카드 3개 순서, 로고 로드, 하트 토글·새로고침 후 유지, 메뉴 열림·메일 주소·바깥 클릭 닫힘, 가로 넘침 없음을 실제 마우스 이벤트로 확인했다. 실제 휴대폰 공유창·메일 앱은 미확인. 커밋 `44eb9be`, Pages 실행 `36650437956` 성공.
+
 ## 2026-09-30 인트로 이야기 제목 글꼴 통일, 푸터 버튼을 `지킴이 로그`로
 
 - 사용자 요청에 따라 "우리가 문화유산에 ‘푹’ 빠진 이유"의 이야기 제목 3개(`.story-card .guide-card-story h4`)를 "탑골공원에서 이어가는 나눔"(`.grid-3 .activity h3`)과 같은 글꼴로 바꿨다: Noto Sans KR, 1.25rem(20px), 700, 줄 높이 30px, 색 동일(이전 Noto Serif KR 16.8px). 아래 여백(14px)은 그대로.
