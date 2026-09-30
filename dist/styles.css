@@ -83,9 +83,6 @@ html[lang="en"] .value-strip a{overflow-wrap:anywhere}
 @media(hover:hover) and (pointer:fine){.video-play{display:block}.video-frame.is-playing .video-play{display:none}}.guide-card-story .guide-card-image{margin-bottom:18px}
 .story-card .guide-card-story{margin-top:0;padding-top:26px;border-top:2px solid var(--navy)}
 .story-card .guide-card-story h4{font-family:"Noto Sans KR",sans-serif;font-size:1.25rem;font-weight:700;line-height:1.5}
-.story-card[data-href]{cursor:pointer}
-.story-card[data-href] .guide-card-image{transition:opacity .15s}
-@media(hover:hover){.story-card[data-href]:hover .guide-card-image{opacity:.88}}
 .value-photo-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 26px}.value-photo-gallery:has(:only-child){grid-template-columns:1fr}.value-photo-gallery .activity-photo{width:100%;height:250px;max-height:none;object-fit:cover;margin:0;border-radius:6px}@media(max-width:520px){.value-photo-gallery{grid-template-columns:1fr}.value-photo-gallery .activity-photo{height:220px}}
 
 /* Public guardian-log cards: media first, copy and actions below. */
@@ -210,7 +207,6 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
   .video-frame .guide-video::-webkit-media-controls-overlay-play-button{display:none}
   .video-frame .guide-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 }
-/* Intro stories: titles are plain text; thin gray separators instead of the navy top rule. */
-.story-card[data-href] h4{cursor:text}
+/* Intro stories: thin gray separators instead of the navy top rule. */
 .story-card .guide-card-story{border-top:1px solid var(--line)}
 @media(max-width:720px){.story-card:first-child .guide-card-story{border-top:0;padding-top:0}}

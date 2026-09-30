@@ -211,12 +211,11 @@
   function guideCards() { return C.places.map(p => { const v=introVideo(p); return html`<article class="guide-card discover-card">${guideVideo(p,true)}<h3>${esc(v.title)}</h3><div class="discover-meta"><span class="discover-source"><img src="${esc(asset(CIC_CONFIG.assets.logo))}" alt="" width="24" height="24" loading="lazy">${v.presenter?esc(L('청소년 국가유산지킴이 ','Youth Heritage Guardian ')+v.presenter):t('청소년 국가유산지킴이')}</span><div class="discover-actions">${placeLikeButton(p.id)}<button type="button" class="discover-action" data-action="share-place" data-id="${p.id}" aria-label="공유하기">${icon('share')}</button>${moreMenu(v.title,placeUrl(p.id),L('[CIC] 영상 신고: ','[CIC] Video report: '))}</div></div></article>`; }).join(''); }
   function closePlaceMenus(except) { document.querySelectorAll('.discover-menu:not([hidden])').forEach(m=>{ if(m===except)return; m.hidden=true; m.previousElementSibling.setAttribute('aria-expanded','false'); }); }
   function postMoreMenu(p) { return moreMenu(p.title,postUrl(p.id),L('[CIC] 게시글 신고: ','[CIC] Post report: '),true); }
-  function storyLink(p) { const story=guideCardStories[p.number]; return (CIC_I18N.language==='en'&&story.en?.moreUrl)||story.moreUrl||''; }
-  function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card"${storyLink(p)?` data-href="${esc(storyLink(p))}"`:''}>${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
+  function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card">${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
     return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사, <br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천 문화유산 가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
-    <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Explore Incheon</span><h2>발걸음으로 만나는 인천의 역사</h2></div></div><div class="grid-3">${guideCards()}</div></section>
-    <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Our Practice</span><h2>현장에서 실천하는 가치</h2></div><a href="#values">활동 살펴보기 ↗</a></div><div class="grid-3">${C.achievements.slice(0,3).map((a,i) => html`<article class="activity"><span class="eyebrow">0${i+1} / CIC 활동</span><h3>${esc(a.title)}</h3>${activityPhoto(['plogging','fundraising','flashmob'][i],a.title)}<p>${esc(a.text)}</p></article>`).join('')}</div></section>
+    <section class="wrap"><div class="grid-3">${guideCards()}</div></section>
+    <section class="wrap"><div class="section-heading"><div><span class="eyebrow">Our Practice</span><h2>현장에서 실천하는 가치</h2></div></div><div class="grid-3">${C.achievements.slice(0,3).map((a,i) => html`<article class="activity"><span class="eyebrow">0${i+1} / CIC 활동</span><h3>${esc(a.title)}</h3>${activityPhoto(['plogging','fundraising','flashmob'][i],a.title)}<p>${esc(a.text)}</p></article>`).join('')}</div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">지킴이 로그</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2></div></div><div class="grid-3">${storyCards()}</div></section>`;
   }
   function about() {
@@ -444,8 +443,6 @@
   }
   document.addEventListener('click',event=>{ if(!event.target.closest('.discover-more'))closePlaceMenus(); else if(event.target.closest('.discover-menu a'))closePlaceMenus(); });
   document.addEventListener('keydown',event=>{ if(event.key==='Escape')closePlaceMenus(); });
-  // Intro stories: the whole card opens the same post as its "more" button.
-  document.addEventListener('click',event=>{const card=event.target.closest('.story-card[data-href]');if(!card||event.target.closest('a,button,h4'))return;location.href=card.dataset.href;});
   document.addEventListener('click',async event=>{
     const b=event.target.closest('[data-action]');if(!b)return;const action=b.dataset.action;
     try{
