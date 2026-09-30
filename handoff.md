@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 이야기 `more` 버튼을 작은 회색 버튼으로
+
+- 사용자 요청("회색으로, 여백 줄이기, 너무 큼")에 따라 이야기 3개의 `more` 버튼(`.button.secondary.small.story-more`)을 바꿨다. 원인: 기존 `.story-more{padding:5px 8px;font-size:.4375rem}`가 `.button.small`(선택자 우선순위 높음)에 져서 실제로는 10px 16px·14px·네이비로 보였다. `styles.css` 끝에 `.guide-card-story .story-more{padding:4px 12px;border:1px solid #c9d1d8;border-radius:6px;background:#fff;color:#5f6368;font-size:.8rem;line-height:1.4;margin:0 0 12px}`, hover `#f1f3f4`/`#202124`.
+- 크기 70×43 → 59×28px. 버튼 아래 12px를 둬 휴대폰에서 다음 이야기 구분선과 붙지 않게 했다. 버전 `styles.css?v=108-story-more-small`. 테스트 37개 통과. 공개 사이트 390px(한국어)·1280px(영어)에서 세 버튼 크기·색 확인. 커밋 `e22b528`, Pages 실행 `36697443500` 성공.
+
 ## 2026-09-30 인트로: 버튼 "인천문화유산 맵", 영상 3개를 게시판식 카드 틀로
 
 - 사용자 요청에 따라 첫 화면 주황 버튼 문구를 `인천 문화유산 가이드` → `인천문화유산 맵`(영어 `Incheon Heritage Map`, `i18n.js`에 추가)으로 바꿨다. 링크(`assets/incheonmap.jpg`)와 문서 제목의 "인천 문화유산 가이드"는 그대로.
