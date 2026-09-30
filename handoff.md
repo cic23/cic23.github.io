@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 CIC 소개 "정직" 사진 Honesty02.jpg 삭제
+
+- 사용자 요청에 따라 CIC 소개 다섯 가지 가치 중 정직(Honesty)의 두 번째 사진을 없앴다: `app.js` 가치별 사진 목록에서 `value-honesty-2` 제거, `config.js`의 `value-honesty-2` 항목 제거, `dist/assets/Honesty02.jpg` 삭제(`git rm`, 원본은 `img/`와 Git 기록에 있음). 정직은 이제 `Honesty01.jpeg` 1장(다른 가치와 같은 1장 배치, 배려만 4장).
+- 버전 `config.js?v=53-no-honesty02`, `app.js?v=116-no-honesty02`. 테스트 38개·JS 문법 통과. 로컬·공개 한·영에서 Honesty02 0장, 깨진 이미지 0, 가치별 사진 수 [1,1,1,1,4], 가로 넘침 없음 확인. 커밋 `ac8c65a`, Pages 실행 `36786643248` 성공.
+
 ## 2026-10-01 지킴이 로그 카드: 분류 옆에 글쓴이 이름
 
 - 사용자 요청에 따라 게시판·인트로의 지킴이 로그 카드에서 분류(예: 활동 기록) 바로 옆에 글쓴이 이름을 작은 회색 글씨로 표시한다. `hydratePostCards()`가 분류 뒤에 `<span class="post-card-author">`(이름은 `esc()`)를 넣는다. CSS `.post-card-author{margin-left:8px;font-size:.75rem;font-weight:400;color:var(--muted)}`. 게시글 상세는 기존대로 머리글에 작성자 표시.
