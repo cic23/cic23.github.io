@@ -1,5 +1,11 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로: 버튼 "인천문화유산 맵", 영상 3개를 게시판식 카드 틀로
+
+- 사용자 요청에 따라 첫 화면 주황 버튼 문구를 `인천 문화유산 가이드` → `인천문화유산 맵`(영어 `Incheon Heritage Map`, `i18n.js`에 추가)으로 바꿨다. 링크(`assets/incheonmap.jpg`)와 문서 제목의 "인천 문화유산 가이드"는 그대로.
+- 영상 카드 3개를 지킴이 로그 게시판 카드와 같은 틀로 감쌌다(`styles.css` 끝): `.discover-card{border:1px solid #d7dde2;border-radius:8px;background:#fff;box-shadow:0 1px 2px #142c4210;overflow:hidden}`, 영상은 카드 위쪽에 꽉 차게(모서리 0), 제목 `margin:14px 17px 4px`, 아래 줄 `padding:0 8px 8px 17px`. 제목 줄 제한 2→3줄(영어 제목이 휴대폰에서 잘려서), 휴대폰 카드 간격 8→16px(`.grid-3:has(>.discover-card)`). 카드가 `overflow:hidden`이라 ⋮ 메뉴는 위로 열린다(`moreMenu(...,true)`).
+- 버전 `app.js?v=106-intro-video-cards`, `styles.css?v=107-intro-video-cards`, `i18n.js?v=44-heritage-map`. 테스트 37개·JS 문법 통과. 로컬(한국어 1280, 영어 320/390/1280)·공개(한국어 390, 영어 1280)에서 버튼 문구, 카드 테두리·모서리, 제목 잘림 없음, ⋮ 메뉴가 카드 안에 보임, 가로 넘침 없음 확인. 커밋 `5895272`, Pages 실행 `36696964523` 성공.
+
 ## 2026-09-30 인트로: Explore 제목·"활동 살펴보기" 삭제, 이야기는 more 버튼만 링크
 
 - 사용자 요청에 따라 `home()`에서:
