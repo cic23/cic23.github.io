@@ -1,5 +1,10 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로만 휴대폰 꽉 찬 사진/영상 되돌림
+
+- 사용자 요청("인트로 페이지는 이전으로 복구")에 따라 바로 아래 작업 중 홈 부분만 되돌렸다: `.discover-card`·`.grid-3 .activity .activity-photo`·`.story-card .guide-card-image`의 100vw 규칙과 영상 카드 테두리 제거·6vw 들여쓰기 규칙 삭제. CIC 소개·인천문화유산의 휴대폰 꽉 찬 사진/영상과 `overflow-x:clip`은 유지.
+- 버전 `styles.css?v=111-intro-restore`. 테스트 37개 통과. 로컬·공개 390px에서 홈 영상 카드 24/24px·사진 23/23px(이전과 동일, 카드 테두리 복원), CIC 소개·인천문화유산 0/0px 확인. 커밋 `381b9a2`, Pages 실행 `36700164083` 성공.
+
 ## 2026-09-30 휴대폰: 인트로·CIC 소개·인천문화유산 사진/영상 좌우 여백 없이
 
 - 사용자 요청에 따라 720px 이하에서만 다음 요소를 화면 끝까지 꽉 차게(`width:100vw; margin-left/right:calc(50% - 50vw); border-radius:0`) 했다(`styles.css` 끝 미디어 쿼리):
