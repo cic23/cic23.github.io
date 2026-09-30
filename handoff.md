@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 버그 수정: 휴대폰 영어 인트로에서 헤더·푸터가 화면 폭을 다 채우지 못함
+
+- **증상(사용자 보고, `reference/오류화면.jpg`):** 휴대폰에서 영어 홈을 보면 헤더·푸터(네이비)가 화면 오른쪽 약 13%를 비우고, 언어 버튼·글쓰기 버튼이 그 밖으로 삐져나옴.
+- **원인:** 영어 홈 영상 카드(`.discover-card`, `grid-3` 1열)의 출처 줄 "Youth Heritage Guardian Junhyuk Lee"가 `white-space:nowrap`이라, 그리드 항목의 자동 최소 폭(min-content)이 카드를 약 431px로 넓혔다. 문서 폭이 441px가 되어 휴대폰(360~384px)에서 페이지가 가로로 넓어졌다. 한국어도 360px에서 `.discover-actions{margin-right:-10px}` 때문에 4px 넘쳤다.
+- **수정:** `.discover-card{min-width:0}`, `.discover-meta{min-width:0}`(긴 이름은 말줄임), `.discover-actions`의 음수 오른쪽 여백 제거. 버전 `styles.css?v=97-mobile-overflow`.
+- **검증:** 로컬 한·영 홈 320/360/384/412px, CIC 소개·인천문화유산 360px, 공개 사이트 한·영 홈·게시판·게시글 상세 384px와 영어 홈 360px 모두 `scrollWidth`=화면 폭, 넘치는 요소 0개. 테스트 37개 통과. 커밋 `4349962`, Pages 실행 `36657354134` 성공. 실제 휴대폰 재확인은 사용자 몫.
+- **앞으로:** 화면 확인 시 한국어뿐 아니라 영어도 360px 이하에서 `scrollWidth`를 확인한다(영문은 길어서 넘치기 쉽다). 참고: 이 셸(Git Bash)에는 `pkill`이 없어 로컬 `http.server`가 여러 개 남아 있었다 — PowerShell `Stop-Process`로 정리했다.
+
 ## 2026-09-30 지킴이 로그 카드·상세에 공유와 ⋮ 메뉴
 
 - 사용자 요청에 따라 게시판 목록 카드의 아래 버튼 줄 오른쪽(`.post-card-tools`: 공유 `data-action="share"` + ⋮)과 게시글 상세 하단 버튼 줄 오른쪽(기존 공유 옆 ⋮)에 버튼을 넣었다. ⋮ 메뉴는 인트로 영상 카드와 같은 `moreMenu()`(신고하기·의견 보내기 → `mailto:e3kim2027@chadwickschool.org`, 제목 `[CIC] 게시글 신고: <글 제목>`/`[CIC] 의견 보내기: <글 제목>`, 본문 게시글 주소)로 공통화했다(`menuMail()`, `postMoreMenu(p)`; 인트로용 `placeMail()` 제거). 로그인 불필요. 서버 신고 기능(`reportDialog`)은 여전히 버튼 없이 남아 있다.
