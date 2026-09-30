@@ -253,6 +253,8 @@
   }
   // Guardian-log cards: titles render first, then media, category, summary and actions fill in.
   // Guardian-log lists show Korean-titled posts on the Korean site and the others on the English site.
+  // First-posted date in Korea time: '2026년 9월 30일' / 'Sep 30, 2026'.
+  function postDate(iso) { const d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(CIC_I18N.language==='en'?'en-US':'ko-KR',{year:'numeric',month:CIC_I18N.language==='en'?'short':'long',day:'numeric',timeZone:'Asia/Seoul'}); }
   const postLang=()=>CIC_I18N.language==='en'?'en':'ko';
   function postCardGrid(posts) { return `<div class="post-grid">${posts.map(p=>`<article class="post-card" data-post-id="${esc(p.id)}" aria-busy="true"><a class="post-card-link" href="#post/${encodeURIComponent(p.id)}"><div class="post-card-media content-skeleton" aria-hidden="true"></div><div class="post-card-copy"><span class="post-tag content-skeleton" aria-hidden="true">&nbsp;</span><h3>${esc(p.title)}</h3><p class="content-skeleton" aria-hidden="true">&nbsp;</p></div></a><div class="post-card-actions"></div></article>`).join('')}</div>`; }
   async function hydratePostCards(target, posts, stamp) {
@@ -323,7 +325,7 @@
     const commentsOpen=commentsOpenFor===p.id;
     const commentForm = canWrite ? html`<form id="comment-form" class="comment-composer"><label class="visually-hidden" for="comment-body">댓글 쓰기</label><div class="comment-input-row"><input id="comment-body" name="body" type="text" required maxlength="2000" placeholder="댓글 달기…" autocomplete="off"><button type="submit" class="text-button">댓글 등록</button></div><p class="inline-error" role="alert"></p></form>` : html`<div class="comment-login"><button class="text-button" data-action="login">로그인하고 댓글 남기기</button></div>`;
     main.innerHTML=html`<div class="post-detail-shell"><div class="post-detail-layout"><article class="post-detail" aria-labelledby="post-title-heading">
-      <header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(p.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(p.authorName)}</strong><span>${esc(labels[p.category])}</span></div>${canEdit(p.authorId)?html`<div class="post-owner-actions"><button class="post-owner-button" data-action="edit-post">수정</button><button class="post-owner-button danger" data-action="delete-post">삭제</button></div>`:''}</header>
+      <header class="post-detail-header"><span class="post-avatar" aria-hidden="true">${esc(Array.from(p.authorName||'C')[0])}</span><div class="post-author"><strong>${esc(p.authorName)}</strong><span>${esc(labels[p.category])}${postDate(p.createdAt)?`<time class="post-date" datetime="${esc(p.createdAt)}">${esc(postDate(p.createdAt))}</time>`:''}</span></div>${canEdit(p.authorId)?html`<div class="post-owner-actions"><button class="post-owner-button" data-action="edit-post">수정</button><button class="post-owner-button danger" data-action="delete-post">삭제</button></div>`:''}</header>
       <div class="post-detail-copy"><h1 id="post-title-heading">${esc(p.title)}</h1></div>
       ${p.attachments?.length?`<div class="post-gallery">${p.attachments.map(a=>media(a,'post-gallery-media')).join('')}</div>`:''}
       <div class="post-detail-copy"><div class="post-body">${esc(p.body)}</div></div>

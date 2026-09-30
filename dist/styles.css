@@ -231,3 +231,5 @@ fieldset.field legend{font-size:.9rem;font-weight:600;padding:0;margin-bottom:8p
 }
 /* Guardian-log cards: author name in small gray type beside the category. */
 .post-card-author{margin-left:8px;font-size:.75rem;font-weight:400;color:var(--muted)}
+/* Post detail: first-posted date beside the category. */
+.post-author .post-date{margin-left:8px}
