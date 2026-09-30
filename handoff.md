@@ -1,5 +1,14 @@
 # CIC 홈페이지 인수인계
 
+## 2026-09-30 인트로 영상 카드 제목·출연자 이름
+
+- 사용자 요청에 따라 홈 Explore 영상 카드 제목과 출처 줄을 `introVideos`(장소 번호별)로 따로 둔다. 인천문화유산(`#guide`) 페이지의 장소 제목은 그대로다.
+  - 01: "모두가 뜯어말렸던 작전! 인천상륙작전 영웅들의 이야기" / "청소년 국가유산지킴이 이준혁" (사용자 문구 "뜯어 말렸던작전"은 영상 썸네일 표기에 맞춰 "뜯어말렸던 작전"으로 씀)
+  - 02: "놀이기구 타러 가는 월미도? 사실 맥아더 장군의 최후 승부처" / "청소년 국가유산지킴이 김현우"
+  - 03: "계단 하나로 나라가 갈라진다고?! 충격적인 실존거리 개항장" / "청소년 국가유산지킴이 김연후"
+- 영어(임시 번역, 사용자 확인 필요): "The Operation Everyone Opposed! Heroes of the Incheon Landing" / "Wolmido for the Rides? Actually, General MacArthur's Final Gamble" / "One Staircase Divided Nations?! The Real Open Port Street", 출처 "Youth Heritage Guardian Junhyuk Lee / Hyunwoo Kim / Yeonhu Kim"(이름 로마자, 특히 김연후 Yeonhu는 추정).
+- 공유 제목과 ⋮ 메뉴 메일 제목도 영상 제목을 쓴다. 버전 `app.js?v=95-intro-video-titles`. 테스트 36개·JS 문법 통과. 로컬(한국어 390px, 영어 1280·390px)과 공개 사이트에서 제목·출처 문구 확인, 제목이 2줄 제한에 잘리지 않음 확인. 커밋 `a43cb3f`, Pages 실행 `36651689948` 성공.
+
 ## 2026-09-30 인트로 Explore 영상 3개를 Google 앱(Discover) 카드 UI로
 
 - 사용자 요청(`reference/Google.jpg` 참조)에 따라 홈 "Explore Incheon" 카드를 영상 → 장소 제목(2줄 제한, `#guide/<id>` 링크) → 메타 줄(왼쪽: CIC 로고 24px 원형 + "청소년 국가유산지킴이", 오른쪽: 하트·공유·세로 점 3개) 구성으로 바꿨다. 기존 번호(01~03)·분류 문구와 네이비 윗줄은 빼고, 영상 테두리를 없애고 모서리를 10px로 했다(`.discover-card`, `.discover-*` CSS).
