@@ -1,5 +1,13 @@
 # CIC 홈페이지 인수인계
 
+## 2026-10-01 탐방 영상 3개·월미도 포스터 새 파일로 교체
+
+- 사용자 요청에 따라 `img/01Incheon.mp4`·`02Wolmido.mp4`·`03Incheon.mp4`(HEVC 1080p, 02는 60fps)와 `02Wolmido.jpg`를 반영했다. 이 컴퓨터에 ffmpeg가 없어 `pip install --user imageio-ffmpeg`(ffmpeg 7.1 포함)로 설치해 사용했다: `python -c "import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())"`.
+  - 영상: 기존과 같은 설정(`scale=-2:720,fps=30`, libx264 CRF 26 medium, yuv420p, AAC 96k, `+faststart`) → `dist/assets/incheon01~03-video.mp4` 3.4MB·6.3MB·10.4MB, 길이 원본과 같음(62/75/71초). 30초 프레임 확인.
+  - 포스터: `02Wolmido.jpg`가 1080×608(16:9)이라 확대하지 않고 그대로 품질 85로 `incheon02-video-poster.jpg`(146KB) 저장. 01·03 포스터는 그대로(1280×720).
+- 버전: `guideVideo()`의 영상·포스터 `?v=3`→`?v=4`, `app.js?v=112-video-refresh`. 홈 카드와 `#guide`가 같은 파일을 쓴다. 테스트 37개·JS 문법 통과. 커밋 `0c15d1b`, Pages 실행 `36734848036` 성공. 공개 URL의 영상 3개·포스터가 로컬 파일과 바이트 단위로 같음 확인.
+- 9/30 미확인 건 후속: 읽기 전용 `listPlaceLikes`가 정상 응답(`ok:true`, BUSY 해소). 현재 `memory` 2, `wolmi` 3 — 실제 방문자 좋아요가 섞여 있어 9/30 테스트 좋아요가 남았는지는 구분할 수 없다(방문자 ID가 해시라 식별 불가). 필요하면 관리자가 시트 `Likes`에서 `postId=place:wolmi`, 9/30 시각의 `anon:` 행을 확인한다.
+
 ## 2026-09-30 푸터 학교 카드 문구 변경
 
 - 사용자 요청에 따라 푸터 연락처의 학교 카드(`index.html` `.contact-card` 첫 번째) 문구를 `채드윅송도국제학교 청소년 국가유산지킴이` → `채드윅 송도국제학교`, 영어 `Youth Heritage Guardians at Chadwick International` → `Chadwick International School`로 바꿨다(`data-i18n="채드윅 송도국제학교"`, `i18n.js`에 번역 추가). 같은 원래 문구를 쓰는 CIC 소개 부제목, 메타 설명, 개인정보처리방침·이용약관 머리글은 그대로.
