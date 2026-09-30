@@ -98,7 +98,11 @@
 - 좋아요는 화면 전체를 다시 불러오지 않고 상태와 숫자만 갱신하여 댓글 초안을 유지합니다. 한국어/영어 전환과 댓글 토글도 초안을 유지합니다. 비로그인 방문자는 댓글을 읽을 수 있고 입력 대신 로그인 안내를 봅니다.
 - 서버·통신·언어 테스트 26개 및 JavaScript 문법 검사를 통과했습니다. 로컬 브라우저 모의 API로 PC/모바일 배치, 댓글 토글·등록·페이지 이동, 좋아요 성공/실패 시 초안 유지, 요약 생략·빈 본문, 언어 전환과 비로그인 화면을 확인했습니다.
 
-## 최신 서버 배포 (2026-09-30)
+## 최신 서버 배포 (2026-10-01)
+
+- 기존 웹앱(`AKfycbza76…`)을 버전 **21** (`Filter post lists by title language`)로 갱신했습니다. `listPosts`에 선택 값 `lang`(`'ko'` = 제목에 한글 포함, `'en'` = 한글 없음)을 추가해 한국어·영어 사이트가 각자 언어의 글만 받습니다. 테스트 38개.
+
+## 이전 서버 배포 (2026-09-30)
 
 - 기존 Apps Script 웹앱(`AKfycbza76…` URL 동일)을 버전 **20** (`Add intro video place likes`)으로 갱신했습니다. 홈 영상 카드용 `listPlaceLikes`·`togglePlaceLike`(로그인 없이 방문자 ID로 좋아요, `Likes` 시트에 `postId`=`place:<장소 id>`로 저장)를 추가했습니다.
 - 절차: `clasp show-authorized-user`로 `415hyunwoo@gmail.com` 확인 → `node --test tests/*.test.cjs`(37개)·`dist/*.js` 문법 검사 → `clasp push --force` → `clasp version "<설명>"` → `clasp redeploy <기존 배포 ID> -V <버전> -d "<설명>"` → `/exec`에 실제 요청으로 응답 확인. 서버를 먼저 배포한 뒤 새 액션을 쓰는 프런트엔드를 배포합니다.
