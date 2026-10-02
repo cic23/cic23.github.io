@@ -4,8 +4,10 @@ window.CIC_CONTENT_EN = {
   title: 'Incheon Cultural Heritage Guide with CIC',
   subtitle: 'We are Korea’s National Heritage Guardians, documenting and protecting heritage through young people’s eyes.',
   foreword: [
-    'Incheon is a vast historical landscape, holding the turning points, hardships and resilience of Korea’s modern history. Chadwick International Culture protector (CIC) is a student-led club that takes learning beyond the classroom. We explore and help preserve the cultural heritage of the city we call home, sharing its stories with our communities and the wider world.'
+    'Incheon is a vast historical landscape, holding the turning points, hardships and resilience of Korea’s modern history. Chadwick International Culture protector (CIC) is a student-led club that takes learning beyond the classroom. We explore and help preserve the cultural heritage of the city we call home, sharing its stories with our communities and the wider world.',
+    'Going beyond simple sightseeing, we shed new light on the true historical meaning of our heritage through five core values: respect, responsibility, honesty, fairness and compassion. This web book is both a record of the activities our members have completed through their own hard work and a guide to Incheon’s cultural heritage, seen through the thoughtful eyes of young people.'
   ],
+  growth: { heading: 'Founding and Growth', text: 'CIC at Chadwick International is a Korean culture protection club dedicated to sharing the excellence of Korean culture with the world and protecting its cultural heritage. Founded in 2023 by five dedicated students, it has grown through sincere volunteer work into a youth-led organization of 22 active members.' },
   achievements: [
     {title:'A continuing commitment at Tapgol Park',text:'Each month, we pick up litter at Tapgol Park and help provide meals for older people.',asset:'plogging'},
     {title:'Fundraising for heritage recovery',text:'We ran traditional games booths and donated funds to support recovery from wildfire damage.',asset:'fundraising'},
