@@ -38,7 +38,7 @@
     '함께 쌓아온 활동':'Our journey together',
     '지킴이 로그':'Guardians’ log',
     '우리가 문화유산에 ‘푹’ 빠진 이유':'Why we care so deeply about heritage',
-    '단원들의 소감을 모으고 있습니다. 직접 경험하고 느낀 이야기를 곧 이곳에서 전하겠습니다.':'We are gathering our members’ reflections. Their first-hand experiences and thoughts will be shared here soon.',
+    '유산(Heritage)을 지켰더니 \'유산(Legacy)\'이 쌓였습니다! 우리의 진정 어린 기록과 관심이 소중한 국가유산을 미래로 전달합니다.':'We protected our heritage, and a legacy took shape! Our sincere records and care carry precious national heritage into the future.',
     '다섯 가지 가치와 실천':'Five values in practice',
     '존중 · 책임감 · 정직 · 공정 · 배려':'Respect · Responsibility · Honesty · Fairness · Compassion',
     '도시를 걷고, 역사를 읽다':'Walk the city. Discover its history.',
