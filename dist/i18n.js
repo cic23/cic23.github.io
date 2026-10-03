@@ -45,6 +45,7 @@
     'CIC가 소개하는 인천 문화유산 탐방 이야기':'Explore Incheon’s cultural heritage with CIC',
     '지킴이의 추천 팁':'A tip from CIC', '참고 자료':'Source',
     '미래 세대를 위한 탐방 에티켓':'Caring for heritage for future generations',
+    'CIC가 제안하는 문화유산 탐방 에티켓':'CIC heritage visiting etiquette illustration',
     '회원 게시판을 준비하고 있습니다':'Our member board is coming soon',
     'CIC 소개와 문화유산 가이드는 지금 둘러볼 수 있습니다. 회원 서비스가 연결되면 Google 로그인 후 관리자 승인을 받아 글과 댓글을 나눌 수 있습니다.':'You can explore CIC and our heritage guide now. Once member services are connected, sign in with Google and receive administrator approval to share posts and comments.',
     '문화유산 가이드 보기':'View the heritage guide',
