@@ -158,7 +158,7 @@
         '우리는 ‘인천문화유산 대장정’의 대미를 장식할 마지막 여정으로 월미도로 향했습니다. 서해의 푸른 물결과 활기찬 인파가 반겨주는 오늘날의 월미도는 평화롭기 그지없지만, 이곳은 1950년 9월 대한민국 현대사의 물줄기를 바꾼 인천상륙작전의 승패가 갈린 최전선이었습니다. 당시 맥아더 장군은 월미도와 그곳에 주둔한 포병부대가 상륙작전의 최대 위협이자 인천으로 통하는 유일한 관문임을 간파하고, 작전의 첫 단추로서 가장 먼저 월미도를 확보하도록 결단을 내렸습니다.'
       ],
       en:{
-        title:'At the End of the Incheon Cultural Heritage Journey: Facing History and the Future on Wolmido',
+        title:'Facing History and the Future on Wolmido',
         addresses:[],
         paragraphs:[
           "For the final leg of our ‘Great Journey of Incheon's Cultural Heritage’ we made our way to Wolmido. Today the island greets visitors with the blue waves of the West Sea and lively crowds, a picture of perfect peace — yet in September 1950 this was the front line on which the fate of the Incheon Landing, the operation that redirected the course of modern Korean history, was decided. General MacArthur recognized that Wolmido and the artillery unit garrisoned there posed the single greatest threat to the landing and formed the only gateway into Incheon, and he resolved to seize the island first, as the opening move of the entire operation."

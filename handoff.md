@@ -938,3 +938,7 @@ Play UGC·계정 삭제 정책 대응이다. 서버는 Apps Script **버전 19**
 - 활성 clasp 계정 `415hyunwoo@gmail.com`으로 서버 파일 두 개를 푸시하고 기존 공개 웹앱을 버전 16(`Load guardian post titles before content and thumbnails`)으로 갱신했다. `/exec` HTTP 200, 실제 `listPosts` 제목 3개와 `getPost` 제목의 필드가 `id/title/createdAt`만 포함하는 것, 후속 카드 조회와 480px 썸네일 URL을 확인했다. GitHub Pages 배포 결과는 이어서 기록한다.
 - 구현 커밋 `75d2f41`의 Pages 실행 `34753371136`은 성공했고 공개 파일 6개의 HTTP 200 및 로컬 해시 일치를 확인했다. 기존 방문 브라우저가 이전 `app.js`·`api.js`를 캐시해 새 HTML과 섞어 쓰는 현상을 발견하여 변경된 JS·CSS URL에 `?v=16-titles`를 추가한다. 이후 정적 파일 변경 시 해당 버전 문자열도 갱신한다.
 - 캐시 갱신 커밋 `e26991a`와 Pages 실행 `34753496043`이 성공했다. 버전이 붙은 공개 파일 6개 모두 HTTP 200 및 로컬 해시 일치를 확인했다. 실제 운영 브라우저에서 제목 카드 3개/이미지 요청 0개 → 카드 내용 → 480px 사진 2개 표시, 상세 제목 미리보기 → 본문, 다른 게시물 2개 표시를 확인했다. PC 상세 스크린샷도 확인했으며 운영 게시물·댓글·좋아요는 변경하지 않았다.
+
+## 2026-10-03 인트로 카드 02 영어 제목 축약
+
+- 사용자 요청에 따라 `guideCardStories['02'].title`(영어)을 "At the End of the Incheon Cultural Heritage Journey: Facing History and the Future on Wolmido" → "Facing History and the Future on Wolmido"로 바꿨다. `app.js?v=125-wolmido-title`.
