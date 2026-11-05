@@ -4,7 +4,7 @@
 
 - 사용자 요청에 따라 헤더 메뉴 세 번째 항목을 `인천문화유산 가이드`(영어 Incheon Heritage Guide)로 바꾸고, 누르면 `img/채드윅송도국제학교_인천문화유산가이드.pdf`를 새 탭으로 연다. 파일은 `dist/assets/incheon-heritage-guide.pdf`(9,935,442바이트, 원본과 동일)로 복사했다. 게시판(`#board`)은 첫 화면 "지킴이 로그" 버튼과 푸터 버튼으로 계속 들어갈 수 있다.
 - 버전 `i18n.js?v=51-heritage-guide-pdf`. 테스트 38개·JS 문법 통과. 커밋 `4c6b671`, Pages 실행 `42022772863` 성공. 공개 사이트 메뉴 HTML, PDF HTTP 200(`application/pdf`, 크기 일치), 영어 번역 확인.
-- 커밋에 넣지 않은 작업 사본 변경: `dist/content.js` 문구(한국문화지킴이 → 국가유산지킴이)와 `index.html`의 `content.js?v=52-heritage-guardian`. 이번 세션 이전부터 있던 변경이라 그대로 두었다.
+- 이어서 사용자 요청으로 이전부터 있던 `dist/content.js` 발간사 문구(한국문화지킴이 → 국가유산지킴이, `content.js?v=52-heritage-guardian`)도 배포했다. 커밋 `c3cf110`, Pages 실행 `42023247602` 성공, 공개 파일에서 새 문구 확인.
 
 ## 2026-11-05 게시판 사진 33777.jpg·33788.jpg·33688.jpg(+33055.png) 깨짐 — 복구 못 함(조사만)
 
