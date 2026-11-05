@@ -215,7 +215,7 @@
   function postMoreMenu(p) { return moreMenu(p.title,postUrl(p.id),L('[CIC] 게시글 신고: ','[CIC] Post report: '),true); }
   function storyCards() { return C.places.filter(p=>guideCardStories[p.number]).map(p => `<article class="story-card">${guideCardStory(p,`<img class="guide-card-image" src="./assets/incheon${p.number}.jpg" alt="${esc(p.title)}" loading="lazy" decoding="async">`)}</article>`).join(''); }
   function home() {
-    return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사, <br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheonmap.jpg?v=1-openport-map">인천문화유산가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
+    return html`<section class="hero"><div class="hero-copy"><span class="eyebrow">CIC · Chadwick International Culture protector</span><h1>우리가 지키는 역사, <br>함께 이어갈 미래</h1><p>${esc(C.subtitle)}</p><div class="button-row"><a class="button accent" href="./assets/incheon-heritage-guide.pdf?v=1" target="_blank" rel="noopener">인천문화유산가이드</a><a class="button secondary" href="#board">지킴이 로그</a></div></div></section>
     <section class="wrap"><div class="grid-3">${guideCards()}</div></section>
     <section class="wrap"><div class="section-heading"><div><span class="eyebrow">인천문화유산</span><h2>우리가 문화유산에 ‘푹’ 빠진 이유</h2></div></div><div class="grid-3">${storyCards()}</div><div class="home-log"><div class="section-heading"><div><span class="eyebrow">지킴이 로그</span><h2>기록으로 남기는 문화유산</h2></div></div><div id="home-log" aria-busy="true">${boardSkeleton(9)}</div></div></section>`;
   }
