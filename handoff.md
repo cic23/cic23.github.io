@@ -1,5 +1,16 @@
 # CIC 홈페이지 인수인계
 
+## 2026-11-05 상단 메뉴 "지킴이로그" → "인천문화유산 가이드"(PDF)
+
+- 사용자 요청에 따라 헤더 메뉴 세 번째 항목을 `인천문화유산 가이드`(영어 Incheon Heritage Guide)로 바꾸고, 누르면 `img/채드윅송도국제학교_인천문화유산가이드.pdf`를 새 탭으로 연다. 파일은 `dist/assets/incheon-heritage-guide.pdf`(9,935,442바이트, 원본과 동일)로 복사했다. 게시판(`#board`)은 첫 화면 "지킴이 로그" 버튼과 푸터 버튼으로 계속 들어갈 수 있다.
+- 버전 `i18n.js?v=51-heritage-guide-pdf`. 테스트 38개·JS 문법 통과. 커밋 `4c6b671`, Pages 실행 `42022772863` 성공. 공개 사이트 메뉴 HTML, PDF HTTP 200(`application/pdf`, 크기 일치), 영어 번역 확인.
+- 커밋에 넣지 않은 작업 사본 변경: `dist/content.js` 문구(한국문화지킴이 → 국가유산지킴이)와 `index.html`의 `content.js?v=52-heritage-guardian`. 이번 세션 이전부터 있던 변경이라 그대로 두었다.
+
+## 2026-11-05 게시판 사진 33777.jpg·33788.jpg·33688.jpg(+33055.png) 깨짐 — 복구 못 함(조사만)
+
+- 첨부 행은 게시글에 그대로 연결되어 있다(`d80cfdad…` 33777, `47ccd311…` 33788, `4ac9ae38…` 33688, 영어 `c5bc18c3…` 33055.png). 그런데 `lh3.googleusercontent.com/d/<id>`가 302(로그인)를 돌려주고, 소유자 clasp 계정(415hyunwoo, `drive.metadata.readonly`)으로 Drive 메타데이터를 조회해도 404였다. 휴지통에 있는 파일도 조회되므로 **영구 삭제**로 판단. 서버의 Drive 삭제는 탈퇴 시 미연결 첨부뿐이라 Drive에서 직접 삭제된 것으로 추정.
+- 이 PC 사용자 폴더에는 같은 이름 원본 없음. Chrome 캐시 `Profile 1/4/9/Cache/Cache_Data/data_1`에 파일 ID가 남아 있어 화면용 크기 사진을 추출할 가능성이 있다(사용자 요청으로 중단, 미시도). 가장 확실한 방법은 작성자/관리자가 원본으로 게시글 수정 → 사진 다시 첨부.
+
 ## 2026-10-01 기본 언어를 항상 한국어로(`?lang=en`일 때만 영어)
 
 - 사용자 보고: `https://cic23.github.io` 접속 시 영어로 열림. 원인: `i18n.js`가 주소에 `?lang`이 없으면 브라우저에 저장된 마지막 선택(`localStorage` `cic-language`)을 따랐다(사용자가 전에 English를 눌렀던 브라우저).
