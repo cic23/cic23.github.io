@@ -33,8 +33,8 @@
   }
   const icon = name => `<svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${name==='like'?'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>':name==='share'?'<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>':name==='more'?'<g fill="currentColor" stroke="none"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></g>':'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3h.5a8.5 8.5 0 0 1 8 8v.5Z"/>'}</svg>`;
   const isVideo = a => /^video\//.test(a?.mimeType || '');
-  // Attachments whose Drive files were permanently deleted; served from Pages instead.
-  const attachmentAssets = {'aac0da58-5bfa-472c-a446-bec69f0f9ac0':'33777','ce31280f-cfe3-468d-94fd-635bb72f1f81':'33788','e699c2e1-4da1-413a-880b-7b65489df597':'33688'};
+  // Attachments whose Drive files were permanently deleted; served from Pages instead (33055.png reuses the Wolmido post photo).
+  const attachmentAssets = {'aac0da58-5bfa-472c-a446-bec69f0f9ac0':'33777','ce31280f-cfe3-468d-94fd-635bb72f1f81':'33788','e699c2e1-4da1-413a-880b-7b65489df597':'33688','4b08852c-566e-4341-8e9a-27876f0e261a':'wolmido'};
   function media(a, className='') {
     if (!a) return `<div class="post-media-placeholder ${className}" aria-label="CIC 지킴이 로그">CIC</div>`;
     if (isVideo(a) && className === 'related-media') return `<span class="post-media-placeholder ${className}" aria-label="${esc(t('동영상'))}">▶</span>`;
